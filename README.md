@@ -1,2 +1,2 @@
 # vies-dotnetcore
-European VAT Information Exchange System validation for dotnet core.
+European VIES VAT validation for dotnet core.
