@@ -18,7 +18,6 @@ namespace Zapadi.Vies
 {
     public class ValidationTuple
     {
-        private readonly Regex regex;
         public ValidationTuple(string regexPattern, Func<string, bool> func)
         {
             VatRegex = new Regex(regexPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
