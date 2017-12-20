@@ -1,5 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
+     <!-- <Authors>Adrian Popescu</Authors>
+  
+  <NeutralLanguage>en-US</NeutralLanguage>
+  <AssemblyTitle>VIES dotnetcore library</AssemblyTitle>
+  <Description></Description>
+  <Copyright>Adrian Popescu 2017</Copyright>
+    <VersionPrefix>1.0.0</VersionPrefix>
+  <VersionSuffix>alpha</VersionSuffix> -->
   </PropertyGroup>
 </Project>
