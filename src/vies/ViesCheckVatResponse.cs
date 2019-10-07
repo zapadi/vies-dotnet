@@ -1,5 +1,5 @@
 /*
-   Copyright 2017 Adrian Popescu.
+   Copyright 2017-2019 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,14 +13,14 @@
 
 using System;
 
-namespace Zapadi.Vies
+namespace Padi.Vies
 {
     public struct ViesCheckVatResponse
     {
-        public ViesCheckVatResponse(string countryCode, string vatNumber, DateTimeOffset requestDate, string name, string address, bool isValid) : this()
+        public ViesCheckVatResponse(string countryCode, string vatNumber, DateTimeOffset requestDate, string name = null, string address = null, bool isValid = false) : this()
         {
             CountryCode = countryCode;
-            VATNumber = vatNumber;
+            VatNumber = vatNumber;
             RequestDate = requestDate;
             Name = name;
             Address = address;
@@ -28,7 +28,7 @@ namespace Zapadi.Vies
         }
 
         public string CountryCode { get; private set; }
-        public string VATNumber { get; private set; }
+        public string VatNumber { get; private set; }
         public DateTimeOffset RequestDate { get; private set; }
         public string Name { get; private set; }
         public string Address { get; private set; }

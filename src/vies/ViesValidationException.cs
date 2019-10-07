@@ -1,5 +1,5 @@
 /*
-   Copyright 2017 Adrian Popescu.
+   Copyright 2017-2019 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -12,19 +12,13 @@
 */
 
 using System;
-using System.Text.RegularExpressions;
 
-namespace Zapadi.Vies
+namespace Padi.Vies
 {
-    public class ValidationTuple
+    public sealed class ViesValidationException : Exception
     {
-        public ValidationTuple(string regexPattern, Func<string, bool> func)
-        {
-            VatRegex = new Regex(regexPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
-            VatCheckDigit = func;
-        }
-
-        public Regex VatRegex { get; private set; }
-        public Func<string, bool> VatCheckDigit { get; private set; }
+        public ViesValidationException() { }
+        public ViesValidationException( string message ) : base( message ) { }
+        public ViesValidationException( string message, Exception inner ) : base( message, inner ) { }
     }
 }

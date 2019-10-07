@@ -12,7 +12,7 @@
 */
 
 using System;
-using Zapadi.Vies;
+using Padi.Vies;
 
 public class ViesManagerFixture : IDisposable
 {
