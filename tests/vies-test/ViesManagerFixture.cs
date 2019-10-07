@@ -12,19 +12,24 @@
 */
 
 using System;
-using Padi.Vies;
 
-public class ViesManagerFixture : IDisposable
+namespace Padi.Vies.Test
 {
-    public ViesManagerFixture()
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ViesManagerFixture : IDisposable
     {
-        ViesManager = new ViesManager();
-    }
+        public ViesManagerFixture()
+        {
+            ViesManager = new ViesManager();
+        }
 
-    public void Dispose()
-    {
-        ViesManager?.Dispose();
-    }
+        public void Dispose()
+        {
+            ViesManager?.Dispose();
+        }
 
-    public ViesManager ViesManager { get; }
+        public ViesManager ViesManager { get; }
+    }
 }

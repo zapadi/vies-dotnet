@@ -13,7 +13,10 @@
 
 using Xunit;
 
-[CollectionDefinition("ViesCollection")]
-public class ViesManagerCollectionFixture : ICollectionFixture<ViesManagerFixture>
+namespace Padi.Vies.Test
 {
+    [CollectionDefinition("ViesCollection")]
+    public class ViesManagerCollectionFixture : ICollectionFixture<ViesManagerFixture>
+    {
+    }
 }
