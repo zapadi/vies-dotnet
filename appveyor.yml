@@ -1,0 +1,37 @@
+version: '{build}'  
+image: 
+  - Visual Studio 2019
+  - Ubuntu
+pull_requests:  
+  do_not_increment_build_number: true
+branches:  
+  only:
+  - master
+nuget:  
+  disable_publish_on_pr: true
+
+environment:  
+  APPVEYOR_YML_DISABLE_PS_LINUX: true
+build_script:  
+- ps: .\Build.ps1
+- sh: ./build.sh
+
+test: off  
+artifacts:  
+- path: .\artifacts\**\*.nupkg
+  name: NuGet
+
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu
+
+  deploy:
+  - provider: NuGet
+    name: production
+    api_key:
+      secure: securekey
+    on:
+      branch: master
+      appveyor_repo_tag: true
