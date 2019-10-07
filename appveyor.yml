@@ -7,11 +7,21 @@ pull_requests:
 branches:  
   only:
   - master
+init:
+  # Good practise, because Windows line endings are different from Unix/Linux ones
+  - cmd: git config --global core.autocrlf true
 nuget:  
   disable_publish_on_pr: true
 
-environment:  
+environment:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true  
   APPVEYOR_YML_DISABLE_PS_LINUX: true
+
+before_build:
+  # Display .NET Core version
+  - cmd: dotnet --version
+
 build_script:  
 - ps: .\Build.ps1
 - sh: ./build.sh
