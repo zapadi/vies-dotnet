@@ -22,7 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Padi.Vies.Parsers;
 using Padi.Vies.Validators;
 
 namespace Padi.Vies
@@ -186,7 +185,6 @@ namespace Padi.Vies
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeXml));
         }
 
-
         /// <summary>
         /// 
         /// </summary>
@@ -234,7 +232,7 @@ namespace Padi.Vies
         }
 
         /// <summary>
-        /// 
+        /// Dispose the http client if disposeClient flag was set.
         /// </summary>
         public void Dispose()
         {
