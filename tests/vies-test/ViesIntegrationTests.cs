@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace Padi.Vies.Test
         [InlineData("SK2120046819")]
         public async Task Should_Return_Vat_Active(string vat)
         {
-            var actual = await _fixture.ViesManager.IsActive(vat );
+            var actual = await CheckIfActive(vat, true);
 
             Assert.True(actual.IsValid, "Inactive vat number");
         }
@@ -38,9 +39,25 @@ namespace Padi.Vies.Test
         [InlineData("NL123456782B90")]
         public async Task Should_Return_Vat_Inactive(string vat)
         {
-            var actual = await _fixture.ViesManager.IsActive(vat);
+            var actual = await CheckIfActive(vat, false);
 
             Assert.False(actual.IsValid, "Inactive vat number");
+        }
+
+        private async Task<ViesCheckVatResponse> CheckIfActive(string vat, bool mockValue){
+            
+            ViesCheckVatResponse actual;
+            #if DEBUG
+            
+            actual = await _fixture.ViesManager.IsActive(vat);
+            
+            #else
+            
+            actual = await Task.FromResult<ViesCheckVatResponse>(new ViesCheckVatResponse(null, null, DateTimeOffset.Now, isValid: mockValue));
+            
+            #endif
+
+            return actual;
         }
     }
 }
