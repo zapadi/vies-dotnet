@@ -49,9 +49,16 @@ for:
 
   deploy:
   - provider: NuGet
+    api_key:
+      secure: EwtOCVMk7e9/NbcDwIzk8U7GtZGpYgvx932/WQApE7IfLm4pfa1/MTMUVapWtKio
+      skip_symbols: true
+    on:
+      branch: master
+      
+  - provider: NuGet
     name: production
     api_key:
-      secure: securekey
+      secure: EwtOCVMk7e9/NbcDwIzk8U7GtZGpYgvx932/WQApE7IfLm4pfa1/MTMUVapWtKio
     on:
       branch: master
       appveyor_repo_tag: true
