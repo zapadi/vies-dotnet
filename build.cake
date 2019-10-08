@@ -1,19 +1,26 @@
-#tool "nuget:?package=xunit.runner.console&version=2.4.1"
-
 const string TARGET = "Target";
 const string DEFAULT = "Default";
+
 const string NETCOREAPP21 = "netcoreapp2.1";
+const string NETCOREAPP20 = "netcoreapp2.2";
+const string NETCOREAPP30 = "netcoreapp3.0";
+
 const string CONFIGURATION = "Configuration";
 const string RELEASE = "Release";
 const string BUILD_NUMBER = "BuildNumber";
 const string FRAMEWORK = "Framework";
+const string PRE_RELEASE_SUFFIX = "PreReleaseSuffix";
+const string BETA = "beta";
+const string ALPHA = "alpha";
+const string RC="rc";
+
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument(TARGET, DEFAULT);
-var framework = Argument(FRAMEWORK, NETCOREAPP21);
+var framework = Argument(FRAMEWORK, NETCOREAPP30);
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -33,20 +40,35 @@ var buildNumber = HasArgument(BUILD_NUMBER)
                 ? int.Parse(EnvironmentVariable(BUILD_NUMBER)) 
                 : 0;
 
+var preReleaseSuffix = HasArgument(PRE_RELEASE_SUFFIX) 
+        ? Argument<string>(PRE_RELEASE_SUFFIX) 
+        : (AppVeyor.IsRunningOnAppVeyor && AppVeyor.Environment.Repository.Tag.IsTag) 
+            ? null 
+            : EnvironmentVariable(PRE_RELEASE_SUFFIX) != null 
+                ? EnvironmentVariable(PRE_RELEASE_SUFFIX) 
+                : BETA;
 
-var artifactsDirectory = Directory("./Artifacts");
+var versionSuffix = string.IsNullOrEmpty(preReleaseSuffix) 
+                        ? null 
+                        : preReleaseSuffix + "-" + buildNumber.ToString("D4");    
+
+var artefactsDirectory = Directory("./Artifacts");
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
 Task("Clean")
+    .Description("Cleans the artefacts, bin and obj directories.")
     .Does(() =>
     {
-        CleanDirectory(artifactsDirectory);
+        CleanDirectory(artefactsDirectory);
+        DeleteDirectories(GetDirectories("**/bin"), new DeleteDirectorySettings() { Force = true, Recursive = true });
+        DeleteDirectories(GetDirectories("**/obj"), new DeleteDirectorySettings() { Force = true, Recursive = true });
     });
 
 Task("Restore")
+    .Description("Restores NuGet packages.")
     .IsDependentOn("Clean")
     .Does(() =>
     {
@@ -54,57 +76,59 @@ Task("Restore")
     });
 
  Task("Build")
+    .Description("Builds the solution.")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-        var projects = GetFiles("./src/**/*.csproj");
-        foreach(var project in projects)
-        {
-            DotNetCoreBuild(project.GetDirectory().FullPath,
-                new DotNetCoreBuildSettings()
-                {
-                    Configuration = configuration
-                });
-        }
+        DotNetCoreBuild(".",
+            new DotNetCoreBuildSettings()
+            {
+                Configuration = configuration,
+                NoRestore = true,
+                VersionSuffix = versionSuffix,
+            });
     });
 
 Task("Test")
+    .Description("Runs unit tests and outputs test results to the artefacts directory.")
     .IsDependentOn("Build")
-    .Does(() =>
+    .DoesForEach(GetFiles("./tests/**/*.csproj"), project =>
     {
-        var projects = GetFiles("./tests/**/*.csproj");
-        foreach(var project in projects)
-        {
-            DotNetCoreTest(project.GetDirectory().FullPath,
-                new DotNetCoreTestSettings()
-                {
-                    Configuration = configuration,
-                    NoBuild = true
-                });
-        }
+        Information(project);
+       
+        DotNetCoreTest(project.ToString(),
+            new DotNetCoreTestSettings()
+            {
+                Configuration = configuration,
+                Logger = $"trx;LogFileName={project.GetFilenameWithoutExtension()}.trx",
+                NoBuild = true,
+                NoRestore = true,
+                ResultsDirectory = artefactsDirectory,
+                ArgumentCustomization = x => x.Append($"--logger html;LogFileName={project.GetFilenameWithoutExtension()}.html"),
+            });
     });
 
-Task("Package")
+Task("Pack")
+    .Description("Creates NuGet packages and outputs them to the artefacts directory.")
     .IsDependentOn("Test")
     .Does(() =>
     {
-        var revision = buildNumber.ToString();
-        foreach (var project in GetFiles("./src/**/*.csproj"))
-        {
-            Console.WriteLine(project);
-            DotNetCorePack(
-                project.GetDirectory().FullPath,
-                new DotNetCorePackSettings()
-                {
-                    Configuration = configuration,
-                    OutputDirectory = artifactsDirectory,
-                    VersionSuffix = revision
-                });
-        }
-    })
-    .ReportError(exception =>
-    {  
-        Console.WriteLine($"Error: {exception.Message}");
+        var msBuildSettings = new DotNetCoreMSBuildSettings()
+                   // .SetTargetFramework(framework)
+                    .WithProperty("SymbolPackageFormat", "snupkg");
+
+        var dotNetCorePackSettings = new DotNetCorePackSettings()
+            {
+                Configuration = configuration,
+                IncludeSymbols = true,
+                MSBuildSettings = msBuildSettings,
+                NoBuild = true,
+                NoRestore = true,
+                OutputDirectory = artefactsDirectory,
+                VersionSuffix = versionSuffix,
+            };
+        
+        DotNetCorePack(".", dotNetCorePackSettings);
     });
 
 //////////////////////////////////////////////////////////////////////
@@ -112,7 +136,10 @@ Task("Package")
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("Package");
+    .Description("Cleans, restores NuGet packages, builds the solution, runs unit tests and then creates NuGet packages.")
+    .IsDependentOn("Build")
+    .IsDependentOn("Test")
+    .IsDependentOn("Pack");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
