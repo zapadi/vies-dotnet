@@ -17,7 +17,7 @@ using System.Text.RegularExpressions;
 
 namespace Padi.Vies
 {
-    internal static class ViesExtensions
+    public static class ViesExtensions
     {
         public static string GetValue(this string content, string pattern, Func<string, string> func = null)
         {
