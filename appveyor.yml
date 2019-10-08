@@ -1,12 +1,15 @@
 version: '{build}'  
 image: 
-  - Visual Studio 2019
   - Ubuntu
+  - Visual Studio 2019
+
 pull_requests:  
   do_not_increment_build_number: true
+
 branches:  
   only:
   - master
+
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
@@ -27,9 +30,16 @@ build_script:
 - sh: ./build.sh
 
 test: off  
-artifacts:  
-- path: .\artifacts\**\*.nupkg
-  name: NuGet
+
+artifacts:
+- name: NuGet Packages
+  path: ./artifacts/**/*.nupkg
+- name: NuGet Symbol Packages
+  path: ./artifacts/**/*.snupkg
+- name: xUnit XML Test Results
+  path: ./artifacts/**/*.xml
+- name: xUnit HTML Test Results
+  path: ./artifacts/**/*.html
 
 for:
 -
