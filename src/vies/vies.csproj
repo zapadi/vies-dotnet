@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Build">
         <TargetFramework>netstandard2.1</TargetFramework>
-        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <RootNamespace>Padi.Vies</RootNamespace>
         <AssemblyName>Padi.Vies</AssemblyName>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
    
     <PropertyGroup Label="Nuget Package">
@@ -15,11 +15,10 @@
         <NeutralLanguage>en-US</NeutralLanguage>
         <Owners>Adrian Popescu</Owners>
         <PackageId>vies-dotnet-api</PackageId>
-        <!-- <PackageLicenseFile>LICENSE</PackageLicenseFile> -->
         <PackageProjectUrl>https://github.com/zapadi/vies-dotnetcore</PackageProjectUrl>
         <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
         <ReleaseNotes></ReleaseNotes>
-        <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
+        <RequireLicenseAcceptance>false</RequireLicenseAcceptance>     
         <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
         <Title>VIES NET API</Title>
         <VersionPrefix>1.0.0</VersionPrefix>
