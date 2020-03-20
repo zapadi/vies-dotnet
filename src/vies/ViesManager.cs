@@ -35,7 +35,7 @@ namespace Padi.Vies
     /// </remarks>
     public class ViesManager : IDisposable
     {
-        private const string ViesUri = "http://ec.europa.eu/taxation_customs/vies/services/checkVatService";
+        private const string ViesUri = "https://ec.europa.eu/taxation_customs/vies/services/checkVatService";
 
         private const string SoapValidateVatMessageFormat =
             @"<?xml version=""1.0"" encoding=""utf-8""?>
