@@ -52,7 +52,7 @@ var versionSuffix = string.IsNullOrEmpty(preReleaseSuffix)
                         ? null 
                         : preReleaseSuffix + "-" + buildNumber.ToString("D4");    
 
-var artefactsDirectory = Directory("./Artifacts");
+var artefactsDirectory = Directory("./artifacts");
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
