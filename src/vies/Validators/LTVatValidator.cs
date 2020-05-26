@@ -23,7 +23,7 @@ namespace Padi.Vies.Validators
         {
             if (vat.Length == 9)
             {
-                if (vat[8] != '1')
+                if (vat[7] != '1')
                 {
                     return VatValidationResult.Failed("9 character VAT numbers should have 1 in 8th position.");
                 }
