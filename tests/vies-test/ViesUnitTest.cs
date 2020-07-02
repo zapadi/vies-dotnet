@@ -209,6 +209,7 @@ namespace Padi.Vies.Test
         [InlineData("PT 980526779")]
         [InlineData(" BE0000200334")]
         [InlineData("SK2120046819")]
+        [InlineData("LT684289716")]
         public void Should_Validate_Vat(string vatNumber)
         {
             Assert.True(ViesManager.IsValid(vatNumber).IsValid);
