@@ -7,7 +7,7 @@ namespace Padi.Vies.Validators
     /// </summary>
     public sealed class NLVatValidator : VatValidatorAbstract
     {
-        private const string RegexPattern =@"^\d{9}B\d{2}$";
+        private const string RegexPattern = @"^\d{9}B\d{2}$";
         private static readonly int[] Multipliers = {9, 8, 7, 6, 5, 4, 3, 2};
 
         public NLVatValidator()
@@ -20,17 +20,23 @@ namespace Padi.Vies.Validators
         {
             var sum = vat.Sum(Multipliers);
 
-            var checkDigit = sum % 11;
-            
-            if (checkDigit > 9)
+            // Old VAT numbers (pre 2020) - Modulus 11 test
+            var checkMod11 = sum % 11;
+            if (checkMod11 > 9)
             {
-                checkDigit = 0;
+                checkMod11 = 0;
+            }
+            var isValidMod11 = checkMod11 == vat[8].ToInt();
+            if (isValidMod11)
+            {
+                return VatValidationResult.Success();
             }
 
-            var isValid = checkDigit == vat[8].ToInt();
-            
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid NL vat: checkValue") 
+            // New VAT numbers (post 2020) - Modulus 97 test
+            var isValidMod97 = 97 - int.Parse(vat.Substring(0, 9)) % 97 == int.Parse(vat.Substring(10, 2));
+
+            return isValidMod97
+                ? VatValidationResult.Failed("Invalid NL vat: checkValue")
                 : VatValidationResult.Success();
         }
     }
