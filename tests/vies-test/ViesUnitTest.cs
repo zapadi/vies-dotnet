@@ -124,9 +124,12 @@ namespace Padi.Vies.Test
         [InlineData("SI05936241")]
         [InlineData("SK5407062531")]
         [InlineData("SK7020001680")]
-        [InlineData("NL123456789B13")]
-
-        // [InlineData("AB123A01")]
+        [InlineData("NL010000445B01")]
+        [InlineData("NL000000025B01")]
+        [InlineData("NL000000035B01")]
+        [InlineData("NL000000045B01")]
+        [InlineData("NL000000205B01")]
+        [InlineData("NL123456789B14")]
         public void Should_Not_Validate_Vat(string vatNumber)
         {
             Assert.False(ViesManager.IsValid(vatNumber).IsValid);
