@@ -57,7 +57,7 @@ namespace Padi.Vies.Validators
 
         private static VatValidationResult TemporarilyRegisteredTaxPayers(string vat)
         {
-            if (vat[11] != '1')
+            if (vat[10] != '1')
             {
                 return VatValidationResult.Failed("Temporarily Registered Tax Payers should have 11th character one");
             }
