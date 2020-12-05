@@ -30,6 +30,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+    
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD20;NETSTANDARD21</DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -45,20 +46,4 @@
             <_Parameter1>$(AssemblyName).Tests</_Parameter1>
         </AssemblyAttribute>
    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'NETSTANDARD21' " Label=".NETSTANDARD 2.1 Package References">
-        
-    </ItemGroup>
-
-    <ProjectExtensions>
-      <MonoDevelop>
-        <Properties>
-          <Policies>
-            <VersionControlPolicy>
-              <CommitMessageStyle Header="" Indent="" FirstFilePrefix="* " FileSeparator=":&#xA;* " LastFilePostfix=": " LineAlign="2" InterMessageLines="1" IncludeDirectoryPaths="False" Wrap="True" />
-            </VersionControlPolicy>
-          </Policies>
-        </Properties>
-      </MonoDevelop>
-  </ProjectExtensions>
 </Project>

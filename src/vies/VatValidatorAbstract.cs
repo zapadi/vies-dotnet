@@ -23,12 +23,9 @@ namespace Padi.Vies
                 throw new ViesValidationException("The regex to validate format is null.");
             }
             
-            if (!Regex.IsMatch(vat))
-            {
-                return VatValidationResult.Failed($"Invalid {CountryCode} vat: format");
-            }
-
-            return OnValidate(vat);
+            return !Regex.IsMatch(vat) 
+                ? VatValidationResult.Failed($"Invalid {CountryCode} vat: format") 
+                : OnValidate(vat);
         }
         protected abstract VatValidationResult OnValidate(string vat);
     }

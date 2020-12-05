@@ -52,7 +52,7 @@ namespace Padi.Vies
         private const string MediaTypeXml = "text/xml";
 
         private static readonly Dictionary<string, IVatValidator> EUVatValidators =
-            new Dictionary<string, IVatValidator>()
+            new Dictionary<string, IVatValidator>
             {
                 {nameof(EuCountryCode.AT), new ATVatValidator()},
                 {
@@ -173,7 +173,7 @@ namespace Padi.Vies
         /// 
         /// </summary>
         public ViesManager() : this(
-            new HttpClient(new HttpClientHandler()
+            new HttpClient(new HttpClientHandler
             {
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             })
@@ -199,7 +199,7 @@ namespace Padi.Vies
         private async Task<ViesCheckVatResponse> CheckIfActive(string countryCode, string vatNumber,
             CancellationToken cancellationToken)
         {
-            var requestMessage = new HttpRequestMessage()
+            var requestMessage = new HttpRequestMessage
             {
                 RequestUri = new Uri(ViesUri),
                 Method = HttpMethod.Post

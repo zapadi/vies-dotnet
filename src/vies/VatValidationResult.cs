@@ -5,19 +5,16 @@ namespace Padi.Vies
     /// </summary>
     public sealed class VatValidationResult
     {
-        private VatValidationResult()
-        {
-            
-        }
+        private VatValidationResult() { }
 
         public static VatValidationResult Success()
         {
-            return new VatValidationResult(){IsValid = true};
+            return new VatValidationResult {IsValid = true};
         }
 
         public static VatValidationResult Failed(string errorMessage)
         {
-            return new VatValidationResult(){Error = errorMessage};
+            return new VatValidationResult {Error = errorMessage};
         }
 
         public bool IsValid { get; private set; }
