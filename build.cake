@@ -1,9 +1,7 @@
 const string TARGET = "Target";
 const string DEFAULT = "Default";
 
-const string NETCOREAPP21 = "netcoreapp2.1";
-const string NETCOREAPP20 = "netcoreapp2.2";
-const string NETCOREAPP30 = "netcoreapp3.0";
+const string NETSTANDARD20 = "netstandard2.0";
 
 const string CONFIGURATION = "Configuration";
 const string RELEASE = "Release";
@@ -20,7 +18,7 @@ const string RC="rc";
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument(TARGET, DEFAULT);
-var framework = Argument(FRAMEWORK, NETCOREAPP30);
+var framework = Argument(FRAMEWORK, NETSTANDARD20);
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
