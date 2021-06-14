@@ -7,18 +7,18 @@ namespace Padi.Vies.Validators
     /// </summary>
     public sealed class LTVatValidator : VatValidatorAbstract
     {
-        private const string RegexPattern =@"^(\d{9}|\d{12})$";
+        private const string RegexPattern = @"^(\d{9}|\d{12})$";
 
-        private static readonly int[] Multipliers = {3, 4, 5, 6, 7, 8, 9, 1};
-        private static readonly int[] MultipliersTemporarily = {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2};
-        private static readonly int[] MultipliersDoubleCheck = {3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4};
+        private static readonly int[] Multipliers = { 3, 4, 5, 6, 7, 8, 9, 1 };
+        private static readonly int[] MultipliersTemporarily = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2 };
+        private static readonly int[] MultipliersDoubleCheck = { 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4 };
 
         public LTVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled);
             CountryCode = nameof(EuCountryCode.LT);
         }
-        
+
         protected override VatValidationResult OnValidate(string vat)
         {
             if (vat.Length == 9)
@@ -34,11 +34,12 @@ namespace Padi.Vies.Validators
                     sum += vat[index].ToInt() * (index + 1);
                 }
 
-                var checkDigit = sum % 11;
-                if (checkDigit == 10)
+                if (sum % 11 == 10)
                 {
-                    checkDigit =  vat.Sum(Multipliers);
+                    // Double check calculation
+                    sum = vat.Sum(Multipliers);
                 }
+                var checkDigit = sum % 11;
 
                 if (checkDigit == 10)
                 {
@@ -46,9 +47,9 @@ namespace Padi.Vies.Validators
                 }
 
                 var isValid = checkDigit == vat[8].ToInt();
-                
-                return !isValid 
-                    ? VatValidationResult.Failed("Invalid LT vat: checkValue") 
+
+                return !isValid
+                    ? VatValidationResult.Failed("Invalid LT vat: checkValue")
                     : VatValidationResult.Success();
             }
 
@@ -78,8 +79,8 @@ namespace Padi.Vies.Validators
             }
 
             var isValid = total == vat[11].ToInt();
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid LT vat: checkValue") 
+            return !isValid
+                ? VatValidationResult.Failed("Invalid LT vat: checkValue")
                 : VatValidationResult.Success();
         }
     }
