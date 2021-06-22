@@ -10,7 +10,7 @@
      
         <AssemblyTitle>VIES dotnet library</AssemblyTitle>
         <Authors>Adrian Popescu</Authors>
-        <Copyright>Adrian Popescu 2017-2019</Copyright>
+        <Copyright>Adrian Popescu 2017-2021</Copyright>
         <Description>European VIES VAT validation for dotnet.</Description>
         <NeutralLanguage>en-US</NeutralLanguage>
         <Owners>Adrian Popescu</Owners>
@@ -21,7 +21,7 @@
         <RequireLicenseAcceptance>false</RequireLicenseAcceptance>     
         <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
         <Title>VIES NET API</Title>
-        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionPrefix>1.0.1</VersionPrefix>
             
     </PropertyGroup>
 
