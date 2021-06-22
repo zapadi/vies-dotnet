@@ -25,6 +25,7 @@ environment:
 before_build:
   # Display .NET Core version
   - cmd: dotnet --version
+  - cmd: chmod +x build.sh
 
 build_script:  
 - ps: .\Build.ps1
@@ -52,7 +53,6 @@ for:
   - provider: NuGet
     api_key:
       secure: 0nVRVhQ0PAGO3ZTx/29QNf+KYiYdnaGvREbTP4ZMFSqDJJALY5VuooRPaJFBwinC
-    skip_symbols: true
     on:
       branch: master
       
@@ -60,6 +60,5 @@ for:
     name: production
     api_key:
       secure: 0nVRVhQ0PAGO3ZTx/29QNf+KYiYdnaGvREbTP4ZMFSqDJJALY5VuooRPaJFBwinC
-    skip_symbols: true
     on:
       APPVEYOR_REPO_TAG: true
