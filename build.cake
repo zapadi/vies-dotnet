@@ -98,7 +98,7 @@ Task("Test")
             new DotNetCoreTestSettings()
             {
                 Configuration = configuration,
-                Logger = $"trx;LogFileName={project.GetFilenameWithoutExtension()}.trx",
+                Loggers = new List<string>(){$"trx;LogFileName={project.GetFilenameWithoutExtension()}.trx"},
                 NoBuild = true,
                 NoRestore = true,
                 ResultsDirectory = artefactsDirectory,
