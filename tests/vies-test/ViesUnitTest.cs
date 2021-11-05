@@ -143,6 +143,7 @@ namespace Padi.Vies.Test
         [InlineData("RO4107779")]
         [InlineData("RO00099908")]
         [InlineData("RO0000099908")]
+        [InlineData("CY10014000M")]
         [InlineData("   FR00000000190")]
         [InlineData("   FR00300076965")]
         [InlineData("   FR00303656847")]

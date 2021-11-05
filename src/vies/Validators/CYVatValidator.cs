@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators
@@ -55,7 +56,7 @@ namespace Padi.Vies.Validators
             }
 
             var checkDigit = result % 26;
-            var isValid = vat[8].ToInt() == checkDigit + 65;
+            var isValid = Convert.ToInt32(vat[8]) == checkDigit + 65;
 
             return !isValid 
                 ? VatValidationResult.Failed("Invalid CY vat: checkValue") 
