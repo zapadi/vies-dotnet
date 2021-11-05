@@ -21,7 +21,7 @@
         <RequireLicenseAcceptance>false</RequireLicenseAcceptance>     
         <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
         <Title>VIES NET API</Title>
-        <VersionPrefix>1.0.1</VersionPrefix>
+        <VersionPrefix>1.0.2</VersionPrefix>
             
     </PropertyGroup>
 
