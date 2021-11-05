@@ -210,7 +210,7 @@ namespace Padi.Vies
                     MediaTypeXml);
             requestMessage.Headers.Clear();
             requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeXml);
-            requestMessage.Headers.Add("SOAPAction", "urn:ec.europa.eu:taxud:vies:services:checkVat");
+            requestMessage.Headers.Add("SOAPAction", string.Empty);
 
             try
             {
