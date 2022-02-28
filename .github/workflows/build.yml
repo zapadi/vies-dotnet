@@ -1,4 +1,4 @@
-name: VIES-dotnet build, test & notify(slack)
+name: VIES-dotnet build & test
 
 on:
   workflow_dispatch:
@@ -58,11 +58,3 @@ jobs:
       
     - name: Test PR      
       run: dotnet test --no-restore --no-build --configuration $BUILD_CONFIG --verbosity normal
-        
-    - name: GitHub Action for Slack
-      if: success()
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-      uses: Ilshidur/action-slack@1.6.2
-      with:
-        args: 'A new version of your VIES app has been built'
