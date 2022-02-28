@@ -1,16 +1,12 @@
 name: Pack workflow
 
 on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-        - 'README.md'
-  pull_request:
-    branches: [ master ]
-    paths-ignore:
-        - 'README.md'
+    workflow_run:
+        workflows: [ "Build" ]
+        types: [ requested ]
+        branches: [ master ]
 
-  workflow_dispatch:
+    workflow_dispatch:
 
 env:
     BUILD_CONFIG: 'Release'
@@ -20,7 +16,6 @@ env:
 jobs:   
     pack:
         runs-on: ubuntu-latest
-        needs: build
         if: ${{ env.PUSH_PACKAGES }}
         steps:
         - name: Checkout
