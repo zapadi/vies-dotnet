@@ -72,7 +72,7 @@ jobs:
       
       # run tests with built project
     - name: Test PR      
-      run: dotnet test --no-restore --no-build --configuration $config --verbosity normal --logger:"liquid.md;LogFileName=${{github.workspace}}/${{env.file_name}};Title=${{env.title}};"
+      run: dotnet test --no-restore --no-build --configuration $BUILD_CONFIG --verbosity normal --logger:"liquid.md;LogFileName=${{github.workspace}}/${{env.file_name}};Title=${{env.title}};"
       
       # upload report as build artifact
     - name: Upload a Build Artifact
@@ -90,13 +90,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: ${{env.file_name}}
+        
     - name: GitHub Action for Slack
       if: success()
       env:
-       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
       uses: Ilshidur/action-slack@1.6.2
       with:
-       args: 'A new version of your VIES app has been built'
+        args: 'A new version of your VIES app has been built'
 #   pack:
 #     runs-on: ubuntu-latest
 #     needs: build
