@@ -1,4 +1,4 @@
-name: VIES-dotnet build & test
+name: Build & Test
 
 on:
   workflow_dispatch:
