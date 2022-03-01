@@ -1,6 +1,7 @@
 # vies-dotnet
 European VIES VAT validation for dotnet. 
 
+[![Build & Test](https://github.com/zapadi/vies-dotnet/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/zapadi/vies-dotnet/actions/workflows/build.yml)
 ![AppVeyor branch](https://ci.appveyor.com/api/projects/status/2yqc9atyv5dpgasp/branch/master?svg=true)
 [![NuGet package](https://img.shields.io/nuget/v/vies-dotnet-api.svg)](https://www.nuget.org/packages/vies-dotnet-api)
 ![Nuget](https://img.shields.io/nuget/dt/vies-dotnet-api)
