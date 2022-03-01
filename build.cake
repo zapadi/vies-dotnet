@@ -1,3 +1,4 @@
+
 const string TARGET = "Target";
 const string DEFAULT = "Default";
 
@@ -29,6 +30,8 @@ var configuration = HasArgument(CONFIGURATION)
         : EnvironmentVariable(CONFIGURATION) != null 
             ? EnvironmentVariable(CONFIGURATION) 
             : RELEASE;
+            
+Console.WriteLine($"Configuration: {configuration}");            
 
 var buildNumber = HasArgument(BUILD_NUMBER) 
         ? Argument<int>(BUILD_NUMBER) 
@@ -38,6 +41,8 @@ var buildNumber = HasArgument(BUILD_NUMBER)
                 ? int.Parse(EnvironmentVariable(BUILD_NUMBER)) 
                 : 0;
 
+Console.WriteLine($"BuildNumber: {buildNumber}");  
+
 var preReleaseSuffix = HasArgument(PRE_RELEASE_SUFFIX) 
         ? Argument<string>(PRE_RELEASE_SUFFIX) 
         : (AppVeyor.IsRunningOnAppVeyor && AppVeyor.Environment.Repository.Tag.IsTag) 
@@ -46,10 +51,13 @@ var preReleaseSuffix = HasArgument(PRE_RELEASE_SUFFIX)
                 ? EnvironmentVariable(PRE_RELEASE_SUFFIX) 
                 : BETA;
 
+Console.WriteLine($"PreReleaseSuffix: {preReleaseSuffix}");  
+
 var versionSuffix = string.IsNullOrEmpty(preReleaseSuffix) 
                         ? null 
                         : preReleaseSuffix + "-" + buildNumber.ToString("D4");    
 
+Console.WriteLine($"VersionSuffix: {versionSuffix}");  
 var artefactsDirectory = Directory("./artifacts");
 
 //////////////////////////////////////////////////////////////////////
@@ -70,7 +78,7 @@ Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
     {
-        DotNetCoreRestore();
+        DotNetRestore();
     });
 
  Task("Build")
@@ -78,7 +86,7 @@ Task("Restore")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-        DotNetCoreBuild(".",
+        DotNetBuild(".",
             new DotNetCoreBuildSettings()
             {
                 Configuration = configuration,
@@ -94,7 +102,7 @@ Task("Test")
     {
         Information(project);
        
-        DotNetCoreTest(project.ToString(),
+        DotNetTest(project.ToString(),
             new DotNetCoreTestSettings()
             {
                 Configuration = configuration,
@@ -126,7 +134,7 @@ Task("Pack")
                 VersionSuffix = versionSuffix,
             };
         
-        DotNetCorePack(".", dotNetCorePackSettings);
+        DotNetPack(".", dotNetCorePackSettings);
     });
 
 //////////////////////////////////////////////////////////////////////
