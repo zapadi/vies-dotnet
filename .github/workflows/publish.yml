@@ -1,11 +1,12 @@
 name: Publish workflow
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [ master ]
-    paths-ignore:
-      - 'README.md'
+    workflow_run:
+        workflows: [ "Build" ]
+        types: [ requested ]
+        branches: [ master ]
+
+    workflow_dispatch:
   
 env:
     BUILD_CONFIG: 'Release'
