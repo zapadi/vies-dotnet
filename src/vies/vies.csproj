@@ -10,7 +10,7 @@
      
         <AssemblyTitle>VIES dotnet library</AssemblyTitle>
         <Authors>Adrian Popescu</Authors>
-        <Copyright>Adrian Popescu 2017-2021</Copyright>
+        <Copyright>Adrian Popescu 2017-2022</Copyright>
         <Description>European VIES VAT validation for dotnet.</Description>
         <NeutralLanguage>en-US</NeutralLanguage>
         <Owners>Adrian Popescu</Owners>
