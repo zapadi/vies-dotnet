@@ -32,6 +32,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3.0.0
+      with:
+          lfs: true
+          fetch-depth: 0
     - name: 'Print manual run reason'
       if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |
