@@ -1,5 +1,6 @@
 version: '{build}'  
-image: 
+image:
+  - macOS
   - Ubuntu
   - Visual Studio 2022
 
