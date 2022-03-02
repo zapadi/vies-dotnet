@@ -87,7 +87,7 @@ Task("Restore")
     .Does(() =>
     {
         DotNetBuild(".",
-            new DotNetCoreBuildSettings()
+            new DotNetBuildSettings()
             {
                 Configuration = configuration,
                 NoRestore = true,
@@ -103,14 +103,16 @@ Task("Test")
         Information(project);
        
         DotNetTest(project.ToString(),
-            new DotNetCoreTestSettings()
+            new DotNetTestSettings()
             {
                 Configuration = configuration,
-                Loggers = new List<string>(){$"trx;LogFileName={project.GetFilenameWithoutExtension()}.trx"},
+                Loggers = new List<string>(){
+                    $"trx;LogFileName={project.GetFilenameWithoutExtension()}.trx",
+                    $"html;LogFileName={project.GetFilenameWithoutExtension()}.html"
+                },
                 NoBuild = true,
                 NoRestore = true,
                 ResultsDirectory = artefactsDirectory,
-                ArgumentCustomization = x => x.Append($"--logger html;LogFileName={project.GetFilenameWithoutExtension()}.html"),
             });
     });
 
@@ -119,11 +121,13 @@ Task("Pack")
     .IsDependentOn("Test")
     .Does(() =>
     {
-        var msBuildSettings = new DotNetCoreMSBuildSettings()
+        var msBuildSettings = new DotNetMSBuildSettings(){
+            ContinuousIntegrationBuild = !BuildSystem.IsLocalBuild
+        }
                    // .SetTargetFramework(framework)
                     .WithProperty("SymbolPackageFormat", "snupkg");
 
-        var dotNetCorePackSettings = new DotNetCorePackSettings()
+        var dotNetCorePackSettings = new DotNetPackSettings()
             {
                 Configuration = configuration,
                 IncludeSymbols = true,
