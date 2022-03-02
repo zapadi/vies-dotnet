@@ -38,7 +38,7 @@ jobs:
         echo 'Reason: ${{ github.event.inputs.reason }}'
         
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2.0.0
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
