@@ -24,7 +24,7 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v2.1.0
       with:
         name: artifacts
         path: ./artifacts
