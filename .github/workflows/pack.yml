@@ -24,8 +24,9 @@ jobs:
           with:
             dotnet-version: ${{ env.DOTNET_VERSION }}
         - name: Determine version
-          run: echo "VERSION = $(git describe --tags --dirty)" >> $GITHUB_ENV
-          run: echo "VERSION=$(echo ${GITHUB_REF:10})"
+          run: |
+                echo "VERSION = $(git describe --tags --dirty)" >> $GITHUB_ENV
+                echo "VERSION=$(echo ${GITHUB_REF:10})"
         - name: Pack
           run: dotnet pack --output ./artifacts --configuration $BUILD_CONFIG --version-suffix $VERSION
         - uses: actions/upload-artifact@v1
