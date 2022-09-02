@@ -42,10 +42,10 @@ namespace Padi.Vies
             <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
                 <soapenv:Header/>
                 <soapenv:Body>
-                    <checkVat xmlns=""urn:ec.europa.eu:taxud:vies:services:checkVat:types"">
-                        <countryCode>{0}</countryCode>
-                        <vatNumber>{1}</vatNumber>
-                    </checkVat>
+                    <ns2:checkVat xmlns:ns2=""urn:ec.europa.eu:taxud:vies:services:checkVat:types"">
+                        <ns2:countryCode>{0}</ns2:countryCode>
+                        <ns2:vatNumber>{1}</ns2:vatNumber>
+                    </ns2:checkVat>
                 </soapenv:Body>
             </soapenv:Envelope>";
 
@@ -354,18 +354,18 @@ namespace Padi.Vies
         /// </exception>
         private static ViesCheckVatResponse ParseContentResponse(string content)
         {
-            var faultError = content.GetValue("<faultstring>(.*?)</faultstring>");
+            var faultError = content.GetValue("<ns2:faultstring>(.*?)</ns2:faultstring>");
             if (!string.IsNullOrWhiteSpace(faultError))
             {
                 throw new ViesServiceException(faultError);
             }
 
-            var cc = content.GetValue("<countryCode>(.*?)</countryCode>");
-            var vn = content.GetValue("<vatNumber>(.*?)</vatNumber>");
-            var n = content.GetValue("<name>(.*?)</name>");
-            var adr = content.GetValue("<address>(?s)(.*?)(?-s)</address>", s => s.Replace("\\\n", "\n"));
-            var isValid = content.GetValue("<valid>(true|false)</valid>");
-            var dt = content.GetValue("<requestDate>(.*?)</requestDate>");
+            var cc = content.GetValue("<ns2:countryCode>(.*?)</ns2:countryCode>");
+            var vn = content.GetValue("<ns2:vatNumber>(.*?)</ns2:vatNumber>");
+            var n = content.GetValue("<ns2:name>(.*?)</ns2:name>");
+            var adr = content.GetValue("<ns2:address>(?s)(.*?)(?-s)</ns2:address>", s => s.Replace("\\\n", "\n"));
+            var isValid = content.GetValue("<ns2:valid>(true|false)</ns2:valid>");
+            var dt = content.GetValue("<ns2:requestDate>(.*?)</ns2:requestDate>");
 
             return new ViesCheckVatResponse(cc, vn, dt == null ? default(DateTimeOffset) : DateTimeOffset.Parse(dt), n,
                 adr,
