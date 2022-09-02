@@ -18,7 +18,7 @@ namespace Padi.Vies.Test
         [InlineData("LU26375245")]
         [InlineData("SE 556656688001")]
         [InlineData("FI 09073468")]
-        [InlineData("NL 107452613B01")]
+        [InlineData("NL 858292828B01")]
         [InlineData("FR 66322120916")]
         [InlineData("IT 01640320360")]
         [InlineData("RO26129093")]
