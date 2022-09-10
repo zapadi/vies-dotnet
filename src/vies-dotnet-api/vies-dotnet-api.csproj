@@ -41,6 +41,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD20;NETSTANDARD21</DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>MA0051</NoWarn>
   </PropertyGroup>
     
    <ItemGroup>
