@@ -12,16 +12,17 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Padi.Vies.Errors;
+using Padi.Vies.Parsers;
 using Padi.Vies.Validators;
 
 namespace Padi.Vies
@@ -38,8 +39,7 @@ namespace Padi.Vies
         private const string ViesUri = "https://ec.europa.eu/taxation_customs/vies/services/checkVatService";
 
         private const string SoapValidateVatMessageFormat =
-            @"<?xml version=""1.0"" encoding=""utf-8""?>
-            <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
+            @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
                 <soapenv:Header/>
                 <soapenv:Body>
                     <ns2:checkVat xmlns:ns2=""urn:ec.europa.eu:taxud:vies:services:checkVat:types"">
@@ -178,9 +178,9 @@ namespace Padi.Vies
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             })
             {
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(30),
             }
-            , true)
+            , disposeClient: true)
         {
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeXml));
         }
@@ -194,35 +194,34 @@ namespace Padi.Vies
         {
             _httpClient = httpClient;
             _disposeClient = disposeClient;
+            _parseResponse = new XmlParseResponse();
         }
 
-        private async Task<ViesCheckVatResponse> CheckIfActive(string countryCode, string vatNumber,
-            CancellationToken cancellationToken)
+        private async Task<ViesCheckVatResponse> SendRequestAsync(string countryCode, string vatNumber, CancellationToken cancellationToken)
         {
             var requestMessage = new HttpRequestMessage
             {
                 RequestUri = new Uri(ViesUri),
-                Method = HttpMethod.Post
+                Method = HttpMethod.Post,
             };
 
-            requestMessage.Content =
-                new StringContent(string.Format(SoapValidateVatMessageFormat, countryCode, vatNumber), Encoding.UTF8,
-                    MediaTypeXml);
+            requestMessage.Content = new StringContent(string.Format(CultureInfo.InvariantCulture, SoapValidateVatMessageFormat, countryCode, vatNumber), Encoding.UTF8, MediaTypeXml);
             requestMessage.Headers.Clear();
             requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeXml);
             requestMessage.Headers.Add("SOAPAction", string.Empty);
 
             try
             {
-                using (var request = await _httpClient.SendAsync(requestMessage, cancellationToken)
-                    .ConfigureAwait(false))
+                using (var request = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead ,cancellationToken)
+                                                      .ConfigureAwait(false))
                 {
                     if (!request.IsSuccessStatusCode)
-                        throw new ViesServiceException(
-                            $"VIES service error: {request.StatusCode:D} - {request.ReasonPhrase}");
+                    {
+                        throw new ViesServiceException($"VIES service error: {request.StatusCode:D} - {request.ReasonPhrase}");
+                    }
 
-                    string content = await request.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    return ParseContentResponse(content);
+                    var content = await request.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    return await _parseResponse.ParseAsync(content).ConfigureAwait(false);
                 }
             }
             catch (HttpRequestException httpRequestException)
@@ -230,7 +229,7 @@ namespace Padi.Vies
                 throw new Exception(httpRequestException.GetBaseException().Message, httpRequestException);
             }
         }
-
+        
         /// <summary>
         /// Dispose the http client if disposeClient flag was set.
         /// </summary>
@@ -249,21 +248,9 @@ namespace Padi.Vies
         /// <returns>VatValidationResult</returns>
         public static VatValidationResult IsValid(string vat)
         {
-            vat = vat.Sanitize();
+            var pair = SplitInput(vat);
 
-            if (string.IsNullOrWhiteSpace(vat))
-                return VatValidationResult.Failed("VAT number cannot be null or empty.");
-
-            if (vat.Length < 3)
-                return VatValidationResult.Failed($"VAT number '{vat}' is too short.");
-
-            var countryCode = vat.Substring(0, 2);
-
-            if (!EUVatValidators.TryGetValue(countryCode, out var validator))
-                return VatValidationResult.Failed($"{countryCode} is not a valid ISO_3166-1 European member state.");
-
-            var vatNumber = vat.Substring(2);
-            return validator.Validate(vatNumber);
+            return IsValid(pair.code, pair.number);
         }
 
         /// <summary>
@@ -274,7 +261,8 @@ namespace Padi.Vies
         /// <returns>VatValidationResult</returns>
         public static VatValidationResult IsValid(string countryCode, string vatNumber)
         {
-            return !EUVatValidators.TryGetValue(countryCode, out var validator)
+            var validator = GetValidator(countryCode);
+            return validator == null
                 ? VatValidationResult.Failed($"{countryCode} is not a valid ISO_3166-1 European member state.")
                 : validator.Validate(vatNumber);
         }
@@ -289,24 +277,9 @@ namespace Padi.Vies
         /// <exception cref="ViesValidationException"></exception>
         /// <exception cref="ViesServiceException"></exception>
         /// <exception cref="Exception"></exception>
-        public async Task<ViesCheckVatResponse> IsActive(string countryCode, string vatNumber,
-            CancellationToken cancellationToken = default)
+        public async Task<ViesCheckVatResponse> IsActive(string countryCode, string vatNumber, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(countryCode))
-                throw new ViesValidationException("Country code cannot be null.");
-
-            if (!EUVatValidators.TryGetValue(countryCode, out var validator))
-                throw new ViesValidationException($"{countryCode} is not a valid ISO_3166-1 European member state.");
-
-            vatNumber = vatNumber.Sanitize();
-            var validationResult = validator.Validate(vatNumber);
-
-            if (!validationResult.IsValid)
-            {
-                throw new ViesValidationException($"'{countryCode}{vatNumber}' is invalid.");
-            }
-
-            return await CheckIfActive(countryCode, vatNumber, cancellationToken);
+            return await SendRequestAsync(countryCode, vatNumber, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -318,58 +291,31 @@ namespace Padi.Vies
         /// <exception cref="ViesValidationException"></exception>
         /// <exception cref="ViesServiceException"></exception>
         /// <exception cref="Exception"></exception>
-        public async Task<ViesCheckVatResponse> IsActive(string vatNumber,
-            CancellationToken cancellationToken = default)
+        public async Task<ViesCheckVatResponse> IsActive(string vatNumber, CancellationToken cancellationToken = default)
         {
-            vatNumber = vatNumber.Sanitize();
+            var tokens = SplitInput(vatNumber);
 
-            var validationResult = IsValid(vatNumber);
-
-            if (!validationResult.IsValid)
-            {
-                throw new ViesValidationException($"'{vatNumber}' is invalid.");
-            }
-
-            return await CheckIfActive(vatNumber.Substring(0, 2), vatNumber.Substring(2), cancellationToken);
+            return await SendRequestAsync(tokens.code, tokens.number, cancellationToken).ConfigureAwait(false);
         }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        /// <exception cref="ViesServiceException">
-        /// 200 = Valid request with an Invalid VAT Number
-        /// 201 = Error : INVALID_INPUT
-        /// 202 = Error : INVALID_REQUESTER_INFO
-        /// 300 = Error : SERVICE_UNAVAILABLE
-        /// 301 = Error : MS_UNAVAILABLE
-        /// 302 = Error : TIMEOUT
-        /// 400 = Error : VAT_BLOCKED
-        /// 401 = Error : IP_BLOCKED
-        /// 500 = Error : GLOBAL_MAX_CONCURRENT_REQ
-        /// 501 = Error : GLOBAL_MAX_CONCURRENT_REQ_TIME
-        /// 600 = Error : MS_MAX_CONCURRENT_REQ
-        /// 601 = Error : MS_MAX_CONCURRENT_REQ_TIME
-        /// For all the other cases, The web service will responds with a "SERVICE_UNAVAILABLE" error.  
-        /// </exception>
-        private static ViesCheckVatResponse ParseContentResponse(string content)
+        
+        private static (string code, string number) SplitInput(string vat)
         {
-            var faultError = content.GetValue("<ns2:faultstring>(.*?)</ns2:faultstring>");
-            if (!string.IsNullOrWhiteSpace(faultError))
+            vat = vat.Sanitize();
+            
+            if (string.IsNullOrWhiteSpace(vat))
             {
-                throw new ViesServiceException(faultError);
+                throw new ViesValidationException("VAT number cannot be null or empty.");
             }
 
-            var cc = content.GetValue("<ns2:countryCode>(.*?)</ns2:countryCode>");
-            var vn = content.GetValue("<ns2:vatNumber>(.*?)</ns2:vatNumber>");
-            var n = content.GetValue("<ns2:name>(.*?)</ns2:name>");
-            var adr = content.GetValue("<ns2:address>(?s)(.*?)(?-s)</ns2:address>", s => s.Replace("\\\n", "\n"));
-            var isValid = content.GetValue("<ns2:valid>(true|false)</ns2:valid>");
-            var dt = content.GetValue("<ns2:requestDate>(.*?)</ns2:requestDate>");
-
-            return new ViesCheckVatResponse(cc, vn, dt == null ? default(DateTimeOffset) : DateTimeOffset.Parse(dt), n,
-                adr,
-                isValid != null && bool.Parse(isValid));
+            if (vat.Length < 3)
+            {
+                throw new ViesValidationException($"VAT number '{vat}' is too short.");
+            }
+            
+            var countryCode = vat.Slice(0, 2);
+            var vatNumber = vat.Slice(2);
+            
+            return (countryCode, vatNumber);
         }
     }
 }
