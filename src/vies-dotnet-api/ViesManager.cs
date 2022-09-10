@@ -59,8 +59,8 @@ namespace Padi.Vies
                 return validator;
             }
             
-            Assembly asm = typeof(ROVatValidator).Assembly;
-            Type type = asm.GetType($"Padi.Vies.Validators.{countryCode.ToUpperInvariant()}VatValidator");
+            var asm = typeof(ROVatValidator).Assembly;
+            var type = asm.GetType($"Padi.Vies.Validators.{countryCode.ToUpperInvariant()}VatValidator");
 
             if (type == null)
             {

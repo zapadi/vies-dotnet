@@ -35,7 +35,7 @@ namespace Padi.Vies.Parsers
 
         public ViesCheckVatResponse Parse(Stream response)
         {
-            using (XmlReader xmlReader = XmlReader.Create(response, xmlReaderSettings))
+            using (var xmlReader = XmlReader.Create(response, xmlReaderSettings))
             {
                 while (xmlReader.Read())
                 {
@@ -64,7 +64,7 @@ namespace Padi.Vies.Parsers
         
         public async Task<ViesCheckVatResponse> ParseAsync(Stream response)
         {
-            using (XmlReader xmlReader = XmlReader.Create(response, xmlReaderSettings))
+            using (var xmlReader = XmlReader.Create(response, xmlReaderSettings))
             {
                 while (await xmlReader.ReadAsync().ConfigureAwait(false))
                 {

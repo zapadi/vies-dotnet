@@ -32,7 +32,7 @@ namespace Padi.Vies.Validators
 
             for (var index = 0; index < 10; index++)
             {
-                int sum = (vat[index].ToInt() + product) % 10;
+                var sum = (vat[index].ToInt() + product) % 10;
                
                 if (sum == 0)
                 {
