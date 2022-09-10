@@ -3,6 +3,7 @@
   <PropertyGroup Label="build">
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>Padi.Vies.Test</RootNamespace>
     <AssemblyName>Padi.Vies.Tests</AssemblyName>
@@ -18,23 +19,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.595" />
+    <PackageReference Include="DotLiquid" Version="2.2.656" />
     <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.5" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NuGet.Frameworks" Version="6.1.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="6.0.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="NuGet.Frameworks" Version="6.3.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="6.0.1" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+<!--    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">-->
+<!--      <PrivateAssets>all</PrivateAssets>-->
+<!--      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
+<!--    </PackageReference>-->
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\vies\vies.csproj" />
+    <ProjectReference Include="..\..\src\vies-dotnet-api\vies-dotnet-api.csproj" />
   </ItemGroup>
 
 </Project>

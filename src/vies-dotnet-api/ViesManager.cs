@@ -54,16 +54,20 @@ namespace Padi.Vies
         private static readonly Dictionary<string, IVatValidator> VatValidators = new Dictionary<string, IVatValidator>(StringComparer.OrdinalIgnoreCase);
         private static IVatValidator GetValidator(string countryCode)
         {
-            IVatValidator validator;
-            if (VatValidators.TryGetValue(countryCode, out validator))
+            if (VatValidators.TryGetValue(countryCode, out var validator))
             {
                 return validator;
             }
             
-            Assembly asm = typeof(ViesManager).Assembly;
+            Assembly asm = typeof(ROVatValidator).Assembly;
             Type type = asm.GetType($"Padi.Vies.Validators.{countryCode.ToUpperInvariant()}VatValidator");
 
-            validator = (IVatValidator)Activator.CreateInstance(type);
+            if (type == null)
+            {
+                return null;
+            }
+            
+            validator = (IVatValidator) Activator.CreateInstance(type);
             VatValidators.Add(countryCode, validator);
 
             return validator;

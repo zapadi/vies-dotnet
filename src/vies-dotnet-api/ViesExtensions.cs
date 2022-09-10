@@ -17,7 +17,7 @@ namespace Padi.Vies
 {
     public static class ViesExtensions
     {
-        public static int ToInt(this char c) => Convert.ToInt32(c) - Convert.ToInt32('0');
+        public static int ToInt(this char c) => (int)(uint)(c - '0');
         
         public static bool IsAsciiDigit(this char c) => (uint)(c - '0') <= 9;
 
@@ -33,19 +33,34 @@ namespace Padi.Vies
             arr = Array.FindAll(arr, char.IsLetterOrDigit);
             vatNumber = new string(arr);
             
-            return vatNumber
-                .ToUpperInvariant()
-                .Replace("GR", "EL");
+            return vatNumber.ReplaceString("GR", "EL");
         }
 
         public static string Slice(this string input, int startIndex)
         {
+            #if !(NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER)
             return input.Substring(startIndex);
+            #else
+            return input.AsSpan().Slice(startIndex).ToString();
+            #endif
         }
         
         public static string Slice(this string input, int startIndex, int length)
         {
+            #if !(NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER)
             return input.Substring(startIndex, length);
+            #else
+            return input.AsSpan().Slice(startIndex, length).ToString();
+            #endif
+        }
+
+        public static string ReplaceString(this string input, string oldValue, string newValue)
+        {
+            #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER
+            return input.ToUpperInvariant().Replace(oldValue, newValue, StringComparison.OrdinalIgnoreCase);
+            #else
+            return input.ToUpperInvariant().Replace(oldValue, newValue);
+            #endif
         }
 
         public static int Sum(this string input, int[] multipliers, int start = 0)

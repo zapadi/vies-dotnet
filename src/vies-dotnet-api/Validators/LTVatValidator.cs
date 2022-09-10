@@ -68,7 +68,6 @@ namespace Padi.Vies.Validators
             return !isValid
                 ? VatValidationResult.Failed("Invalid LT vat: checkValue")
                 : VatValidationResult.Success();
-
         }
 
         private static VatValidationResult TemporarilyRegisteredTaxPayers(string vat)

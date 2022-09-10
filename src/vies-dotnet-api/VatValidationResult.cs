@@ -30,7 +30,10 @@ namespace Padi.Vies
 
         public static VatValidationResult Failed(string errorMessage)
         {
-            return new VatValidationResult {Error = errorMessage};
+            return new VatValidationResult
+            {
+                Error = errorMessage,
+            };
         }
 
         public bool IsValid { get; private set; }

@@ -46,12 +46,11 @@ namespace Padi.Vies.Validators
             {
                 return VatValidationResult.Success();
             }
-
-
+            
             // New VAT numbers (post 2020) - Modulus 97 test
             const string stringValueNl = "2321";
             const string stringValueB = "11";
-            vat = vat.Replace("B", stringValueB);
+            vat = vat.ReplaceString("B", stringValueB);
 
             var isValidMod97 = long.Parse($"{stringValueNl}{vat}", NumberStyles.Integer, CultureInfo.InvariantCulture) % 97 == 1;
 
