@@ -34,10 +34,9 @@ jobs:
           run: |
                 echo "VERSION = $(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
                 echo "$GITHUB_ENV"
-                echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-        -   name: 'Print version'
-            if: ${{ github.event_name == 'workflow_dispatch' }}
-            run: |
+        - name: 'Print version'
+          if: ${{ github.event_name == 'workflow_dispatch' }}
+          run: |
                 echo 'Version: ${{ github.event.inputs.version }}'
         - name: Pack
           run: dotnet pack --output ./artifacts --configuration $BUILD_CONFIG --version-suffix github.event.inputs.version
