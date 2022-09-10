@@ -16,7 +16,7 @@ namespace Padi.Vies
     /// <summary>
     /// 
     /// </summary>
-    internal enum EuCountryCode
+    public enum EuCountryCode
     {
         /// <summary>
         /// Austria
@@ -63,10 +63,6 @@ namespace Padi.Vies
         /// France
         /// </summary>
         FR,
-        /// <summary>
-        /// Great Britain
-        /// </summary>
-        GB,
         /// <summary>
         /// Greece
         /// </summary>
