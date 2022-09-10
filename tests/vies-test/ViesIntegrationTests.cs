@@ -12,6 +12,7 @@
 */
 
 using System.Threading.Tasks;
+using Padi.Vies.Errors;
 using Xunit;
 
 namespace Padi.Vies.Test
@@ -37,7 +38,7 @@ namespace Padi.Vies.Test
         [InlineData("SK2120046819")]
         public async Task Should_Return_Vat_Active(string vat)
         {
-            var actual = await CheckIfActive(vat, true);
+            var actual = await CheckIfActiveAsync(vat, true);
 
             Assert.True(actual.IsValid, "Inactive vat number");
         }
@@ -51,24 +52,25 @@ namespace Padi.Vies.Test
         [InlineData("NL123456782B90")]
         public async Task Should_Return_Vat_Inactive(string vat)
         {
-            var actual = await CheckIfActive(vat, false);
+            var actual = await CheckIfActiveAsync(vat, false);
 
             Assert.False(actual.IsValid, "Inactive vat number");
         }
 
-        private async Task<ViesCheckVatResponse> CheckIfActive(string vat, bool mockValue){
+        [Theory]
+        [InlineData("GB434031494")]
+        [InlineData("123")]
+        [InlineData("K99999999L")] //Albania
+        [InlineData("CHE-123.456.788 ")]
+        public async Task Should_Throw_ViesServiceException(string vat)
+        {
+            await Assert.ThrowsAsync<ViesServiceException>(() => CheckIfActiveAsync(vat, false));
+        }
+        
+        private async Task<ViesCheckVatResponse> CheckIfActiveAsync(string vat, bool mockValue){
             
-            ViesCheckVatResponse actual;
-            #if DEBUG
+            var actual = await _fixture.ViesManager.IsActive(vat);
             
-            actual = await _fixture.ViesManager.IsActive(vat);
-            
-            #else
-            
-            actual = await Task.FromResult<ViesCheckVatResponse>(new ViesCheckVatResponse(null, null, DateTimeOffset.Now, isValid: mockValue));
-            
-            #endif
-
             return actual;
         }
     }
