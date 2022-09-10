@@ -27,11 +27,11 @@ namespace Padi.Vies
             IsValid = isValid;
         }
 
-        public string CountryCode { get; }
-        public string VatNumber { get; }
-        public DateTimeOffset RequestDate { get; }
-        public string Name { get; }
-        public string Address { get; }
-        public bool IsValid { get; }
+        public string CountryCode { get; internal set; }
+        public string VatNumber { get; internal set; }
+        public DateTimeOffset RequestDate { get; internal set;}
+        public string Name { get; internal set;}
+        public string Address { get; internal set;}
+        public bool IsValid { get; internal set;}
     }
 }
