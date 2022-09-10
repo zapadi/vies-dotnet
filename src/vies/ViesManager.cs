@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2022 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -51,123 +51,27 @@ namespace Padi.Vies
 
         private const string MediaTypeXml = "text/xml";
 
-        private static readonly Dictionary<string, IVatValidator> EUVatValidators =
-            new Dictionary<string, IVatValidator>
+        private static readonly Dictionary<string, IVatValidator> VatValidators = new Dictionary<string, IVatValidator>(StringComparer.OrdinalIgnoreCase);
+        private static IVatValidator GetValidator(string countryCode)
+        {
+            IVatValidator validator;
+            if (VatValidators.TryGetValue(countryCode, out validator))
             {
-                {nameof(EuCountryCode.AT), new ATVatValidator()},
-                {
-                    nameof(EuCountryCode.BE),
-                    new BEVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.BG),
-                    new BGVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.CY),
-                    new CYVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.CZ),
-                    new CZVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.DE),
-                    new DEVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.DK),
-                    new DKVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.EE),
-                    new EEVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.EL),
-                    new ELVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.ES),
-                    new ESVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.FI),
-                    new FIVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.FR),
-                    new FRVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.GB),
-                    new GBVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.HR),
-                    new HRVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.HU),
-                    new HUVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.IE),
-                    new IEVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.IT),
-                    new ITVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.LT),
-                    new LTVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.LU),
-                    new LUVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.LV),
-                    new LVVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.MT),
-                    new MTVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.NL),
-                    new NLVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.PT),
-                    new PTVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.PL),
-                    new PLVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.RO),
-                    new ROVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.SE),
-                    new SEVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.SI),
-                    new SIVatValidator()
-                },
-                {
-                    nameof(EuCountryCode.SK),
-                    new SKVatValidator()
-                }
-            };
+                return validator;
+            }
+            
+            Assembly asm = typeof(ViesManager).Assembly;
+            Type type = asm.GetType($"Padi.Vies.Validators.{countryCode.ToUpperInvariant()}VatValidator");
 
+            validator = (IVatValidator)Activator.CreateInstance(type);
+            VatValidators.Add(countryCode, validator);
+
+            return validator;
+        }
 
         private readonly HttpClient _httpClient;
         private readonly bool _disposeClient;
+        private readonly IParseResponseAsync _parseResponse;
 
         /// <summary>
         /// 
