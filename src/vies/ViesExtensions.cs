@@ -12,32 +12,14 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Padi.Vies
 {
     public static class ViesExtensions
     {
-        public static string GetValue(this string content, string pattern, Func<string, string> func = null)
-        {
-            var match = Regex.Match(content, pattern);
-            if (!match.Success)
-            {
-                return default(string);
-            }
-            
-            var result = match.Groups[1].Value;
-
-            return func != null 
-                ? func.Invoke(result) 
-                : result;
-        }
-
-        public static int ToInt(this char c)
-        {
-            return Convert.ToInt32(c) - Convert.ToInt32('0');
-        }
+        public static int ToInt(this char c) => Convert.ToInt32(c) - Convert.ToInt32('0');
+        
+        public static bool IsAsciiDigit(this char c) => (uint)(c - '0') <= 9;
 
         public static string Sanitize(this string vatNumber)
         {
@@ -48,7 +30,7 @@ namespace Padi.Vies
             
             var arr = vatNumber.ToCharArray();
 
-            arr = Array.FindAll(arr, (c => (char.IsLetterOrDigit(c))));
+            arr = Array.FindAll(arr, char.IsLetterOrDigit);
             vatNumber = new string(arr);
             
             return vatNumber
