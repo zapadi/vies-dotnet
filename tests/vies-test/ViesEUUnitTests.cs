@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2019 Adrian Popescu.
+   Copyright 2017-2022 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -12,20 +12,19 @@
 */
 
 using System.Threading.Tasks;
+using Padi.Vies.Errors;
 using Xunit;
 
 namespace Padi.Vies.Test
 {
-
     [Collection("ViesCollection")]
-    public class ViesUnitTest
+    public class ViesEUUnitTests
     {
         private readonly ViesManagerFixture _fixture;
-        public ViesUnitTest(ViesManagerFixture fixture)
+        public ViesEUUnitTests(ViesManagerFixture fixture)
         {
             _fixture = fixture;
         }
-
         
          [Theory]
          [InlineData("AT U12345678","ATU12345678")]
@@ -42,9 +41,6 @@ namespace Padi.Vies.Test
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        [InlineData("123")]
-        [InlineData("K99999999L")] //Albania
-        [InlineData("CHE-123.456.788 ")]
         public async Task Should_Throw_ViesValidationException(string vat)
         {
             await Assert.ThrowsAsync<ViesValidationException>(() => _fixture.ViesManager.IsActive(vat));
@@ -76,7 +72,6 @@ namespace Padi.Vies.Test
         [InlineData(" BE1602602623")]
         [InlineData(" BE1400521335")]
         [InlineData(" BE1400521330")]
-       
         [InlineData(" BE1400004463")]
         [InlineData(" BE0603601206")]
         [InlineData(" BE603601206")]
