@@ -12,6 +12,7 @@
 */
 
 using System.Text.RegularExpressions;
+using Padi.Vies.Errors;
 
 namespace Padi.Vies
 {
@@ -20,7 +21,7 @@ namespace Padi.Vies
     /// </summary>
     public abstract class VatValidatorAbstract : IVatValidator
     {
-        protected Regex Regex;
+        protected Regex Regex { get; set; }
         public static string CountryCode { get; protected set; }
 
         /// <summary>

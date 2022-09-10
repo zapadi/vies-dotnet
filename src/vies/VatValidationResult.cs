@@ -22,7 +22,10 @@ namespace Padi.Vies
 
         public static VatValidationResult Success()
         {
-            return new VatValidationResult {IsValid = true};
+            return new VatValidationResult
+            {
+                IsValid = true, 
+            };
         }
 
         public static VatValidationResult Failed(string errorMessage)
