@@ -34,7 +34,7 @@ namespace Padi.Vies.Validators
         {
             if (vat.Length == 8)
             {
-                vat = "0" + vat;
+                vat = $"0{vat}";
             }
 
             var sum = vat.Sum(Multipliers);

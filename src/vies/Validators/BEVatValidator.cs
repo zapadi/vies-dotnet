@@ -43,7 +43,7 @@ namespace Padi.Vies.Validators
             }
 
             // Modulus 97 check on last nine digits
-            var isValid = 97 - int.Parse(vat.Substring(0, 8)) % 97 == int.Parse(vat.Substring(8, 2));
+            var isValid = 97 - int.Parse(vat.Slice(0, 8), CultureInfo.InvariantCulture) % 97 == int.Parse(vat.Slice(8, 2), CultureInfo.InvariantCulture);
 
             return !isValid
                 ? VatValidationResult.Failed("Invalid BE vat: checkValue.")

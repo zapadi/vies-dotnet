@@ -32,7 +32,7 @@ namespace Padi.Vies.Validators
         
         protected override VatValidationResult OnValidate(string vat)
         {
-            if (int.Parse(vat.Substring(0, 2)) == 12)
+            if (int.Parse(vat.Slice(0, 2), CultureInfo.InvariantCulture) == 12)
             {
                 return VatValidationResult.Failed("CY vat first 2 characters cannot be 12");
             }

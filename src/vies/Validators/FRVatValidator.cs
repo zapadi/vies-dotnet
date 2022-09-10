@@ -32,10 +32,10 @@ namespace Padi.Vies.Validators
         
         protected override VatValidationResult OnValidate(string vat)
         {
-            var validationKey = vat.Substring(0, 2);
-            var val = int.Parse(vat.Substring(2));
+            var validationKey = vat.Slice(0, 2);
+            var val = int.Parse(vat.Slice(2), CultureInfo.InvariantCulture);
             
-            if (!int.TryParse(validationKey, out var temp))
+            if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
             {
                 return VatValidationResult.Success();
             }

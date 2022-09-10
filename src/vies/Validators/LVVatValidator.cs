@@ -61,10 +61,7 @@ namespace Padi.Vies.Validators
                 }
                 else
                 {
-                    if (checkDigit < 4)
-                    {
-                        checkDigit = 3 - checkDigit;
-                    }
+                    checkDigit = 3 - checkDigit;
                 }
             }
 

@@ -32,7 +32,7 @@ namespace Padi.Vies.Validators
         
         protected override VatValidationResult OnValidate(string vat)
         {
-            var nr = ulong.Parse(vat);
+            var nr = ulong.Parse(vat, NumberStyles.Integer, CultureInfo.InvariantCulture);
             var isValid = nr % 11 == 0;
             return !isValid 
                 ? VatValidationResult.Failed("Invalid SK vat: checkValue") 

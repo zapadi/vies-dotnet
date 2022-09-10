@@ -32,7 +32,7 @@ namespace Padi.Vies.Validators
         
         protected override VatValidationResult OnValidate(string vat)
         {
-            var isValid = int.Parse(vat.Substring(0, 6)) % 89 == int.Parse(vat.Substring(6, 2));
+            var isValid = int.Parse(vat.Slice(0, 6), NumberStyles.Integer, CultureInfo.InvariantCulture) % 89 == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
             return !isValid 
                 ? VatValidationResult.Failed("Invalid LU vat: checkValue") 
                 : VatValidationResult.Success();

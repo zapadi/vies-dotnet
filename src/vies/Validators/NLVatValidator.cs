@@ -53,7 +53,7 @@ namespace Padi.Vies.Validators
             const string stringValueB = "11";
             vat = vat.Replace("B", stringValueB);
 
-            var isValidMod97 = long.Parse(stringValueNl + vat) % 97 == 1;
+            var isValidMod97 = long.Parse($"{stringValueNl}{vat}", NumberStyles.Integer, CultureInfo.InvariantCulture) % 97 == 1;
 
             return !isValidMod97
                 ? VatValidationResult.Failed("Invalid NL vat: checkValue")

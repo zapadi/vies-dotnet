@@ -95,7 +95,7 @@ namespace Padi.Vies.Validators
                 return false;
             }
 
-            var month = int.Parse(vat.Substring(2, 2));
+            var month = int.Parse(vat.Slice(2, 2), CultureInfo.InvariantCulture);
 
             if ((month <= 0 || month >= 13) && (month <= 20 || month >= 33) && (month <= 40 || month >= 53))
             {
@@ -127,14 +127,13 @@ namespace Padi.Vies.Validators
 
             total = 11 - total % 11;
 
-            if (total == 10)
+            switch (total)
             {
-                return false;
-            }
-
-            if (total == 11)
-            {
-                total = 0;
+                case 10:
+                    return false;
+                case 11:
+                    total = 0;
+                    break;
             }
 
             return total == vat[9].ToInt();

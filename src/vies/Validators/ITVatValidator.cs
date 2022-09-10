@@ -32,12 +32,12 @@ namespace Padi.Vies.Validators
         protected override VatValidationResult OnValidate(string vat)
         {
             // The last three digits are the issuing office, and cannot exceed more 201
-            if (int.Parse(vat.Substring(0, 7)) == 0)
+            if (int.Parse(vat.Slice(0, 7), NumberStyles.Integer, CultureInfo.InvariantCulture) == 0)
             {
                 return VatValidationResult.Failed("");
             }
 
-            var temp = int.Parse(vat.Substring(7, 3));
+            var temp = int.Parse(vat.Slice(7, 3),NumberStyles.Integer, CultureInfo.InvariantCulture);
 
             if ((temp < 1 || temp > 201) && temp != 999 && temp != 888)
             {

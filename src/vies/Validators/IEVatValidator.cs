@@ -35,9 +35,7 @@ namespace Padi.Vies.Validators
         {
             if (RegexType2.IsMatch(vat))
             {
-                vat = "0" + vat.Substring(2, 7) 
-                          + vat.Substring(0, 1) 
-                          + vat.Substring(7, 8);
+                vat = $"0{vat.Slice(2, 7)}{vat.Slice(0, 1)}{vat.Slice(7, 8)}";
             }
 
             var sum = vat.Sum(Multipliers);

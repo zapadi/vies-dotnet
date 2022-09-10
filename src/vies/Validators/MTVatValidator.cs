@@ -34,7 +34,7 @@ namespace Padi.Vies.Validators
 
             var checkDigit = 37 - sum % 37;
 
-            var isValid = checkDigit == int.Parse(vat.Substring(6, 2));
+            var isValid = checkDigit == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
             
             return !isValid 
                 ? VatValidationResult.Failed("Invalid MT vat: checkValue") 

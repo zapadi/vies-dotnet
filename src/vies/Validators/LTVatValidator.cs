@@ -35,39 +35,40 @@ namespace Padi.Vies.Validators
 
         protected override VatValidationResult OnValidate(string vat)
         {
-            if (vat.Length == 9)
+            if (vat.Length != 9)
             {
-                if (vat[7] != '1')
-                {
-                    return VatValidationResult.Failed("9 character VAT numbers should have 1 in 8th position.");
-                }
-
-                var sum = 0;
-                for (var index = 0; index < 8; index++)
-                {
-                    sum += vat[index].ToInt() * (index + 1);
-                }
-
-                if (sum % 11 == 10)
-                {
-                    // Double check calculation
-                    sum = vat.Sum(Multipliers);
-                }
-                var checkDigit = sum % 11;
-
-                if (checkDigit == 10)
-                {
-                    checkDigit = 0;
-                }
-
-                var isValid = checkDigit == vat[8].ToInt();
-
-                return !isValid
-                    ? VatValidationResult.Failed("Invalid LT vat: checkValue")
-                    : VatValidationResult.Success();
+                return TemporarilyRegisteredTaxPayers(vat);
+            }
+            
+            if (vat[7] != '1')
+            {
+                return VatValidationResult.Failed("9 character VAT numbers should have 1 in 8th position.");
             }
 
-            return TemporarilyRegisteredTaxPayers(vat);
+            var sum = 0;
+            for (var index = 0; index < 8; index++)
+            {
+                sum += vat[index].ToInt() * (index + 1);
+            }
+
+            if (sum % 11 == 10)
+            {
+                // Double check calculation
+                sum = vat.Sum(Multipliers);
+            }
+            var checkDigit = sum % 11;
+
+            if (checkDigit == 10)
+            {
+                checkDigit = 0;
+            }
+
+            var isValid = checkDigit == vat[8].ToInt();
+
+            return !isValid
+                ? VatValidationResult.Failed("Invalid LT vat: checkValue")
+                : VatValidationResult.Success();
+
         }
 
         private static VatValidationResult TemporarilyRegisteredTaxPayers(string vat)
