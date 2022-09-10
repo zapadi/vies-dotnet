@@ -7,6 +7,10 @@ on:
         branches: [ master ]
 
     workflow_dispatch:
+        inputs:
+            version:
+                description: 'Version'
+                required: true
 
 env:
     BUILD_CONFIG: 'Release'
@@ -29,9 +33,14 @@ jobs:
         - name: Determine version
           run: |
                 echo "VERSION = $(git describe --tags --dirty)" >> $GITHUB_ENV
-                echo "VERSION=$(echo ${GITHUB_REF:10})"
+                echo "$(echo ${GITHUB_REF:10})"
+                echo "$GITHUB_ENV"
+        -   name: 'Print version'
+            if: ${{ github.event_name == 'workflow_dispatch' }}
+            run: |
+                echo 'Version: ${{ github.event.inputs.version }}'
         - name: Pack
-          run: dotnet pack --output ./artifacts --configuration $BUILD_CONFIG --version-suffix $VERSION
+          run: dotnet pack --output ./artifacts --configuration $BUILD_CONFIG --version-suffix github.event.inputs.version
         - uses: actions/upload-artifact@v2.3.1
           with:
             name: artifacts

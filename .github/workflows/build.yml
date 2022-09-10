@@ -35,6 +35,7 @@ jobs:
       with:
           lfs: true
           fetch-depth: 0
+          
     - name: 'Print manual run reason'
       if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |
@@ -59,5 +60,14 @@ jobs:
     - name: Build
       run: dotnet build --configuration $BUILD_CONFIG --no-restore
       
-    - name: Test PR      
-      run: dotnet test  --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal
+    - name: Test    
+      run: dotnet test  --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" || true
+      
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "**/test-results.trx"
+        reporter: dotnet-trx
+        fail-on-error: true
