@@ -24,7 +24,7 @@ namespace Padi.Vies.Validators
 
         public HUVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.HU);
         }
         

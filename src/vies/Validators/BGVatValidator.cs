@@ -23,7 +23,7 @@ namespace Padi.Vies.Validators
     public sealed class BGVatValidator : VatValidatorAbstract
     {
         private const string RegexPattern = @"^\d{9,10}$";
-        private static readonly Regex RegexPhysicalPerson = new Regex(@"^\d\d[0-5]\d[0-3]\d\d{4}$", RegexOptions.Compiled);
+        private static readonly Regex RegexPhysicalPerson = new Regex(@"^\d\d[0-5]\d[0-3]\d\d{4}$", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
 
         private static readonly int[] MultipliersPhysicalPerson = {2, 4, 8, 5, 10, 9, 7, 3, 6};
         private static readonly int[] MultipliersForeignPhysicalPerson = {21, 19, 17, 13, 11, 9, 7, 3, 1};
@@ -31,7 +31,7 @@ namespace Padi.Vies.Validators
 
         public BGVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.BG);
         }
         

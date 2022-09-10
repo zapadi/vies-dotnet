@@ -26,7 +26,7 @@ namespace Padi.Vies.Validators
 
         public CZVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.CZ);
         }
         

@@ -25,7 +25,7 @@ namespace Padi.Vies.Validators
 
         public DEVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.DE);
         }
         

@@ -29,7 +29,7 @@ namespace Padi.Vies.Validators
 
         public LTVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
             CountryCode = nameof(EuCountryCode.LT);
         }
 

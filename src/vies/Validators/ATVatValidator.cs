@@ -29,7 +29,7 @@ namespace Padi.Vies.Validators
         /// </summary>
         public ATVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
         
             CountryCode = nameof(EuCountryCode.AT);
         }

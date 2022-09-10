@@ -19,15 +19,15 @@ namespace Padi.Vies.Validators
     internal sealed class IEVatValidator : VatValidatorAbstract
     {
         private const string RegexPattern =@"^(\d{7}[A-W])|([7-9][A-Z\*\+)]\d{5}[A-W])|(\d{7}[A-W][AH])$";
-        private static readonly Regex RegexType2 = new Regex(@"/^\d[A-Z\*\+]/", RegexOptions.Compiled);
-        private static readonly Regex RegexType3 = new Regex(@"/^\d{7}[A-Z][AH]$/", RegexOptions.Compiled);
+        private static readonly Regex RegexType2 = new Regex(@"/^\d[A-Z\*\+]/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+        private static readonly Regex RegexType3 = new Regex(@"/^\d{7}[A-Z][AH]$/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
         
         private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
 
 
         public IEVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.IE);
         }
         

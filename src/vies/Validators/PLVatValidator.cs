@@ -26,7 +26,7 @@ namespace Padi.Vies.Validators
         
         public PLVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.PL);    
         }
         

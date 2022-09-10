@@ -26,16 +26,16 @@ namespace Padi.Vies.Validators
 
         public LVVatValidator()
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled);    
+            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
             CountryCode = nameof(EuCountryCode.LV);
         }
         
         protected override VatValidationResult OnValidate(string vat)
         {
             // Only check the legal bodies
-            if (Regex.IsMatch(vat, "/^[0-3]/"))
+            if (Regex.IsMatch(vat, "/^[0-3]/", RegexOptions.None, TimeSpan.FromSeconds(5)))
             {
-                var result = Regex.IsMatch(vat, "^[0-3][0-9][0-1][0-9]");
+                var result = Regex.IsMatch(vat, "^[0-3][0-9][0-1][0-9]", RegexOptions.None, TimeSpan.FromSeconds(5));
                 return !result 
                     ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
                     : VatValidationResult.Success();
