@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2019 Adrian Popescu.
+   Copyright 2017-2022 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,12 +13,13 @@
 
 using System;
 
-namespace Padi.Vies
+namespace Padi.Vies.Errors
 {
-    public sealed class ViesValidationException : Exception
+
+    public sealed class ViesServiceException : Exception
     {
-        public ViesValidationException() { }
-        public ViesValidationException( string message ) : base( message ) { }
-        public ViesValidationException( string message, Exception inner ) : base( message, inner ) { }
+        public ViesServiceException() { }
+        public ViesServiceException(string message) : base(message) { }
+        public ViesServiceException(string message, Exception inner) : base(message, inner) { }
     }
 }
