@@ -17,7 +17,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -128,7 +127,11 @@ namespace Padi.Vies
                         throw new ViesServiceException($"VIES service error: {request.StatusCode:D} - {request.ReasonPhrase}");
                     }
 
+                    #if !(NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER)
                     var content = await request.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    #else
+                    var content = await request.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                    #endif
                     return await _parseResponse.ParseAsync(content).ConfigureAwait(false);
                 }
             }
