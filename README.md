@@ -1,10 +1,59 @@
-# vies-dotnet
-European VIES VAT validation for dotnet. 
+# vies-dotnet-api
 
 [![Build & Test](https://github.com/zapadi/vies-dotnet/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/zapadi/vies-dotnet/actions/workflows/build.yml)
 ![AppVeyor branch](https://ci.appveyor.com/api/projects/status/2yqc9atyv5dpgasp/branch/master?svg=true)
 [![NuGet package](https://img.shields.io/nuget/v/vies-dotnet-api.svg)](https://www.nuget.org/packages/vies-dotnet-api)
 ![Nuget](https://img.shields.io/nuget/dt/vies-dotnet-api)
+
+---
+
+European(EU)  VIES API VAT validation for dotnet based on the most current information from the official source
+
+The objective of this API is to allow persons involved in the intra-Community supply of goods or of services to obtain confirmation of the validity of the VAT identification number of any specified person.
+
+
+# Installing
+
+The fastest way of getting started using Vies api is to install the NuGet package.
+
+**Package Manager:**
+```
+Install-Package vies-dotnet-api -Version 2.0.0
+```
+**.NET CLI:**
+```
+dotnet add package vies-dotnet-api --version 2.0.0
+```
+**Package Reference**
+```
+<PackageReference Include="vies-dotnet-api" Version="2.0.0" />
+```
+# Usage
+
+### Checking a VAT number using the vies-dotnet-api
+
+Checking if a EU or GB VAT number is **valid**
+```
+ var result = ViesManager.IsValid("RO123456789");
+```
+ or
+
+``` 
+ var result = ViesManager.IsValid("RO","123456789");
+```
+
+Checking if a EU VAT number is **active**
+
+```
+var viesManager = new ViesManager();
+
+var result = await viesManager.IsActive("RO123456789");
+```
+or
+
+```
+var result = await viesManager.IsActive("RO","123456789");
+```
 
 <a href="https://www.buymeacoffee.com/vXCNnz9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-yellow.png" alt="Buy Me A Coffee" height="37" ></a>
 
