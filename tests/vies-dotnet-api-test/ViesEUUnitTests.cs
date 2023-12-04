@@ -87,6 +87,7 @@ namespace Padi.Vies.Test
         [InlineData("EE12345678")]
         [InlineData("EL12345678")]
         [InlineData("ESX1234567")]
+        [InlineData("ESB1233456899999")]
         [InlineData("FI1234567")]
         [InlineData("   FR00300076967")]
         [InlineData("   fr90000000027")]
