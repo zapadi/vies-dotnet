@@ -7,10 +7,10 @@ on:
         branches: [ master ]
 
     workflow_dispatch:
-  
+
 env:
     BUILD_CONFIG: 'Release'
-    DOTNET_VERSION: '6.x.x'
+    DOTNET_VERSION: '8.x.x'
     PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.ref, 'refs/tags/v') }}
 
 jobs:
@@ -20,14 +20,14 @@ jobs:
     if: ${{ env.PUSH_PACKAGES }}
     steps:
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2.0.0
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-        
-    - uses: actions/download-artifact@v2.1.0
+
+    - uses: actions/download-artifact@v3
       with:
         name: artifacts
         path: ./artifacts
-        
+
     - name: Publish packages
       run: dotnet nuget push ./artifacts/**.nupkg --source nuget.org --api-key ${{secrets.NUGET_TOKEN}} --skip-duplicate

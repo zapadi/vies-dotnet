@@ -14,20 +14,20 @@ on:
 
 env:
     BUILD_CONFIG: 'Release'
-    DOTNET_VERSION: '6.x.x'
+    DOTNET_VERSION: '8.x.x'
     PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.ref, 'refs/tags/v') }}
 
-jobs:   
+jobs:
     pack:
         runs-on: ubuntu-latest
         steps:
         - name: Checkout
-          uses: actions/checkout@v3.0.0
+          uses: actions/checkout@v3
           with:
               lfs: true
               fetch-depth: 0
         - name: Setup .NET
-          uses: actions/setup-dotnet@v2.0.0
+          uses: actions/setup-dotnet@v3
           with:
             dotnet-version: ${{ env.DOTNET_VERSION }}
         - name: Determine version
@@ -40,7 +40,7 @@ jobs:
                 echo 'Version: ${{ github.event.inputs.version }}'
         - name: Pack
           run: dotnet pack --output ./artifacts --configuration $BUILD_CONFIG --version-suffix github.event.inputs.version
-        - uses: actions/upload-artifact@v2.3.1
+        - uses: actions/upload-artifact@v3
           with:
             name: artifacts
             path: ./artifacts

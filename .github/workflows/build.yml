@@ -10,16 +10,54 @@ on:
   push:
     branches: [ master ]
     paths-ignore:
-    - 'README.md'
+      - 'README.md'
+      - '**/*.md'
+      - '**/*.gif'
+      - '**/*.png'
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
+      - LICENSE
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
     branches: [ master ]
     paths-ignore:
-    - 'README.md'
+      - 'README.md'
+      - '**/*.md'
+      - '**/*.gif'
+      - '**/*.png'
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
 
 env:
+  # Disable the .NET logo in the console output.
+  DOTNET_NOLOGO: true
+
+  # Stop wasting time caching packages
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+  # Disable sending usage data to Microsoft
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+  DOTNET_ADD_GLOBAL_TOOLS_TO_PATH: false
+
+  DOTNET_MULTILEVEL_LOOKUP: 0
+
   BUILD_CONFIG: 'Release'
-  DOTNET_VERSION: '6.x.x'
+
+  DOTNET_VERSION: '8.x.x'
+
   PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+# https://docs.github.com/en/actions/learn-github-actions/expressions
+# https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+concurrency:
+  # github.workflow: name of the workflow
+  # github.event.pull_request.number || github.ref: pull request number or branch name if not a pull request
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+  # Cancel in-progress runs when a new workflow with the same group name is triggered
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -27,26 +65,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]#, windows-latest, macOS-latest]
-        # dotnet-version: ['3.x.x', '5.x.x', '6.x.x']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        dotnet-version: ['3.x.x', '5.x.x', '6.x.x', '7.x.x', '8.x.x']
 
     steps:
-    - uses: actions/checkout@v3.0.0
+    - uses: actions/checkout@v3
       with:
           lfs: true
           fetch-depth: 0
-          
+
     - name: 'Print manual run reason'
       if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |
         echo 'Reason: ${{ github.event.inputs.reason }}'
-        
+
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2.0.0
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-        
-    - uses: actions/cache@v2
+
+    - uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
         # Look to see if there is a cache hit for the corresponding requirements file
@@ -56,13 +94,13 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore
-      
+
     - name: Build
       run: dotnet build --configuration $BUILD_CONFIG --no-restore
-      
-    - name: Test    
+
+    - name: Test
       run: dotnet test  --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" || true
-      
+
     - name: Test Report
       uses: dorny/test-reporter@v1
       if: always()
