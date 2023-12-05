@@ -15,64 +15,90 @@ using System;
 
 namespace Padi.Vies;
 
-    public static class ViesExtensions
+public static class ViesExtensions
+{
+    public static int ToInt(this char c) => (int)(uint)(c - '0');
+        
+    public static bool IsAsciiDigit(this char c) => (uint)(c - '0') <= 9;
+
+    public static string Sanitize(this string vatNumber)
     {
-        public static int ToInt(this char c) => (int)(uint)(c - '0');
-        
-        public static bool IsAsciiDigit(this char c) => (uint)(c - '0') <= 9;
-
-        public static string Sanitize(this string vatNumber)
+        if (string.IsNullOrWhiteSpace(vatNumber))
         {
-            if (string.IsNullOrWhiteSpace(vatNumber))
-            {
-                return vatNumber;
-            }
-            
-            var arr = vatNumber.ToCharArray();
-
-            arr = Array.FindAll(arr, char.IsLetterOrDigit);
-            vatNumber = new string(arr);
-            
-            return vatNumber.ReplaceString("GR", "EL");
+            return vatNumber;
         }
+            
+        var arr = vatNumber.ToCharArray();
 
-        public static string Slice(this string input, int startIndex)
+        arr = Array.FindAll(arr, char.IsLetterOrDigit);
+            
+        vatNumber = new string(arr);
+            
+        return vatNumber.ReplaceString("GR", "EL");
+    }
+
+    public static string Slice(this string input, int startIndex)
+    {
+        if (string.IsNullOrWhiteSpace(input))
         {
-            #if !(NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER)
-            return input.Substring(startIndex);
-            #else
-            return input.AsSpan().Slice(startIndex).ToString();
-            #endif
+            return input;
         }
+            
+        #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
+        return input.Substring(startIndex);
+        #else
+            return input.AsSpan()[startIndex..].ToString();
+        #endif
+    }
         
-        public static string Slice(this string input, int startIndex, int length)
+    public static string Slice(this string input, int startIndex, int length)
+    {
+        if (string.IsNullOrWhiteSpace(input))
         {
-            #if !(NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER)
-            return input.Substring(startIndex, length);
-            #else
+            return input;
+        }
+            
+        #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
+        return input.Substring(startIndex, length);
+        #else
             return input.AsSpan().Slice(startIndex, length).ToString();
-            #endif
-        }
+        #endif
+    }
 
-        public static string ReplaceString(this string input, string oldValue, string newValue)
+    public static string ReplaceString(this string input, string oldValue, string newValue)
+    {
+        if (string.IsNullOrWhiteSpace(input))
         {
-            #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER || NET5_0_OR_GREATER
+            return input;
+        }
+            
+        #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
+        return input.ToUpperInvariant().Replace(oldValue, newValue);
+        #else
             return input.ToUpperInvariant().Replace(oldValue, newValue, StringComparison.OrdinalIgnoreCase);
-            #else
-            return input.ToUpperInvariant().Replace(oldValue, newValue);
-            #endif
+        #endif
+    }
+
+    public static int Sum(this string input, int[] multipliers, int start = 0)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return 0;
         }
 
-        public static int Sum(this string input, int[] multipliers, int start = 0)
+        if (multipliers == null)
         {
-            var sum = 0;
-           
-            for (var index = start; index < multipliers.Length; index++)
-            {
-                var digit = multipliers[index];
-                sum += input[index].ToInt() * digit;
-            }
+            return 0;
+        }
+            
+        var sum = 0;
+            
+        for (var index = start; index < multipliers.Length; index++)
+        {
+            var digit = multipliers[index];
+            sum += input[index].ToInt() * digit;
+        }
 
-            return sum;
+        return sum;
     }
 }
