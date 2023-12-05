@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2022 Adrian Popescu.
+   Copyright 2017-2023 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -13,23 +13,22 @@
 
 using System;
 
-namespace Padi.Vies.Test
+namespace Padi.Vies.Test;
+
+/// <summary>
+/// 
+/// </summary>
+public sealed class ViesManagerFixture : IDisposable
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class ViesManagerFixture : IDisposable
+    public ViesManagerFixture()
     {
-        public ViesManagerFixture()
-        {
-            ViesManager = new ViesManager();
-        }
-
-        public void Dispose()
-        {
-            ViesManager?.Dispose();
-        }
-
-        public ViesManager ViesManager { get; }
+        this.ViesManager = new ViesManager();
     }
+
+    public void Dispose()
+    {
+        this.ViesManager?.Dispose();
+    }
+
+    public ViesManager ViesManager { get; }
 }
