@@ -1,8 +1,38 @@
+# To learn more about .editorconfig see https://aka.ms/editorconfigdocs
+###############################
+# Core EditorConfig Options   #
+###############################
 root = true
-
+# All files
 [*]
 indent_style = space
-indent_size = 4
-charset = utf-8
-trim_trailing_whitespace = false
+end_of_line = lf
+
+# XML project files
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+indent_size = 2
+
+# XML config files
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
+indent_size = 2
+
+# YAML config files
+[*.{yml,yaml}]
+tab_width = 2
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# JSON config files
+[*.json]
+tab_width = 2
+indent_size = 2
 insert_final_newline = false
+trim_trailing_whitespace = true
+
+# Code files
+[*.{cs,csx,vb,vbx}]
+tab_width = 4
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
