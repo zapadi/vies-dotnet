@@ -2,35 +2,26 @@
 
   <PropertyGroup Label="build">
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework>net6.0</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <RootNamespace>Padi.Vies.Test</RootNamespace>
-    <AssemblyName>Padi.Vies.Tests</AssemblyName>
-    <OutputType>Library</OutputType>
-    <LangVersion>8</LangVersion>  
+    <TargetFramework>net8.0</TargetFramework>
+      <NoWarn>
+          CA1016;
+          CA2007;
+          MA0051;
+          IDE0063;
+      </NoWarn>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;NETCORE30</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>TRACE;RELEASE;NETCORE30</DefineConstants>
-  </PropertyGroup>
-
+    
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.656" />
+    <PackageReference Include="DotLiquid" Version="2.2.692" />
     <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="6.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NuGet.Frameworks" Version="6.3.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="6.0.1" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NuGet.Frameworks" Version="6.8.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
+    <PackageReference Include="xunit" Version="2.6.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
   </ItemGroup>
 
   <ItemGroup>
