@@ -12,46 +12,52 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class ROVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class RoVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^[0-9]{2,10}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.RO);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = { 7, 5, 3, 2, 1, 7, 5, 3, 2 };
+
+    public RoVatValidator()
     {
-        private const string RegexPattern =@"^[0-9]{2,10}$";
-        private static readonly int[] Multipliers = { 7, 5, 3, 2, 1, 7, 5, 3, 2 };
-
-        public ROVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.RO);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var end = vat.Length - 1;
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var end = vat.Length - 1;
             
-            var controlDigit = vat[end].ToInt();
+        var controlDigit = vat[end].ToInt();
 
-            var slice = vat.Slice(0, end);
+        var slice = vat.Slice(0, end);
 
-            vat = slice.PadLeft(9, '0');
+        vat = slice.PadLeft(9, '0');
 
-            var sum = vat.Sum(Multipliers);
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = sum * 10 % 11;
+        var checkDigit = sum * 10 % 11;
                 
-            if (checkDigit == 10)
-            {
-                checkDigit = 0;
-            }
+        if (checkDigit == 10)
+        {
+            checkDigit = 0;
+        }
 
-            var isValid = checkDigit == controlDigit;
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid RO vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == controlDigit;
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid RO vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

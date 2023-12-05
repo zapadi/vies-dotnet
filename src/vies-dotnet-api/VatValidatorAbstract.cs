@@ -37,9 +37,9 @@ public abstract class VatValidatorAbstract : IVatValidator
             throw new ViesValidationException("The regex to validate format is null.");
         }
             
-            return !Regex.IsMatch(vat) 
-                ? VatValidationResult.Failed($"Invalid {CountryCode} vat: format") 
-                : OnValidate(vat);
-        }
+        return !this.Regex.IsMatch(vat) 
+            ? VatValidationResult.Failed($"Invalid {CountryCode} vat: format") 
+            : this.OnValidate(vat);
+    }
     protected abstract VatValidationResult OnValidate(string vat);
 }

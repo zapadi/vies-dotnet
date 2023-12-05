@@ -12,39 +12,44 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class FRVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class FrVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"[0-9A-Z]{2}[0-9]{9}";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.FR);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    public FrVatValidator()
     {
-        private const string RegexPattern =@"[0-9A-Z]{2}[0-9]{9}";
-
-        public FRVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.FR);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var validationKey = vat.Slice(0, 2);
-            var val = int.Parse(vat.Slice(2), CultureInfo.InvariantCulture);
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var validationKey = vat.Slice(0, 2);
+        var val = int.Parse(vat.Slice(2), CultureInfo.InvariantCulture);
             
-            if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
-            {
-                return VatValidationResult.Success();
-            }
+        if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
+        {
+            return VatValidationResult.Success();
+        }
           
-            var checkDigit = ( 12 + 3 * ( val % 97 ) ) % 97;
+        var checkDigit = ( 12 + 3 * ( val % 97 ) ) % 97;
 
-            var isValid = checkDigit == temp;
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid FR vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == temp;
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid FR vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

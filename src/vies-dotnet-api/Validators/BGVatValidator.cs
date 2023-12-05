@@ -12,130 +12,135 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class BGVatValidator : VatValidatorAbstract
-    {
-        private const string RegexPattern = @"^\d{9,10}$";
-        private static readonly Regex RegexPhysicalPerson = new Regex(@"^\d\d[0-5]\d[0-3]\d\d{4}$", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-        private static readonly int[] MultipliersPhysicalPerson = {2, 4, 8, 5, 10, 9, 7, 3, 6};
-        private static readonly int[] MultipliersForeignPhysicalPerson = {21, 19, 17, 13, 11, 9, 7, 3, 1};
-        private static readonly int[] MultipliersMiscellaneous = {4, 3, 2, 7, 6, 5, 4, 3, 2};
-
-        public BGVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.BG);
-        }
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class BgVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^\d{9,10}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.BG);
         
-        protected override VatValidationResult OnValidate(string vat)
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+    private static readonly Regex RegexPhysicalPerson = new(@"^\d\d[0-5]\d[0-3]\d\d{4}$", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] MultipliersPhysicalPerson = {2, 4, 8, 5, 10, 9, 7, 3, 6};
+    private static readonly int[] MultipliersForeignPhysicalPerson = {21, 19, 17, 13, 11, 9, 7, 3, 1};
+    private static readonly int[] MultipliersMiscellaneous = {4, 3, 2, 7, 6, 5, 4, 3, 2};
+
+    public BgVatValidator()
+    {
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
+        
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        bool isValid;
+        if (vat.Length == 9)
         {
-            bool isValid;
-            if (vat.Length == 9)
-            {
-                isValid = Bg9DigitsVat(vat);
-                return isValid ? VatValidationResult.Success() : VatValidationResult.Failed("Invalid 9 digits vat.");
-            }
-
-            if (BgPhysicalPerson(vat))
-            {
-                return VatValidationResult.Success();
-            }
-
-            isValid = BgForeignerPhysicalPerson(vat) || BgMiscellaneousVatNumber(vat);
-
-            return !isValid
-                ? VatValidationResult.Failed("")
-                : VatValidationResult.Success();
+            isValid = Bg9DigitsVat(vat);
+            return isValid ? VatValidationResult.Success() : VatValidationResult.Failed("Invalid 9 digits vat.");
         }
 
-        private static bool Bg9DigitsVat(string vat)
+        if (BgPhysicalPerson(vat))
         {
-            var total = 0;
-            var temp = 0;
-            for (var index = 0; index < 8; index++)
-            {
-                temp += vat[index].ToInt() * (index + 1);
-            }
+            return VatValidationResult.Success();
+        }
 
-            total = temp % 11;
+        isValid = BgForeignerPhysicalPerson(vat) || BgMiscellaneousVatNumber(vat);
 
-            if (total != 10)
-            {
-                return total == vat[8].ToInt();
-            }
+        return !isValid
+            ? VatValidationResult.Failed("")
+            : VatValidationResult.Success();
+    }
 
-            temp = 0;
-            for (var index = 0; index < 8; index++)
-            {
-                temp += vat[index].ToInt() * (index + 3);
-            }
+    private static bool Bg9DigitsVat(string vat)
+    {
+        var total = 0;
+        var temp = 0;
+        for (var index = 0; index < 8; index++)
+        {
+            temp += vat[index].ToInt() * (index + 1);
+        }
 
-            total = temp % 11;
+        total = temp % 11;
 
-            if (total == 10)
-            {
-                total = 0;
-            }
-
+        if (total != 10)
+        {
             return total == vat[8].ToInt();
         }
 
-        private static bool BgPhysicalPerson(string vat)
+        temp = 0;
+        for (var index = 0; index < 8; index++)
         {
-            if (!RegexPhysicalPerson.IsMatch(vat))
-            {
+            temp += vat[index].ToInt() * (index + 3);
+        }
+
+        total = temp % 11;
+
+        if (total == 10)
+        {
+            total = 0;
+        }
+
+        return total == vat[8].ToInt();
+    }
+
+    private static bool BgPhysicalPerson(string vat)
+    {
+        if (!RegexPhysicalPerson.IsMatch(vat))
+        {
+            return false;
+        }
+
+        var month = int.Parse(vat.Slice(2, 2), CultureInfo.InvariantCulture);
+
+        if ((month <= 0 || month >= 13) && (month <= 20 || month >= 33) && (month <= 40 || month >= 53))
+        {
+            return false;
+        }
+
+        var total = vat.Sum(MultipliersPhysicalPerson);
+
+        total %= 11;
+
+        if (total == 10)
+        {
+            total = 0;
+        }
+
+        return total == vat[9].ToInt();
+    }
+
+    private static bool BgForeignerPhysicalPerson(string vat)
+    {
+        var total = vat.Sum(MultipliersForeignPhysicalPerson);
+
+        return total % 10 == vat[9].ToInt();
+    }
+
+    private static bool BgMiscellaneousVatNumber(string vat)
+    {
+        var total = vat.Sum(MultipliersMiscellaneous);
+
+        total = 11 - total % 11;
+
+        switch (total)
+        {
+            case 10:
                 return false;
-            }
-
-            var month = int.Parse(vat.Slice(2, 2), CultureInfo.InvariantCulture);
-
-            if ((month <= 0 || month >= 13) && (month <= 20 || month >= 33) && (month <= 40 || month >= 53))
-            {
-                return false;
-            }
-
-            var total = vat.Sum(MultipliersPhysicalPerson);
-
-            total %= 11;
-
-            if (total == 10)
-            {
+            case 11:
                 total = 0;
-            }
-
-            return total == vat[9].ToInt();
+                break;
         }
 
-        private static bool BgForeignerPhysicalPerson(string vat)
-        {
-            var total = vat.Sum(MultipliersForeignPhysicalPerson);
-
-            return total % 10 == vat[9].ToInt();
-        }
-
-        private static bool BgMiscellaneousVatNumber(string vat)
-        {
-            var total = vat.Sum(MultipliersMiscellaneous);
-
-            total = 11 - total % 11;
-
-            switch (total)
-            {
-                case 10:
-                    return false;
-                case 11:
-                    total = 0;
-                    break;
-            }
-
-            return total == vat[9].ToInt();
+        return total == vat[9].ToInt();
     }
 }

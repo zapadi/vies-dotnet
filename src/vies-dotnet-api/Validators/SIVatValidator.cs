@@ -12,38 +12,44 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class SIVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class SiVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^[1-9]\d{7}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.SI);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
+
+    public SiVatValidator()
     {
-        private const string RegexPattern =@"^[1-9]\d{7}$";
-        private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
-
-        public SIVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.SI);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = 11 - sum % 11;
+        var checkDigit = 11 - sum % 11;
             
-            if (checkDigit > 9)
-            {
-                checkDigit = 0;
-            }
+        if (checkDigit > 9)
+        {
+            checkDigit = 0;
+        }
 
-            var isValid = checkDigit == vat[7].ToInt();
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid SI vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == vat[7].ToInt();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid SI vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

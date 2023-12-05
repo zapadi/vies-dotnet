@@ -12,31 +12,37 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class DKVatValidator : VatValidatorAbstract
+/// <summary>
+///
+/// </summary>
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes
+public sealed class DkVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^(\d{2} ?){3}\d{2}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.DK);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {2, 7, 6, 5, 4, 3, 2, 1};
+
+    public DkVatValidator()
     {
-        private const string RegexPattern = @"^(\d{2} ?){3}\d{2}$";
-        private static readonly int[] Multipliers = {2, 7, 6, 5, 4, 3, 2, 1};
-
-        public DKVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.DK);
-        }
-        
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
-
-            var isValid = sum % 11 == 0;
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid DK vat: checkValue") 
-                : VatValidationResult.Success();
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
     }
+
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
+
+        var isValid = sum % 11 == 0;
+        return !isValid
+            ? VatValidationResult.Failed("Invalid DK vat: checkValue")
+            : VatValidationResult.Success();
+    }
+}

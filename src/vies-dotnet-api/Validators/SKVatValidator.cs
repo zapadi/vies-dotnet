@@ -12,30 +12,35 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class SKVatValidator : VatValidatorAbstract
-    {
-        private const string RegexPattern = @"^[1-9]\d[2346-9]\d{7}$";
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class SkVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^[1-9]\d[2346-9]\d{7}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.SK);
 
-        public SKVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-            CountryCode = nameof(EuCountryCode.SK);
-        }
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    public SkVatValidator()
+    {
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var nr = ulong.Parse(vat, NumberStyles.Integer, CultureInfo.InvariantCulture);
-            var isValid = nr % 11 == 0;
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid SK vat: checkValue") 
-                : VatValidationResult.Success();
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var nr = ulong.Parse(vat, NumberStyles.Integer, CultureInfo.InvariantCulture);
+        var isValid = nr % 11 == 0;
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid SK vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

@@ -12,26 +12,30 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class ESVatValidator : VatValidatorAbstract
+/// <summary>
+///
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class EsVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^([A-Z]\d{8})$|^([A-HN-SW]\d{7}[A-J])$|^([0-9YZ]\d{7}[A-Z])|([KLMX]\d{7}[A-Z])$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.ES);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
+
+    public EsVatValidator()
     {
-        private const string RegexPattern =@"^([A-Z]\d{8})$|^([A-HN-SW]\d{7}[A-J])$|^([0-9YZ]\d{7}[A-Z])|([KLMX]\d{7}[A-Z])$";
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
 
-        public ESVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-            CountryCode = nameof(EuCountryCode.ES);
-        }
-
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            return VatValidationResult.Success();
-        }
-}
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        return VatValidationResult.Success();
+    }
 }

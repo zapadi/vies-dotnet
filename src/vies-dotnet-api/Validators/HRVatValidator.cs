@@ -12,41 +12,46 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
+
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+internal sealed class HrVatValidator : VatValidatorAbstract
 {
-    internal sealed class HRVatValidator : VatValidatorAbstract
+    private const string REGEX_PATTERN =@"^\d{11}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.HR);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    public HrVatValidator()
     {
-        private const string RegexPattern =@"^\d{11}$";
-
-        public HRVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.HR);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var product = 10;
+
+        for (var index = 0; index < 10; index++)
         {
-            var product = 10;
-
-            for (var index = 0; index < 10; index++)
-            {
-                var sum = (vat[index].ToInt() + product) % 10;
+            var sum = (vat[index].ToInt() + product) % 10;
                
-                if (sum == 0)
-                {
-                    sum = 10;
-                }
-                
-                product = 2 * sum % 11;
+            if (sum == 0)
+            {
+                sum = 10;
             }
+                
+            product = 2 * sum % 11;
+        }
 
-            var checkDigit = (product + vat[10].ToInt()) % 10;
+        var checkDigit = (product + vat[10].ToInt()) % 10;
             
-            var isValid = checkDigit == 1;
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid HR vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == 1;
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid HR vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

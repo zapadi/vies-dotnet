@@ -12,46 +12,51 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class DEVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class DeVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^[1-9]\d{8}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.DE);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    public DeVatValidator()
     {
-        private const string RegexPattern = @"^[1-9]\d{8}$"; //[0-9]{9}
-
-        public DEVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.DE);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var product = 10;
+        for (var index = 0; index < 8; index++)
         {
-            var product = 10;
-            for (var index = 0; index < 8; index++)
+            var sum = (vat[index].ToInt() + product) % 10;
+            if (sum == 0)
             {
-                var sum = (vat[index].ToInt() + product) % 10;
-                if (sum == 0)
-                {
-                    sum = 10;
-                }
-
-                product = 2 * sum % 11;
+                sum = 10;
             }
 
-            var val = 11 - product;
-            var checkDigit = val == 10
-                ? 0
-                : val;
+            product = 2 * sum % 11;
+        }
 
-            var isValid = checkDigit == vat[8].ToInt();
+        var val = 11 - product;
+        var checkDigit = val == 10
+            ? 0
+            : val;
 
-            return !isValid
-                ? VatValidationResult.Failed("Invalid DE vat: checkValue")
-                : VatValidationResult.Success();
+        var isValid = checkDigit == vat[8].ToInt();
+
+        return !isValid
+            ? VatValidationResult.Failed("Invalid DE vat: checkValue")
+            : VatValidationResult.Success();
     }
 }

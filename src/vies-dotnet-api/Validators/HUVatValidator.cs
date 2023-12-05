@@ -12,36 +12,41 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
+
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+internal sealed class HuVatValidator : VatValidatorAbstract
 {
-    internal sealed class HUVatValidator : VatValidatorAbstract
+    private const string REGEX_PATTERN =@"^\d{8}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.HU);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {9, 7, 3, 1, 9, 7, 3};
+
+    public HuVatValidator()
     {
-        private const string RegexPattern =@"^\d{8}$";
-            
-        private static readonly int[] Multipliers = {9, 7, 3, 1, 9, 7, 3};
-
-        public HUVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.HU);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = 10 - sum % 10;
+        var checkDigit = 10 - sum % 10;
             
-            if (checkDigit == 10)
-            {
-                checkDigit = 0;
-            }
+        if (checkDigit == 10)
+        {
+            checkDigit = 0;
+        }
 
-            var isValid = checkDigit == vat[7].ToInt();
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid HU vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == vat[7].ToInt();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid HU vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

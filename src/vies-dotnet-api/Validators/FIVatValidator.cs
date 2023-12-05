@@ -12,38 +12,44 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class FIVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class FiVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^\d{8}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.FI);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {7, 9, 10, 5, 8, 4, 2};
+
+    public FiVatValidator()
     {
-        private const string RegexPattern =@"^\d{8}$";
-        private static readonly int[] Multipliers = {7, 9, 10, 5, 8, 4, 2};
-
-        public FIVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.FI);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = 11 - sum % 11;
+        var checkDigit = 11 - sum % 11;
             
-            if (checkDigit > 9)
-            {
-                checkDigit = 0;
-            }
+        if (checkDigit > 9)
+        {
+            checkDigit = 0;
+        }
 
-            var isValid = checkDigit == vat[7].ToInt();
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid FI vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == vat[7].ToInt();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid FI vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

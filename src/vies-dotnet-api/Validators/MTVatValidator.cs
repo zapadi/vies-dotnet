@@ -12,32 +12,38 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
+
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class MtVatValidator : VatValidatorAbstract
 {
-    public sealed class MTVatValidator : VatValidatorAbstract
+    private const string REGEX_PATTERN =@"^[1-9]\d{7}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.MT);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {3, 4, 6, 7, 8, 9};
+
+    public MtVatValidator()
     {
-        private const string RegexPattern =@"^[1-9]\d{7}$";
-        private static readonly int[] Multipliers = {3, 4, 6, 7, 8, 9};
-
-        public MTVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.MT);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = 37 - sum % 37;
+        var checkDigit = 37 - sum % 37;
 
-            var isValid = checkDigit == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
+        var isValid = checkDigit == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
             
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid MT vat: checkValue") 
-                : VatValidationResult.Success();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid MT vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

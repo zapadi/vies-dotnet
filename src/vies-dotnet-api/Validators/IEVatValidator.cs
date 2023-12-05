@@ -12,54 +12,59 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
+
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+internal sealed class IeVatValidator : VatValidatorAbstract
 {
-    internal sealed class IEVatValidator : VatValidatorAbstract
+    private const string REGEX_PATTERN =@"^(\d{7}[A-W])|([7-9][A-Z\*\+)]\d{5}[A-W])|(\d{7}[A-W][AH])$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.IE);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
+    private static readonly Regex RegexType2 = new(@"/^\d[A-Z\*\+]/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+    private static readonly Regex RegexType3 = new(@"/^\d{7}[A-Z][AH]$/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+        
+    private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
+
+
+    public IeVatValidator()
     {
-        private const string RegexPattern =@"^(\d{7}[A-W])|([7-9][A-Z\*\+)]\d{5}[A-W])|(\d{7}[A-W][AH])$";
-        private static readonly Regex RegexType2 = new Regex(@"/^\d[A-Z\*\+]/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-        private static readonly Regex RegexType3 = new Regex(@"/^\d{7}[A-Z][AH]$/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
-
-
-        public IEVatValidator()
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        if (RegexType2.IsMatch(vat))
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.IE);
+            vat = $"0{vat.Slice(2, 7)}{vat.Slice(0, 1)}{vat.Slice(7, 8)}";
         }
-        
-        protected override VatValidationResult OnValidate(string vat)
+
+        var sum = vat.Sum(Multipliers);
+
+        // If the number is type 3 then we need to include the trailing A or H in the calculation
+        if (RegexType3.IsMatch(vat))
         {
-            if (RegexType2.IsMatch(vat))
+            // Add in a multiplier for the character A (1*9=9) or H (8*9=72)
+            if (vat[8] == 'H')
             {
-                vat = $"0{vat.Slice(2, 7)}{vat.Slice(0, 1)}{vat.Slice(7, 8)}";
+                sum += 72;
             }
-
-            var sum = vat.Sum(Multipliers);
-
-            // If the number is type 3 then we need to include the trailing A or H in the calculation
-            if (RegexType3.IsMatch(vat))
+            else
             {
-                // Add in a multiplier for the character A (1*9=9) or H (8*9=72)
-                if (vat[8] == 'H')
-                {
-                    sum += 72;
-                }
-                else
-                {
-                    sum += 9;
-                }
+                sum += 9;
             }
+        }
 
-            var checkDigit = sum % 23;
+        var checkDigit = sum % 23;
             
-            var isValid = vat[7] == (checkDigit == 0 ? 'W' : (char) (checkDigit + 64));
+        var isValid = vat[7] == (checkDigit == 0 ? 'W' : (char) (checkDigit + 64));
             
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid IE vat: checkValue") 
-                : VatValidationResult.Success();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid IE vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

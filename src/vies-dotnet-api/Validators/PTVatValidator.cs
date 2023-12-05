@@ -12,37 +12,43 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class PTVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class PtVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^\d{9}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.PT);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {9, 8, 7, 6, 5, 4, 3, 2};
+
+    public PtVatValidator()
     {
-        private const string RegexPattern =@"^\d{9}$";
-        private static readonly int[] Multipliers = {9, 8, 7, 6, 5, 4, 3, 2};
-
-        public PTVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.PT);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = 11 - sum % 11;
+        var checkDigit = 11 - sum % 11;
             
-            if (checkDigit > 9)
-            {
-                checkDigit = 0;
-            }
-            var isValid = checkDigit == vat[8].ToInt();
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid PT vat: checkValue") 
-                : VatValidationResult.Success();
+        if (checkDigit > 9)
+        {
+            checkDigit = 0;
+        }
+        var isValid = checkDigit == vat[8].ToInt();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid PT vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

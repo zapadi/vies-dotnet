@@ -12,49 +12,54 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
+/// <summary>
+///
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class AtVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^U\d{8}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.AT);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+    private static readonly int[] Multipliers = {1, 2, 1, 2, 1, 2, 1};
+
+
     /// <summary>
-    /// 
+    ///
     /// </summary>
-    public sealed class ATVatValidator : VatValidatorAbstract
+    public AtVatValidator()
     {
-        private const string RegexPattern = @"^U\d{8}$";
-        private static readonly int[] Multipliers = {1, 2, 1, 2, 1, 2, 1};
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public ATVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
-        
-            CountryCode = nameof(EuCountryCode.AT);
-        }
-        
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var index = 1;
-            var sum = 0;
-            foreach (var digit in Multipliers)
-            {
-                var temp = vat[index++].ToInt() * digit;
-                sum += temp > 9 ? (int) Math.Floor(temp / 10D) + temp % 10 : temp;
-            }
-
-            var checkDigit = 10 - (sum + 4) % 10;
-            
-            if (checkDigit == 10)
-            {
-                checkDigit = 0;
-            }
-
-            var isValid = checkDigit == vat[8].ToInt();
-
-            return !isValid 
-                ? VatValidationResult.Failed($"Invalid {CountryCode} vat: checkValue") 
-                : VatValidationResult.Success();
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
     }
+
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var index = 1;
+        var sum = 0;
+        foreach (var digit in Multipliers)
+        {
+            var temp = vat[index++].ToInt() * digit;
+            sum += temp > 9 ? (int) Math.Floor(temp / 10D) + temp % 10 : temp;
+        }
+
+        var checkDigit = 10 - (sum + 4) % 10;
+
+        if (checkDigit == 10)
+        {
+            checkDigit = 0;
+        }
+
+        var isValid = checkDigit == vat[8].ToInt();
+
+        return !isValid
+            ? VatValidationResult.Failed($"Invalid {CountryCode} vat: checkValue")
+            : VatValidationResult.Success();
+    }
+}

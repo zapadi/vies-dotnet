@@ -12,63 +12,69 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
+
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class LvVatValidator : VatValidatorAbstract
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class LVVatValidator : VatValidatorAbstract
+    private const string REGEX_PATTERN =@"^\d{11}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.LV);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {9, 1, 4, 8, 3, 10, 2, 5, 7, 6};
+
+    public LvVatValidator()
     {
-        private const string RegexPattern =@"^\d{11}$";
-        private static readonly int[] Multipliers = {9, 1, 4, 8, 3, 10, 2, 5, 7, 6};
-
-        public LVVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.LV);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        // Only check the legal bodies
+        if (Regex.IsMatch(vat, "/^[0-3]/", RegexOptions.None, TimeSpan.FromSeconds(5)))
         {
-            // Only check the legal bodies
-            if (Regex.IsMatch(vat, "/^[0-3]/", RegexOptions.None, TimeSpan.FromSeconds(5)))
-            {
-                var result = Regex.IsMatch(vat, "^[0-3][0-9][0-1][0-9]", RegexOptions.None, TimeSpan.FromSeconds(5));
-                return !result 
-                    ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
-                    : VatValidationResult.Success();
-            }
-            var sum = vat.Sum(Multipliers);
+            var result = Regex.IsMatch(vat, "^[0-3][0-9][0-1][0-9]", RegexOptions.None, TimeSpan.FromSeconds(5));
+            return !result 
+                ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
+                : VatValidationResult.Success();
+        }
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = sum % 11;
+        var checkDigit = sum % 11;
 
-            if (checkDigit == 4 && vat[0] == '9')
-            {
-                checkDigit -= 45;
-            }
+        if (checkDigit == 4 && vat[0] == '9')
+        {
+            checkDigit -= 45;
+        }
 
-            if (checkDigit == 4)
+        if (checkDigit == 4)
+        {
+            checkDigit = 4 - checkDigit;
+        }
+        else
+        {
+            if (checkDigit > 4)
             {
-                checkDigit = 4 - checkDigit;
+                checkDigit = 14 - checkDigit;
             }
             else
             {
-                if (checkDigit > 4)
-                {
-                    checkDigit = 14 - checkDigit;
-                }
-                else
-                {
-                    checkDigit = 3 - checkDigit;
-                }
+                checkDigit = 3 - checkDigit;
             }
+        }
 
-            var isValid = checkDigit == vat[10].ToInt();
+        var isValid = checkDigit == vat[10].ToInt();
             
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
-                : VatValidationResult.Success();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

@@ -12,41 +12,46 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class BEVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class BeVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^0?\d{9}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.BE);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    public BeVatValidator()
     {
-        private const string RegexPattern = @"^0?\d{9}$";
-
-        public BEVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.BE);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        if (vat.Length == 10 && vat[0] != '0')
         {
-            if (vat.Length == 10 && vat[0] != '0')
-            {
-                return VatValidationResult.Failed("First character of 10 digit numbers should be 0.");
-            }
+            return VatValidationResult.Failed("First character of 10 digit numbers should be 0.");
+        }
             
-            if (vat.Length == 9)
-            {
-                vat = vat.PadLeft(10, '0');
-            }
+        if (vat.Length == 9)
+        {
+            vat = vat.PadLeft(10, '0');
+        }
 
-            // Modulus 97 check on last nine digits
-            var isValid = 97 - int.Parse(vat.Slice(0, 8), CultureInfo.InvariantCulture) % 97 == int.Parse(vat.Slice(8, 2), CultureInfo.InvariantCulture);
+        // Modulus 97 check on last nine digits
+        var isValid = 97 - int.Parse(vat.Slice(0, 8), CultureInfo.InvariantCulture) % 97 == int.Parse(vat.Slice(8, 2), CultureInfo.InvariantCulture);
 
-            return !isValid
-                ? VatValidationResult.Failed("Invalid BE vat: checkValue.")
-                : VatValidationResult.Success();
+        return !isValid
+            ? VatValidationResult.Failed("Invalid BE vat: checkValue.")
+            : VatValidationResult.Success();
     }
 }

@@ -12,39 +12,45 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class EEVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class EeVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^10\d{7}$"; //[0-9]{9}
+    private const string COUNTRY_CODE = nameof(EuCountryCode.EE);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {3, 7, 1, 3, 7, 1, 3, 7};
+
+    public EeVatValidator()
     {
-        private const string RegexPattern =@"^10\d{7}$"; //[0-9]{9}
-        private static readonly int[] Multipliers = {3, 7, 1, 3, 7, 1, 3, 7};
-
-        public EEVatValidator()
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
+        
+        
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var sum = vat.Sum(Multipliers);
+            
+        var checkDigit = 10 - sum % 10;
+            
+        if (checkDigit == 10)
         {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.EE);
+            checkDigit = 0;
         }
-        
-        
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var sum = vat.Sum(Multipliers);
-            
-            var checkDigit = 10 - sum % 10;
-            
-            if (checkDigit == 10)
-            {
-                checkDigit = 0;
-            }
 
-            var isValid = checkDigit == vat[8].ToInt();
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid EE vat: checkValue") 
-                : VatValidationResult.Success();
+        var isValid = checkDigit == vat[8].ToInt();
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid EE vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }

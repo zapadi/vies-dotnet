@@ -12,49 +12,55 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class CZVatValidator : VatValidatorAbstract
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class CzVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN = @"^(\d{8,10})(\d{3})?$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.CZ);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
+
+    private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
+
+    public CzVatValidator()
     {
-        private const string RegexPattern = @"^(\d{8,10})(\d{3})?$";
-        private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
-
-        public CZVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.CZ);
-        }
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        // Only do check digit validation for standard VAT numbers
+        if (vat.Length != 8)
         {
-            // Only do check digit validation for standard VAT numbers
-            if (vat.Length != 8)
-            {
-                return VatValidationResult.Success();
-            }
+            return VatValidationResult.Success();
+        }
 
-            var sum = vat.Sum(Multipliers);
+        var sum = vat.Sum(Multipliers);
 
-            var checkDigit = 11 - sum % 11;
+        var checkDigit = 11 - sum % 11;
 
-            if (checkDigit == 10)
-            {
-                checkDigit = 0;
-            }
+        if (checkDigit == 10)
+        {
+            checkDigit = 0;
+        }
 
-            if (checkDigit == 11)
-            {
-                checkDigit = 1;
-            }
+        if (checkDigit == 11)
+        {
+            checkDigit = 1;
+        }
 
-            var isValid = checkDigit == vat[7].ToInt();
-            return !isValid
-                ? VatValidationResult.Failed("Invalid CZ vat: checkValue")
-                : VatValidationResult.Success();
+        var isValid = checkDigit == vat[7].ToInt();
+        return !isValid
+            ? VatValidationResult.Failed("Invalid CZ vat: checkValue")
+            : VatValidationResult.Success();
     }
 }

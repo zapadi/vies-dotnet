@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 /*
    Copyright 2017-2023 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +17,29 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Padi.Vies.Validators;
-{
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class LUVatValidator : VatValidatorAbstract
-    {
-        private const string RegexPattern =@"^\d{8}$";
 
-        public LUVatValidator()
-        {
-            Regex = new Regex(RegexPattern, RegexOptions.Compiled, TimeSpan.FromSeconds(5));    
-            CountryCode = nameof(EuCountryCode.LU);
-        }
+/// <summary>
+/// 
+/// </summary>
+[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+public sealed class LuVatValidator : VatValidatorAbstract
+{
+    private const string REGEX_PATTERN =@"^\d{8}$";
+    private const string COUNTRY_CODE = nameof(EuCountryCode.LU);
+
+    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
+
+    public LuVatValidator()
+    {
+        this.Regex = _regex;
+        CountryCode = COUNTRY_CODE;
+    }
         
-        protected override VatValidationResult OnValidate(string vat)
-        {
-            var isValid = int.Parse(vat.Slice(0, 6), NumberStyles.Integer, CultureInfo.InvariantCulture) % 89 == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
-            return !isValid 
-                ? VatValidationResult.Failed("Invalid LU vat: checkValue") 
-                : VatValidationResult.Success();
+    protected override VatValidationResult OnValidate(string vat)
+    {
+        var isValid = int.Parse(vat.Slice(0, 6), NumberStyles.Integer, CultureInfo.InvariantCulture) % 89 == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
+        return !isValid 
+            ? VatValidationResult.Failed("Invalid LU vat: checkValue") 
+            : VatValidationResult.Success();
     }
 }
