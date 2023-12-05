@@ -1,26 +1,6 @@
 <Project>
 
-    <PropertyGroup Label="Package">
-        <AssemblyTitle>VIES dotnet library</AssemblyTitle>
-        <Authors>Adrian Popescu</Authors>
-        <Copyright>Adrian Popescu, 2017 - $([System.DateTime]::Now.Year.ToString())</Copyright>
-        <Description>European VIES VAT validation for dotnet.</Description>
-        <NeutralLanguage>en-US</NeutralLanguage>
-        <Owners>Adrian Popescu</Owners>
-        <PackageLicense>LICENSE</PackageLicense>
-        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/zapadi/vies-dotnetcore</PackageProjectUrl>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
-        <Product>Redmine .NET API Client</Product>
-        <ReleaseNotes></ReleaseNotes>
-        <RepositoryType>Git</RepositoryType>
-        <RepositoryUrl>https://github.com/zapadi/vies-dotnetcore</RepositoryUrl>
-        <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
-        <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
-        <Title>VIES NET API</Title>
-    
-    </PropertyGroup>
+   
 
     <PropertyGroup Label="Build">
         <LangVersion>11</LangVersion>
@@ -31,11 +11,4 @@
         <PackageOutputPath>$(SolutionDir)/artifacts</PackageOutputPath>
     </PropertyGroup>
 
-    <PropertyGroup Label="Analyzers">
-        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-        <AnalysisLevel>latest</AnalysisLevel>
-    </PropertyGroup>
-    
 </Project>

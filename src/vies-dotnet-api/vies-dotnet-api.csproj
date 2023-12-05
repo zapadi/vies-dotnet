@@ -7,14 +7,40 @@
         <TargetFrameworks>net8.0;net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <NoWarn>MA0051;MA0110;IDE0063;</NoWarn>
-        <Version>2.0.0</Version>
+        
     </PropertyGroup>
-    
-    <PropertyGroup Label="Package">
-        <PackageId>vies-dotnet-api</PackageId>
-    </PropertyGroup>
-    
-   <ItemGroup>
+  
+  <PropertyGroup Label="Package">
+    <AssemblyTitle>VIES dotnet library</AssemblyTitle>
+    <Authors>Adrian Popescu</Authors>
+    <Copyright>Adrian Popescu, 2017 - $([System.DateTime]::Now.Year.ToString())</Copyright>
+    <Description>European VIES VAT validation for dotnet.</Description>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Owners>Adrian Popescu</Owners>
+    <PackageId>vies-dotnet-api</PackageId>
+    <PackageLicense>LICENSE</PackageLicense>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/zapadi/vies-dotnetcore</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
+    <Product>Redmine .NET API Client</Product>
+    <ReleaseNotes></ReleaseNotes>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/zapadi/vies-dotnetcore</RepositoryUrl>
+    <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
+    <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
+    <Title>VIES NET API</Title>
+    <Version>3.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Analyzers">
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+  
+  <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>vies-dotnet-api-test</_Parameter1>
         </AssemblyAttribute>
