@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2022 Adrian Popescu.
+   Copyright 2017-2023 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -14,8 +14,14 @@
 using System.Net.Http.Headers;
 
 namespace Padi.Vies;
+
 public static class ViesConstants
 {
-        public const string RESPONSE_DATE_FORMAT = "yyyy-MM-dd+hh:mm";
-        
+    public const string RESPONSE_DATE_FORMAT = "yyyy-MM-dd+hh:mm";
+
+    internal const string MediaTypeTextXml = "text/xml";
+
+    internal const string ViesUri = "https://ec.europa.eu/taxation_customs/vies/services/checkVatService";
+
+    internal static readonly MediaTypeWithQualityHeaderValue MediaTypeHeaderTextXml = new(MediaTypeTextXml);
 }
