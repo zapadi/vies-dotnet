@@ -14,7 +14,7 @@ on:
 
 env:
     BUILD_CONFIG: 'Release'
-    DOTNET_VERSION: '8.x.x'
+    DOTNET_VERSION: '7.x.x'
     PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.ref, 'refs/tags/v') }}
 
 jobs:
