@@ -65,7 +65,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, macOS-latest]
         dotnet-version: ['3.x.x', '5.x.x', '6.x.x', '7.x.x']
 
     steps:

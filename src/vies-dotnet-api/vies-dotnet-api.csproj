@@ -7,7 +7,6 @@
         <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <NoWarn>MA0051;MA0110;IDE0063;</NoWarn>
-        
     </PropertyGroup>
   
   <PropertyGroup Label="Package">
