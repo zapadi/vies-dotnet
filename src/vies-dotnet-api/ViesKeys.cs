@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2022 Adrian Popescu.
+   Copyright 2017-2023 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -11,20 +11,18 @@
    limitations under the License.
 */
 
-namespace Padi.Vies
-{
-    public static class ViesKeys
-    {
-        public const string FAULT_CODE = "FAULTCODE";
-        public const string FAULT_STRING = "FAULTSTRING";
-        public const string COUNTRY_CODE = "COUNTRYCODE";
-        public const string VAT_NUMBER = "VATNUMBER";
-        public const string REQUEST_DATE = "REQUESTDATE";
-        public const string VALID = "VALID";
-        public const string NAME = "NAME";
-        public const string ADDRESS = "ADDRESS";
+namespace Padi.Vies;
 
-        public const string FAULT = "fault";
-        public const string CHECK_VAT_RESPONSE = "checkVatResponse";
-    }
+public static class ViesKeys
+{
+    public const string FaultCode = "FAULTCODE";
+    public const string FaultString = "FAULTSTRING";
+    public const string CountryCode = "COUNTRYCODE";
+    public const string VatNumber = "VATNUMBER";
+    public const string RequestDate = "REQUESTDATE";
+    public const string Valid = "VALID";
+    public const string Name = "NAME";
+    public const string Address = "ADDRESS";
+    public const string Fault = "fault";
+    public const string CheckVatResponse = "checkVatResponse";
 }

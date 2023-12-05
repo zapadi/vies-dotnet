@@ -15,7 +15,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
+namespace Padi.Vies.Validators;
 {
     public sealed class MTVatValidator : VatValidatorAbstract
     {
@@ -39,6 +39,5 @@ namespace Padi.Vies.Validators
             return !isValid 
                 ? VatValidationResult.Failed("Invalid MT vat: checkValue") 
                 : VatValidationResult.Success();
-        }
     }
 }

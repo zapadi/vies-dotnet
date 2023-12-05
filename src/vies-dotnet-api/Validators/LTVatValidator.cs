@@ -14,7 +14,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
+namespace Padi.Vies.Validators;
 {
     /// <summary>
     /// 
@@ -96,6 +96,5 @@ namespace Padi.Vies.Validators
             return !isValid
                 ? VatValidationResult.Failed("Invalid LT vat: checkValue")
                 : VatValidationResult.Success();
-        }
     }
 }

@@ -15,7 +15,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
+namespace Padi.Vies.Validators;
 {
     /// <summary>
     /// 
@@ -36,6 +36,5 @@ namespace Padi.Vies.Validators
             return !isValid 
                 ? VatValidationResult.Failed("Invalid LU vat: checkValue") 
                 : VatValidationResult.Success();
-        }
     }
 }

@@ -14,8 +14,8 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
-{
+namespace Padi.Vies.Validators;
+
     /// <summary>
     /// 
     /// </summary>
@@ -51,6 +51,5 @@ namespace Padi.Vies.Validators
             return !isValid 
                 ? VatValidationResult.Failed("Invalid SE vat: checkValue") 
                 : VatValidationResult.Success();
-        }
     }
 }

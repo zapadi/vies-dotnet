@@ -13,8 +13,8 @@
 
 using System;
 
-namespace Padi.Vies
-{
+namespace Padi.Vies;
+
     public static class ViesExtensions
     {
         public static int ToInt(this char c) => (int)(uint)(c - '0');
@@ -74,6 +74,5 @@ namespace Padi.Vies
             }
 
             return sum;
-        }
     }
 }

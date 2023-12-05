@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2022 Adrian Popescu.
+   Copyright 2017-2023 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -11,33 +11,32 @@
    limitations under the License.
 */
 
-namespace Padi.Vies
+namespace Padi.Vies;
+
+/// <summary>
+/// 
+/// </summary>
+public sealed class VatValidationResult
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public sealed class VatValidationResult
+    private VatValidationResult() { }
+
+    public static VatValidationResult Success()
     {
-        private VatValidationResult() { }
-
-        public static VatValidationResult Success()
+        return new VatValidationResult
         {
-            return new VatValidationResult
-            {
-                IsValid = true, 
-            };
-        }
-
-        public static VatValidationResult Failed(string errorMessage)
-        {
-            return new VatValidationResult
-            {
-                Error = errorMessage,
-            };
-        }
-
-        public bool IsValid { get; private set; }
-
-        public string Error { get; private set; }
+            IsValid = true, 
+        };
     }
+
+    public static VatValidationResult Failed(string errorMessage)
+    {
+        return new VatValidationResult
+        {
+            Error = errorMessage,
+        };
+    }
+
+    public bool IsValid { get; private set; }
+
+    public string Error { get; private set; }
 }

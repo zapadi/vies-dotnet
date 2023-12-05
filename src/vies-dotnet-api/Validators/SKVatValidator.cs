@@ -15,8 +15,8 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
-{
+namespace Padi.Vies.Validators;
+
     /// <summary>
     /// 
     /// </summary>
@@ -37,6 +37,5 @@ namespace Padi.Vies.Validators
             return !isValid 
                 ? VatValidationResult.Failed("Invalid SK vat: checkValue") 
                 : VatValidationResult.Success();
-        }
     }
 }

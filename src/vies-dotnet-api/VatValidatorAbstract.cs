@@ -14,33 +14,32 @@
 using System.Text.RegularExpressions;
 using Padi.Vies.Errors;
 
-namespace Padi.Vies
+namespace Padi.Vies;
+
+/// <summary>
+/// 
+/// </summary>
+public abstract class VatValidatorAbstract : IVatValidator
 {
+    protected Regex Regex { get; set; }
+    public static string CountryCode { get; protected set; }
+
     /// <summary>
     /// 
     /// </summary>
-    public abstract class VatValidatorAbstract : IVatValidator
+    /// <param name="vat"></param>
+    /// <returns></returns>
+    /// <exception cref="ViesValidationException"></exception>
+    public VatValidationResult Validate(string vat)
     {
-        protected Regex Regex { get; set; }
-        public static string CountryCode { get; protected set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="vat"></param>
-        /// <returns></returns>
-        /// <exception cref="ViesValidationException"></exception>
-        public VatValidationResult Validate(string vat)
+        if (this.Regex == null)
         {
-            if (Regex == null)
-            {
-                throw new ViesValidationException("The regex to validate format is null.");
-            }
+            throw new ViesValidationException("The regex to validate format is null.");
+        }
             
             return !Regex.IsMatch(vat) 
                 ? VatValidationResult.Failed($"Invalid {CountryCode} vat: format") 
                 : OnValidate(vat);
         }
-        protected abstract VatValidationResult OnValidate(string vat);
-    }
+    protected abstract VatValidationResult OnValidate(string vat);
 }

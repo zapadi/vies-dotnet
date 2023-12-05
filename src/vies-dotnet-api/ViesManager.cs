@@ -1,4 +1,4 @@
-﻿/*
+/*
    Copyright 2017-2022 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ using Padi.Vies.Errors;
 using Padi.Vies.Parsers;
 using Padi.Vies.Validators;
 
-namespace Padi.Vies
-{
+[assembly: AssemblyVersion("2.0.0.0")]
+namespace Padi.Vies;
     /// <summary>
     /// ViesManager offers a way to check if an European Union VAT is valid and/or activ.
     /// </summary>
@@ -229,4 +229,4 @@ namespace Padi.Vies
             return (countryCode, vatNumber);
         }
     }
-}
+}

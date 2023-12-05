@@ -11,10 +11,11 @@
    limitations under the License.
 */
 
-namespace Padi.Vies
+using System.Net.Http.Headers;
+
+namespace Padi.Vies;
+public static class ViesConstants
 {
-    public static class ViesConstants
-    {
         public const string RESPONSE_DATE_FORMAT = "yyyy-MM-dd+hh:mm";
-    }
+        
 }

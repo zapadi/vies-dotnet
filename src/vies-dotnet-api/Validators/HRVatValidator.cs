@@ -14,7 +14,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
+namespace Padi.Vies.Validators;
 {
     internal sealed class HRVatValidator : VatValidatorAbstract
     {
@@ -48,6 +48,5 @@ namespace Padi.Vies.Validators
             return !isValid 
                 ? VatValidationResult.Failed("Invalid HR vat: checkValue") 
                 : VatValidationResult.Success();
-        }
     }
 }

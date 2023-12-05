@@ -15,8 +15,8 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Padi.Vies.Validators
-{
+namespace Padi.Vies.Validators;
+
     /// <summary>
     /// 
     /// </summary>
@@ -137,6 +137,5 @@ namespace Padi.Vies.Validators
             }
 
             return total == vat[9].ToInt();
-        }
     }
 }

@@ -13,8 +13,8 @@
 
 using System;
 
-namespace Padi.Vies
-{
+namespace Padi.Vies;
+
     public struct ViesCheckVatResponse
     {
         public ViesCheckVatResponse(string countryCode, string vatNumber, DateTimeOffset requestDate, string name = null, string address = null, bool isValid = false) : this()
@@ -34,4 +34,4 @@ namespace Padi.Vies
         public string Address { get; internal set;}
         public bool IsValid { get; internal set;}
     }
-}
+}
