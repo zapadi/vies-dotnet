@@ -124,8 +124,7 @@ Task("Pack")
         var msBuildSettings = new DotNetMSBuildSettings(){
             ContinuousIntegrationBuild = !BuildSystem.IsLocalBuild
         }
-                   // .SetTargetFramework(framework)
-                    .WithProperty("SymbolPackageFormat", "snupkg");
+        .WithProperty("SymbolPackageFormat", "snupkg");
 
         var dotNetCorePackSettings = new DotNetPackSettings()
             {
