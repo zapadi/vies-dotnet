@@ -1,7 +1,6 @@
 # vies-dotnet-api
 
 [![Build & Test](https://github.com/zapadi/vies-dotnet/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/zapadi/vies-dotnet/actions/workflows/build.yml)
-![AppVeyor branch](https://ci.appveyor.com/api/projects/status/2yqc9atyv5dpgasp/branch/master?svg=true)
 [![NuGet package](https://img.shields.io/nuget/v/vies-dotnet-api.svg)](https://www.nuget.org/packages/vies-dotnet-api)
 ![Nuget](https://img.shields.io/nuget/dt/vies-dotnet-api)
 
@@ -18,15 +17,15 @@ The fastest way of getting started using Vies api is to install the NuGet packag
 
 **Package Manager:**
 ```
-Install-Package vies-dotnet-api -Version 2.0.0
+Install-Package vies-dotnet-api -Version 2.1.1
 ```
 **.NET CLI:**
 ```
-dotnet add package vies-dotnet-api --version 2.0.0
+dotnet add package vies-dotnet-api --version 2.1.1
 ```
 **Package Reference**
 ```
-<PackageReference Include="vies-dotnet-api" Version="2.0.0" />
+<PackageReference Include="vies-dotnet-api" Version="2.1.1" />
 ```
 # Usage
 
@@ -47,13 +46,17 @@ Checking if a EU VAT number is **active**
 ```
 var viesManager = new ViesManager();
 
-var result = await viesManager.IsActive("RO123456789");
+var result = await viesManager.IsActiveAsync("RO123456789");
 ```
 or
 
 ```
-var result = await viesManager.IsActive("RO","123456789");
+var result = await viesManager.IsActiveAsync("RO","123456789");
 ```
+
+### Clarification
+
+Since January 1, 2021 the UK is no longer a member of the European Union and as a result, the VIES service provided by the European Commission no longer validates VAT ID's for the UK.
 
 <a href="https://www.buymeacoffee.com/vXCNnz9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-yellow.png" alt="Buy Me A Coffee" height="37" ></a>
 
