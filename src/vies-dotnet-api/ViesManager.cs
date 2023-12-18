@@ -60,6 +60,11 @@ public sealed class ViesManager : IDisposable
     private readonly HttpClient _httpClient;
     private readonly ViesService _viesService;
 
+    private static readonly Dictionary<string, ExcludedCountryInfo> _excludedCountries = new(StringComparer.OrdinalIgnoreCase)
+    {
+        {"GB", new ExcludedCountryInfo("GB", "Great Britain", "Brexit", "2021-01-01")},
+    };
+
     /// <summary>
     ///
     /// </summary>
@@ -103,6 +108,10 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public static VatValidationResult IsValid(string countryCode, string vatNumber)
     {
+        if (_excludedCountries.TryGetValue(countryCode, out var excludedCountryInfo))
+        {
+            return VatValidationResult.Failed(excludedCountryInfo.ToString());
+        }
         var validator = GetValidator(countryCode);
         return validator == null
             ? VatValidationResult.Failed($"{countryCode} is not a valid ISO_3166-1 European member state.")
