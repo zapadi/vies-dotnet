@@ -17,21 +17,21 @@ The fastest way of getting started using Vies api is to install the NuGet packag
 
 **Package Manager:**
 ```
-Install-Package vies-dotnet-api -Version 2.1.1
+Install-Package vies-dotnet-api -Version 2.2.0
 ```
 **.NET CLI:**
 ```
-dotnet add package vies-dotnet-api --version 2.1.1
+dotnet add package vies-dotnet-api --version 2.2.0
 ```
 **Package Reference**
 ```
-<PackageReference Include="vies-dotnet-api" Version="2.1.1" />
+<PackageReference Include="vies-dotnet-api" Version="2.2.0" />
 ```
 # Usage
 
 ### Checking a VAT number using the vies-dotnet-api
 
-Checking if a EU or GB VAT number is **valid**
+Checking if a EU VAT number is **valid**
 ```
  var result = ViesManager.IsValid("RO123456789");
 ```
@@ -57,6 +57,17 @@ var result = await viesManager.IsActiveAsync("RO","123456789");
 ### Clarification
 
 Since January 1, 2021 the UK is no longer a member of the European Union and as a result, the VIES service provided by the European Commission no longer validates VAT ID's for the UK.
+
+Checking GB VAT number 
+```
+...
+var validationResult = await viesManager.IsActiveAsync("GB434031494");
+```
+will return the following message:
+
+***Great Britain(GB)*** is no longer supported by VIES services provided by EC since ***2021-01-01*** because of ***Brexit***.
+
+****
 
 <a href="https://www.buymeacoffee.com/vXCNnz9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-yellow.png" alt="Buy Me A Coffee" height="37" ></a>
 
