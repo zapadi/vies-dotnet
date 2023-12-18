@@ -14,51 +14,59 @@ on:
 
 env:
     BUILD_CONFIG: 'Release'
-    PUSH_PACKAGES: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.ref, 'refs/tags')) || github.event_name == 'workflow_dispatch' }}
 
 jobs:
-    pack:
-        runs-on: ubuntu-latest
-        if: ${{ env.PUSH_PACKAGES }}
-        steps:
-        - name: Determine version
-          run: |
-            echo "VERSION = $(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
-            echo "$GITHUB_ENV"
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      push_packages: ${{ steps.check.outputs.push_packages }}
+    steps:
+      - id: check
+        run: |
+          echo "::set-output name=push_packages::${{ (github.event_name == 'push' && ((github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags'))) || (github.event_name == 'workflow_dispatch') }}"
 
-        - name: 'Validate SemVer'
-          if: ${{ github.event_name == 'workflow_dispatch' }}
-          run: |
-            VERSION=${{ github.event.inputs.version }}
-            if [[ ! "$VERSION" =~ ^([0-9]+\.){2}[0-9]+$ ]]; then
-              echo "The version does not match the SemVer format (X.Y.Z). Please provide a valid version."
-              exit 1
-            else
-              echo "VERSION=$VERSION" >> $GITHUB_ENV
-            fi
+  pack:
+      if: ${{ needs.check.outputs.push_packages == 'true' }}
+      runs-on: ubuntu-latest
+      steps:
+      - name: Determine version
+        run: |
+          echo "VERSION = $(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+          echo "$GITHUB_ENV"
 
-        - name: 'Print version'
-          if: ${{ github.event_name == 'workflow_dispatch' }}
-          run: |
-            echo 'Version: ${{ github.event.inputs.version }}'
+      - name: 'Validate SemVer'
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          if [[ ! "$VERSION" =~ ^([0-9]+\.){2}[0-9]+$ ]]; then
+            echo "The version does not match the SemVer format (X.Y.Z). Please provide a valid version."
+            exit 1
+          else
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          fi
 
-        - name: Checkout
-          uses: actions/checkout@v4
-          with:
-              lfs: true
-              fetch-depth: 0
+      - name: 'Print version'
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo 'Version: ${{ github.event.inputs.version }}'
 
-        - name: Setup .NET
-          uses: actions/setup-dotnet@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            lfs: true
+            fetch-depth: 0
 
-        - name: Pack
-          run: |
-            dotnet pack \
-            --output ./artifacts \
-            --configuration $BUILD_CONFIG \
-            --version-suffix ${{ env.VERSION }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
 
-        - uses: actions/upload-artifact@v3
-          with:
-            name: artifacts
-            path: ./artifacts
+      - name: Pack
+        run: |
+          dotnet pack \
+          --output ./artifacts \
+          --configuration $BUILD_CONFIG \
+          --version-suffix ${{ env.VERSION }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: ./artifacts
