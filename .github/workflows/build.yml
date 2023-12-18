@@ -92,11 +92,11 @@ jobs:
 
     - name: Test
       run: |
-        dotnet test
-        --configuration $BUILD_CONFIG
-        --no-restore
-        --no-build
-        --verbosity normal
+        dotnet test \
+        --configuration $BUILD_CONFIG \
+        --no-restore \
+        --no-build \
+        --verbosity normal \
         --logger "trx;LogFileName=test-results.trx" || true
       timeout-minutes: 60
 

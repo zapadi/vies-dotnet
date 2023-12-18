@@ -49,9 +49,9 @@ jobs:
 
         - name: Pack
           run: |
-            dotnet pack
-            --output ./artifacts
-            --configuration $BUILD_CONFIG
+            dotnet pack \
+            --output ./artifacts \
+            --configuration $BUILD_CONFIG \
             --version-suffix ${{ env.VERSION }} || github.event.inputs.version
 
         - uses: actions/upload-artifact@v3

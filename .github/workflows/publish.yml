@@ -30,7 +30,7 @@ jobs:
 
     - name: Publish packages
       run: |
-        dotnet nuget push ./artifacts/**.nupkg
-        --source https://api.nuget.org/v3/index.json
-        --api-key ${{secrets.NUGET_TOKEN}}
-        --skip-duplicate
+        dotnet nuget push ./artifacts/**.nupkg \
+        --source https://api.nuget.org/v3/index.json \
+        --api-key ${{secrets.NUGET_TOKEN}} \
+        --skip-duplicate \
