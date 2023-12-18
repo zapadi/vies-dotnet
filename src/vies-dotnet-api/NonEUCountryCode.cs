@@ -16,7 +16,11 @@ namespace Padi.Vies;
 public enum NonEuCountryCode
 {
     /// <summary>
-    /// Great Britain
+    /// United Kingdom
     /// </summary>
     GB,
+    /// <summary>
+    /// United Kingdom (Northern Ireland)
+    /// </summary>
+    XI
 }

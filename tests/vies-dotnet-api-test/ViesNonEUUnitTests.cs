@@ -30,4 +30,18 @@ public sealed class ViesNonEUUnitTests
     {
         Assert.True(ViesManager.IsValid(vatNumber).IsValid == isValid);
     }
+
+    [Theory]
+    [InlineData("925901618", true)]
+    [InlineData("GD001", true)]
+    [InlineData("HA500", true)]
+    [InlineData("434031493", false)]
+    [InlineData("12345", false)]
+    [InlineData("GD500", false)]
+    [InlineData("HA100", false)]
+    [InlineData("12345678", false)]
+    public void Should_Validate_XI_Vat(string vatNumber, bool isValid)
+    {
+        Assert.True(ViesManager.IsValid("XI", vatNumber).IsValid == isValid);
+    }
 }
