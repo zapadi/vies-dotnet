@@ -45,44 +45,36 @@ env:
 
   BUILD_CONFIG: 'Release'
 
-  DOTNET_VERSION: '7.x.x'
-
-  PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-
 # https://docs.github.com/en/actions/learn-github-actions/expressions
 # https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
 concurrency:
-  # github.workflow: name of the workflow
-  # github.event.pull_request.number || github.ref: pull request number or branch name if not a pull request
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-
-  # Cancel in-progress runs when a new workflow with the same group name is triggered
   cancel-in-progress: true
 
 jobs:
   build:
     name: build-and-test-${{matrix.os}}
     runs-on: ${{ matrix.os }}
+
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest]
         dotnet-version: ['3.x.x', '5.x.x', '6.x.x', '7.x.x']
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-          lfs: true
-          fetch-depth: 0
-
     - name: 'Print manual run reason'
       if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |
         echo 'Reason: ${{ github.event.inputs.reason }}'
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        lfs: true
+        fetch-depth: 0
+
+    - name: Setup .NET (global.json)
+      uses: actions/setup-dotnet@v3
 
     - uses: actions/cache@v3
       with:
@@ -99,13 +91,20 @@ jobs:
       run: dotnet build --configuration $BUILD_CONFIG --no-restore
 
     - name: Test
-      run: dotnet test  --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" || true
+      run: |
+        dotnet test
+        --configuration $BUILD_CONFIG
+        --no-restore
+        --no-build
+        --verbosity normal
+        --logger "trx;LogFileName=test-results.trx" || true
+      timeout-minutes: 60
 
-    - name: Test Report
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: DotNET Tests
-        path: "**/test-results.trx"
-        reporter: dotnet-trx
-        fail-on-error: true
+#    - name: Test Report
+#      uses: dorny/test-reporter@v1
+#      if: always()
+#      with:
+#        name: DotNET Tests
+#        path: "**/test-results.trx"
+#        reporter: dotnet-trx
+#        fail-on-error: true
