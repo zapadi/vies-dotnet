@@ -23,7 +23,7 @@ jobs:
     steps:
       - id: check
         run: |
-          echo "::set-output name=push_packages::${{ (github.event_name == 'push' && ((github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags'))) || (github.event_name == 'workflow_dispatch') }}"
+          echo "push_packages=${{ (github.event_name == 'push' && ((github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags'))) || (github.event_name == 'workflow_dispatch') }}" >> $GITHUB_OUTPUT
 
   pack:
       if: ${{ needs.check.outputs.push_packages == 'true' }}
