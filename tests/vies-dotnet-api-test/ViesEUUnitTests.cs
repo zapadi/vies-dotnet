@@ -25,7 +25,7 @@ public sealed class ViesEUUnitTests
     {
         this._fixture = fixture;
     }
-        
+
     [Theory]
     [InlineData("AT U12345678","ATU12345678")]
     [InlineData("  ATU12345678","ATU12345678")]
@@ -128,7 +128,8 @@ public sealed class ViesEUUnitTests
     [InlineData("NL123456789B14")]
     public void Should_Not_Validate_Vat(string vatNumber)
     {
-        Assert.False(ViesManager.IsValid(vatNumber).IsValid);
+        var result = ViesManager.IsValid(vatNumber);
+        Assert.False(result.IsValid);
     }
 
     [Theory]
@@ -319,6 +320,7 @@ public sealed class ViesEUUnitTests
     [InlineData("NL002101624B69")]
     public void Should_Validate_Vat(string vatNumber)
     {
-        Assert.True(ViesManager.IsValid(vatNumber).IsValid);
+        var result = ViesManager.IsValid(vatNumber);
+        Assert.True(result.IsValid);
     }
 }
