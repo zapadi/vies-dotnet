@@ -14,6 +14,8 @@
     <Authors>Adrian Popescu</Authors>
     <Copyright>Adrian Popescu, 2017 - $([System.DateTime]::Now.Year.ToString())</Copyright>
     <Description>European VIES VAT validation for dotnet.</Description>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <EnablePackageValidation>true</EnablePackageValidation>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Owners>Adrian Popescu</Owners>
     <PackageId>vies-dotnet-api</PackageId>
@@ -23,7 +25,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
+    <PackageValidationBaselineVersion>2.0.2</PackageValidationBaselineVersion>
     <Product>Redmine .NET API Client</Product>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ReleaseNotes></ReleaseNotes>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/zapadi/vies-dotnetcore</RepositoryUrl>
@@ -39,12 +43,10 @@
     <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-  </PropertyGroup>
-
+  
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
@@ -56,6 +58,7 @@
    </ItemGroup>
 
    <ItemGroup>
+     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
      <PackageReference Include="Meziantou.Analyzer" Version="2.0.118" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
    </ItemGroup>
 </Project>
