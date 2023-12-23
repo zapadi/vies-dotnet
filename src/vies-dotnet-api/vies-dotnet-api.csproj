@@ -25,7 +25,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
-    <PackageValidationBaselineVersion>2.0.2</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>2.2.0</PackageValidationBaselineVersion>
     <Product>Redmine .NET API Client</Product>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ReleaseNotes></ReleaseNotes>
