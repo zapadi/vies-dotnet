@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class BeVatValidator : VatValidatorAbstract
@@ -34,14 +34,14 @@ public sealed class BeVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
-        if (vat.Length == 10 && vat[0] != '0')
+        if (vat.Length == 10 && vat[0] != '0' && vat[0] != '1')
         {
             return VatValidationResult.Failed("First character of 10 digit numbers should be 0.");
         }
-            
+
         if (vat.Length == 9)
         {
             vat = vat.PadLeft(10, '0');
