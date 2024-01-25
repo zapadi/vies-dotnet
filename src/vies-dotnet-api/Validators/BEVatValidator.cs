@@ -39,7 +39,7 @@ public sealed class BeVatValidator : VatValidatorAbstract
     {
         if (vat.Length == 10 && vat[0] != '0' && vat[0] != '1')
         {
-            return VatValidationResult.Failed("First character of 10 digit numbers should be 0.");
+            return VatValidationResult.Failed("First character of 10 digit numbers should be 0 or 1.");
         }
 
         if (vat.Length == 9)
