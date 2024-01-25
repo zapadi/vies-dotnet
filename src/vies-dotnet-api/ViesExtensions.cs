@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ namespace Padi.Vies;
 public static class ViesExtensions
 {
     public static int ToInt(this char c) => (int)(uint)(c - '0');
-        
+
     public static bool IsAsciiDigit(this char c) => (uint)(c - '0') <= 9;
 
     public static string Sanitize(this string vatNumber)
@@ -27,13 +27,13 @@ public static class ViesExtensions
         {
             return vatNumber;
         }
-            
+
         var arr = vatNumber.ToCharArray();
 
         arr = Array.FindAll(arr, char.IsLetterOrDigit);
-            
+
         vatNumber = new string(arr);
-            
+
         return vatNumber.ReplaceString("GR", "EL");
     }
 
@@ -43,21 +43,21 @@ public static class ViesExtensions
         {
             return input;
         }
-            
+
         #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
         return input.Substring(startIndex);
         #else
             return input.AsSpan()[startIndex..].ToString();
         #endif
     }
-        
+
     public static string Slice(this string input, int startIndex, int length)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
             return input;
         }
-            
+
         #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
         return input.Substring(startIndex, length);
         #else
@@ -71,7 +71,7 @@ public static class ViesExtensions
         {
             return input;
         }
-            
+
         #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
         return input.ToUpperInvariant().Replace(oldValue, newValue);
         #else
@@ -90,9 +90,9 @@ public static class ViesExtensions
         {
             return 0;
         }
-            
+
         var sum = 0;
-            
+
         for (var index = start; index < multipliers.Length; index++)
         {
             var digit = multipliers[index];

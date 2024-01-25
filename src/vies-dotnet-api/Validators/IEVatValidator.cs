@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ internal sealed class IeVatValidator : VatValidatorAbstract
     private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
     private static readonly Regex RegexType2 = new(@"/^\d[A-Z\*\+]/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
     private static readonly Regex RegexType3 = new(@"/^\d{7}[A-Z][AH]$/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-        
+
     private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
 
 
@@ -35,7 +35,7 @@ internal sealed class IeVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         if (RegexType2.IsMatch(vat))
@@ -60,11 +60,11 @@ internal sealed class IeVatValidator : VatValidatorAbstract
         }
 
         var checkDigit = sum % 23;
-            
+
         var isValid = vat[7] == (checkDigit == 0 ? 'W' : (char) (checkDigit + 64));
-            
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid IE vat: checkValue") 
+
+        return !isValid
+            ? VatValidationResult.Failed("Invalid IE vat: checkValue")
             : VatValidationResult.Success();
     }
 }

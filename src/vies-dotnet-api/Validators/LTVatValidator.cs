@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class LtVatValidator : VatValidatorAbstract
@@ -44,7 +44,7 @@ public sealed class LtVatValidator : VatValidatorAbstract
         {
             return TemporarilyRegisteredTaxPayers(vat);
         }
-            
+
         if (vat[7] != '1')
         {
             return VatValidationResult.Failed("9 character VAT numbers should have 1 in 8th position.");

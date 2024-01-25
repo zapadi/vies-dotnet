@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class SkVatValidator : VatValidatorAbstract
@@ -34,13 +34,13 @@ public sealed class SkVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         var nr = ulong.Parse(vat, NumberStyles.Integer, CultureInfo.InvariantCulture);
         var isValid = nr % 11 == 0;
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid SK vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid SK vat: checkValue")
             : VatValidationResult.Success();
     }
 }

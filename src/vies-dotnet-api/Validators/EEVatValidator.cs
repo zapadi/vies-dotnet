@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class EeVatValidator : VatValidatorAbstract
@@ -35,22 +35,22 @@ public sealed class EeVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
-        
+
+
     protected override VatValidationResult OnValidate(string vat)
     {
         var sum = vat.Sum(Multipliers);
-            
+
         var checkDigit = 10 - sum % 10;
-            
+
         if (checkDigit == 10)
         {
             checkDigit = 0;
         }
 
         var isValid = checkDigit == vat[8].ToInt();
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid EE vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid EE vat: checkValue")
             : VatValidationResult.Success();
     }
 }

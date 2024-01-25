@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -19,14 +19,14 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class BgVatValidator : VatValidatorAbstract
 {
     private const string REGEX_PATTERN = @"^\d{9,10}$";
     private const string COUNTRY_CODE = nameof(EuCountryCode.BG);
-        
+
     private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
     private static readonly Regex RegexPhysicalPerson = new(@"^\d\d[0-5]\d[0-3]\d\d{4}$", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
 
@@ -39,7 +39,7 @@ public sealed class BgVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         bool isValid;

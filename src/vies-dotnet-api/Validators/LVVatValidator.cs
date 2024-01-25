@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class LvVatValidator : VatValidatorAbstract
@@ -35,15 +35,15 @@ public sealed class LvVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         // Only check the legal bodies
         if (Regex.IsMatch(vat, "/^[0-3]/", RegexOptions.None, TimeSpan.FromSeconds(5)))
         {
             var result = Regex.IsMatch(vat, "^[0-3][0-9][0-1][0-9]", RegexOptions.None, TimeSpan.FromSeconds(5));
-            return !result 
-                ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
+            return !result
+                ? VatValidationResult.Failed("Invalid LV vat: checkValue")
                 : VatValidationResult.Success();
         }
         var sum = vat.Sum(Multipliers);
@@ -72,9 +72,9 @@ public sealed class LvVatValidator : VatValidatorAbstract
         }
 
         var isValid = checkDigit == vat[10].ToInt();
-            
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid LV vat: checkValue") 
+
+        return !isValid
+            ? VatValidationResult.Failed("Invalid LV vat: checkValue")
             : VatValidationResult.Success();
     }
 }

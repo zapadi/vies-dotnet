@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ internal sealed class ItVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         // The last three digits are the issuing office, and cannot exceed more 201
@@ -54,21 +54,21 @@ internal sealed class ItVatValidator : VatValidatorAbstract
         foreach (var m in Multipliers)
         {
             temp = vat[index++].ToInt() * m;
-            sum += temp > 9 
-                ? (int) Math.Floor(temp / 10D) + temp % 10 
+            sum += temp > 9
+                ? (int) Math.Floor(temp / 10D) + temp % 10
                 : temp;
         }
 
         var checkDigit = 10 - sum % 10;
-            
+
         if (checkDigit > 9)
         {
             checkDigit = 0;
         }
 
         var isValid = checkDigit == vat[10].ToInt();
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid IT vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid IT vat: checkValue")
             : VatValidationResult.Success();
     }
 }

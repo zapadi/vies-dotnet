@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -43,7 +43,7 @@ public struct ViesCheckVatResponse: IEquatable<ViesCheckVatResponse>
             string.Equals(this.Address, other.Address, StringComparison.OrdinalIgnoreCase) && this.RequestDate.Equals(other.RequestDate) && this.IsValid == other.IsValid;
     }
 
-    public override readonly bool Equals(object obj)
+    public readonly override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj))
         {
@@ -53,7 +53,7 @@ public struct ViesCheckVatResponse: IEquatable<ViesCheckVatResponse>
         return obj is ViesCheckVatResponse response && this.Equals(response);
     }
 
-    public override readonly int GetHashCode()
+    public readonly override int GetHashCode()
     {
         unchecked
         {

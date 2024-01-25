@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -30,7 +30,7 @@ internal sealed class HrVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         var product = 10;
@@ -38,20 +38,20 @@ internal sealed class HrVatValidator : VatValidatorAbstract
         for (var index = 0; index < 10; index++)
         {
             var sum = (vat[index].ToInt() + product) % 10;
-               
+
             if (sum == 0)
             {
                 sum = 10;
             }
-                
+
             product = 2 * sum % 11;
         }
 
         var checkDigit = (product + vat[10].ToInt()) % 10;
-            
+
         var isValid = checkDigit == 1;
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid HR vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid HR vat: checkValue")
             : VatValidationResult.Success();
     }
 }

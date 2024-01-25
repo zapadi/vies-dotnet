@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -19,14 +19,14 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class CyVatValidator : VatValidatorAbstract
 {
     private const string REGEX_PATTERN = @"^([0-59]\d{7}[A-Z])$";
     private const string COUNTRY_CODE = nameof(EuCountryCode.CY);
-        
+
     private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
 
     public CyVatValidator()
@@ -34,7 +34,7 @@ public sealed class CyVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         if (int.Parse(vat.Slice(0, 2), CultureInfo.InvariantCulture) == 12)
@@ -46,7 +46,7 @@ public sealed class CyVatValidator : VatValidatorAbstract
         for (var index = 0; index < 8; index++)
         {
             var temp = vat[index].ToInt();
-                
+
             if (index % 2 == 0)
             {
                 switch (temp)
@@ -77,8 +77,8 @@ public sealed class CyVatValidator : VatValidatorAbstract
         var checkDigit = result % 26;
         var isValid = Convert.ToInt32(vat[8]) == checkDigit + 65;
 
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid CY vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid CY vat: checkValue")
             : VatValidationResult.Success();
     }
 }

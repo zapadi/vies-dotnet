@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -17,7 +17,7 @@ using Padi.Vies.Errors;
 namespace Padi.Vies;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public abstract class VatValidatorAbstract : IVatValidator
 {
@@ -25,7 +25,7 @@ public abstract class VatValidatorAbstract : IVatValidator
     public static string CountryCode { get; protected set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="vat"></param>
     /// <returns></returns>

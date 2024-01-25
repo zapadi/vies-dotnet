@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class PlVatValidator : VatValidatorAbstract
@@ -29,13 +29,13 @@ public sealed class PlVatValidator : VatValidatorAbstract
     private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
 
     private static readonly int[] Multipliers = {6, 5, 7, 2, 3, 4, 5, 6, 7};
-        
+
     public PlVatValidator()
     {
         this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;    
+        CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         var sum = vat.Sum(Multipliers);
@@ -48,9 +48,9 @@ public sealed class PlVatValidator : VatValidatorAbstract
         }
 
         var isValid = checkDigit == vat[9].ToInt();
-            
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid PL vat: checkValue") 
+
+        return !isValid
+            ? VatValidationResult.Failed("Invalid PL vat: checkValue")
             : VatValidationResult.Success();
     }
 }

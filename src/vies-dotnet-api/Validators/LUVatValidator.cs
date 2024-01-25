@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class LuVatValidator : VatValidatorAbstract
@@ -34,12 +34,12 @@ public sealed class LuVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         var isValid = int.Parse(vat.Slice(0, 6), NumberStyles.Integer, CultureInfo.InvariantCulture) % 89 == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid LU vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid LU vat: checkValue")
             : VatValidationResult.Success();
     }
 }

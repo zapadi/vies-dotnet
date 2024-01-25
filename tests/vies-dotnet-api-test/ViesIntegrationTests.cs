@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -42,7 +42,7 @@ public sealed class ViesIntegrationTests
 
         Assert.True(actual.IsValid, "Inactive vat number");
     }
-        
+
     [Theory]
     [InlineData("RO123456789")]
     [InlineData("ATU12345675")]
@@ -66,11 +66,11 @@ public sealed class ViesIntegrationTests
     {
         await Assert.ThrowsAsync<ViesServiceException>(() => this.CheckIfActiveAsync(vat, false));
     }
-        
+
     private async Task<ViesCheckVatResponse> CheckIfActiveAsync(string vat, bool mockValue){
-            
+
         var actual = await this._fixture.ViesManager.IsActiveAsync(vat);
-            
+
         return actual;
     }
 }

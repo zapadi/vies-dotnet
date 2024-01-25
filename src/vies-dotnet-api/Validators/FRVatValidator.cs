@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 namespace Padi.Vies.Validators;
 
 /// <summary>
-/// 
+///
 /// </summary>
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class FrVatValidator : VatValidatorAbstract
@@ -34,22 +34,22 @@ public sealed class FrVatValidator : VatValidatorAbstract
         this.Regex = _regex;
         CountryCode = COUNTRY_CODE;
     }
-        
+
     protected override VatValidationResult OnValidate(string vat)
     {
         var validationKey = vat.Slice(0, 2);
         var val = int.Parse(vat.Slice(2), CultureInfo.InvariantCulture);
-            
+
         if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
         {
             return VatValidationResult.Success();
         }
-          
+
         var checkDigit = ( 12 + 3 * ( val % 97 ) ) % 97;
 
         var isValid = checkDigit == temp;
-        return !isValid 
-            ? VatValidationResult.Failed("Invalid FR vat: checkValue") 
+        return !isValid
+            ? VatValidationResult.Failed("Invalid FR vat: checkValue")
             : VatValidationResult.Success();
     }
 }

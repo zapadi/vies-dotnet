@@ -1,5 +1,5 @@
 /*
-   Copyright 2017-2023 Adrian Popescu.
+   Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -14,7 +14,7 @@
 namespace Padi.Vies;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public sealed class VatValidationResult
 {
@@ -24,7 +24,7 @@ public sealed class VatValidationResult
     {
         return new VatValidationResult
         {
-            IsValid = true, 
+            IsValid = true,
         };
     }
 
