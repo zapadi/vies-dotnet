@@ -24,7 +24,7 @@ namespace Padi.Vies.Validators;
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class BeVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^0?\d{9}$";
+    private const string REGEX_PATTERN = @"^[0|1]?\d{9}$";
     private const string COUNTRY_CODE = nameof(EuCountryCode.BE);
 
     private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
