@@ -38,7 +38,11 @@ public sealed class FrVatValidator : VatValidatorAbstract
     protected override VatValidationResult OnValidate(string vat)
     {
         var validationKey = vat.Slice(0, 2);
-        var val = int.Parse(vat.Slice(2), CultureInfo.InvariantCulture);
+
+        if (!int.TryParse(vat.Slice(2), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val))
+        {
+            return VatValidationResult.Failed("Invalid FR vat: too long");
+        }
 
         if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
         {
