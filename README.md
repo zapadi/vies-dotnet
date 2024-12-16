@@ -17,15 +17,15 @@ The fastest way of getting started using Vies api is to install the NuGet packag
 
 **Package Manager:**
 ```
-Install-Package vies-dotnet-api -Version 2.3.1
+Install-Package vies-dotnet-api -Version 2.3.2
 ```
 **.NET CLI:**
 ```
-dotnet add package vies-dotnet-api --version 2.3.1
+dotnet add package vies-dotnet-api --version 2.3.2
 ```
 **Package Reference**
 ```
-<PackageReference Include="vies-dotnet-api" Version="2.3.1" />
+<PackageReference Include="vies-dotnet-api" Version="2.3.2" />
 ```
 # Usage
 
