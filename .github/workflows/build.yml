@@ -74,9 +74,9 @@ jobs:
         fetch-depth: 0
 
     - name: Setup .NET (global.json)
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
 
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         # Look to see if there is a cache hit for the corresponding requirements file
