@@ -24,7 +24,7 @@ namespace Padi.Vies.Validators;
 [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 public sealed class FrVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"[0-9A-Z]{2}[0-9]{9}";
+    private const string REGEX_PATTERN ="^[0-9A-Z]{2}[0-9]{9}$";
     private const string COUNTRY_CODE = nameof(EuCountryCode.FR);
 
     private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));

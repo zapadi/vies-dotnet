@@ -95,6 +95,7 @@ public sealed class ViesEUUnitTests
     [InlineData("   FR41000000047")]
     [InlineData("   FR01000000157")]
     [InlineData("   FR19000000068")]
+    [InlineData("FR190000000689")]
     [InlineData("GB99999997")]
     [InlineData("HU1234567")]
     [InlineData("HR1234567890")]
