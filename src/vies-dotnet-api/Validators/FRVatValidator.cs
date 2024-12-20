@@ -39,9 +39,14 @@ public sealed class FrVatValidator : VatValidatorAbstract
     {
         var validationKey = vat.Slice(0, 2);
 
-        if (!int.TryParse(vat.Slice(2), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val))
+        var number = vat.Slice(2);
+        if (number.Length > 11)
         {
             return VatValidationResult.Failed("Invalid FR vat: too long");
+        }
+        if (!int.TryParse(number, NumberStyles.Integer, CultureInfo.InvariantCulture, out var val))
+        {
+            return VatValidationResult.Failed("Invalid FR vat: not a valid number");
         }
 
         if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
