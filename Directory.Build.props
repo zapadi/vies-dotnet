@@ -3,7 +3,7 @@
    
 
     <PropertyGroup Label="Build">
-        <LangVersion>11</LangVersion>
+        <LangVersion>13</LangVersion>
         <Features>strict</Features>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <DebugType>embedded</DebugType>
