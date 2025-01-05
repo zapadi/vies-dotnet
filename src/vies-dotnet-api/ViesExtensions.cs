@@ -12,13 +12,17 @@
 */
 
 using System;
+using System.Runtime.CompilerServices;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies;
 
 public static class ViesExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt(this char c) => (int)(uint)(c - '0');
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsAsciiDigit(this char c) => (uint)(c - '0') <= 9;
 
     public static string Sanitize(this string vatNumber)
