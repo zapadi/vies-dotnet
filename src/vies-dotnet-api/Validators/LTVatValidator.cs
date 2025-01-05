@@ -12,55 +12,62 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class LtVatValidator : VatValidatorAbstract
+internal sealed class LtVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^(\d{9}|\d{12})$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.LT);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = { 3, 4, 5, 6, 7, 8, 9, 1 };
-    private static readonly int[] MultipliersTemporarily = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2 };
-    private static readonly int[] MultipliersDoubleCheck = { 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4 };
+    private static ReadOnlySpan<int> Multipliers => [3, 4, 5, 6, 7, 8, 9, 1 ];
+    private static ReadOnlySpan<int> MultipliersTemporarily => [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2];
+    private static ReadOnlySpan<int> MultipliersDoubleCheck => [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
 
     public LtVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.LT);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        if (vat.Length != 9)
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length is not 9 and not 12)
         {
-            return TemporarilyRegisteredTaxPayers(vat);
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        if (vat[7] != '1')
+        if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed("9 character VAT numbers should have 1 in 8th position.");
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        return vatSpan.Length == 9
+            ? ValidateNineDigitVat(vatSpan)
+            : ValidateTemporaryVat(vatSpan);
+    }
+
+    private static VatValidationResult ValidateNineDigitVat(ReadOnlySpan<char> vatSpan)
+    {
+        if (vatSpan[7] != '1')
+        {
+            return VatValidationResult.Failed($"9 character {CountryCode} VAT numbers should have 1 in 8th position.");
         }
 
         var sum = 0;
         for (var index = 0; index < 8; index++)
         {
-            sum += vat[index].ToInt() * (index + 1);
+            sum += vatSpan[index].ToInt() * (index + 1);
         }
 
         if (sum % 11 == 10)
         {
             // Double check calculation
-            sum = vat.Sum(Multipliers);
+             sum = vatSpan.Sum(Multipliers);
         }
+
         var checkDigit = sum % 11;
 
         if (checkDigit == 10)
@@ -68,38 +75,29 @@ public sealed class LtVatValidator : VatValidatorAbstract
             checkDigit = 0;
         }
 
-        var isValid = checkDigit == vat[8].ToInt();
-
-        return !isValid
-            ? VatValidationResult.Failed("Invalid LT vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 
-    private static VatValidationResult TemporarilyRegisteredTaxPayers(string vat)
+    private static VatValidationResult ValidateTemporaryVat(ReadOnlySpan<char> vatSpan)
     {
-        if (vat[10] != '1')
+        if (vatSpan[10] != '1')
         {
             return VatValidationResult.Failed("Temporarily Registered Tax Payers should have 11th character one");
         }
 
-        var total = vat.Sum(MultipliersTemporarily);
+        var total = vatSpan.Sum(MultipliersTemporarily);
 
-        // double check digit calculation
-        if (total % 11 == 10)
+         if (total % 11 == 10)
         {
-            total = vat.Sum(MultipliersDoubleCheck);
+            total = vatSpan.Sum(MultipliersDoubleCheck);
         }
 
-        // Establish check digit.
         total %= 11;
         if (total == 10)
         {
             total = 0;
         }
 
-        var isValid = total == vat[11].ToInt();
-        return !isValid
-            ? VatValidationResult.Failed("Invalid LT vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[11].ToInt(), total);
     }
 }

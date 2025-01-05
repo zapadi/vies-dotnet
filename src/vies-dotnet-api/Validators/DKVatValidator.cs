@@ -12,37 +12,57 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes
-public sealed class DkVatValidator : VatValidatorAbstract
+internal sealed class DkVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^(\d{2} ?){3}\d{2}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.DK);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {2, 7, 6, 5, 4, 3, 2, 1};
+    private static ReadOnlySpan<int> Multipliers => [2, 7, 6, 5, 4, 3, 2, 1];
 
     public DkVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.DK);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var sum = vat.Sum(Multipliers);
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
-        var isValid = sum % 11 == 0;
-        return !isValid
-            ? VatValidationResult.Failed("Invalid DK vat: checkValue")
-            : VatValidationResult.Success();
+        if (vatSpan.Length > 12)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        // Create buffer for sanitized number
+        Span<char> cleanVat = stackalloc char[8];
+        var cleanIndex = 0;
+
+        for (var i = 0; i < vatSpan.Length && cleanIndex < 8; i++)
+        {
+            if (char.IsWhiteSpace(vatSpan[i]))
+            {
+                continue;
+            }
+
+            if (!char.IsDigit(vatSpan[i]))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            }
+
+            cleanVat[cleanIndex++] = vatSpan[i];
+        }
+
+        if (cleanIndex != 8)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        var sum = cleanVat.Sum(Multipliers);
+
+        return ValidateChecksumDigit(sum % 11, 0);
     }
 }

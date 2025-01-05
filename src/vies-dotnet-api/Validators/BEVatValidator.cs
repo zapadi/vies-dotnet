@@ -12,46 +12,58 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class BeVatValidator : VatValidatorAbstract
+internal sealed class BeVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^[0|1]?\d{9}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.BE);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
     public BeVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.BE);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        if (vat.Length == 10 && vat[0] != '0' && vat[0] != '1')
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length is not 9 and not 10)
         {
-            return VatValidationResult.Failed("First character of 10 digit numbers should be 0 or 1.");
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        if (vat.Length == 9)
+        if (vatSpan.Length == 10 && vatSpan[0] is not '0' and not '1')
         {
-            vat = vat.PadLeft(10, '0');
+            return VatValidationResult.Failed("First character of 10 digit numbers should be 0 or 1");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        int firstPart, checkPart;
+        if (vatSpan.Length == 9)
+        {
+            if (!vatSpan[..7].TryConvertToInt(out firstPart) || !vatSpan[7..].TryConvertToInt(out checkPart))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+            }
+        }
+        else
+        {
+            if (!vatSpan[..8].TryConvertToInt(out firstPart) || !vatSpan[8..].TryConvertToInt(out checkPart))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+            }
         }
 
         // Modulus 97 check on last nine digits
-        var isValid = 97 - int.Parse(vat.Slice(0, 8), CultureInfo.InvariantCulture) % 97 == int.Parse(vat.Slice(8, 2), CultureInfo.InvariantCulture);
+        var modulus = 97 - firstPart % 97;
 
-        return !isValid
-            ? VatValidationResult.Failed("Invalid BE vat: checkValue.")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(checkPart, modulus);
     }
 }

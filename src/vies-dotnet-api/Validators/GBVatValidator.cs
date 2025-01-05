@@ -12,54 +12,64 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 internal sealed class GbVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{9}|\d{12}|(GD|HA)\d{3}$";
-    private const string COUNTRY_CODE = nameof(NonEuCountryCode.GB);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
+    private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
 
     public GbVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(NonEuCountryCode.GB);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var prefix = vat.Slice(0, 2);
-        if (string.Equals(prefix, "GD", StringComparison.OrdinalIgnoreCase) && int.TryParse(vat.Slice(2, 3), NumberStyles.Integer, CultureInfo.InvariantCulture,out var no))
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+         // Check for GD/HA prefixes
+        if (vatSpan.Length == 5)
         {
-            return no < 500
-                ? VatValidationResult.Success()
-                : VatValidationResult.Failed("Invalid GB Government departments VAT");
+            if (!vatSpan[2..].TryConvertToInt(out var no))
+            {
+                return VatValidationResult.Failed("Last 3 characters must be digits");
+            }
+
+            if (vatSpan.StartsWith("GD", StringComparison.OrdinalIgnoreCase))
+            {
+                return no < 500
+                    ? VatValidationResult.Success()
+                    : VatValidationResult.Failed("Invalid Government departments VAT");
+            }
+
+            if (vatSpan.StartsWith("HA", StringComparison.OrdinalIgnoreCase))
+            {
+                return no >= 500
+                    ? VatValidationResult.Success()
+                    : VatValidationResult.Failed("Invalid Health authorities VAT");
+            }
         }
 
-        if (string.Equals(prefix, "HA", StringComparison.OrdinalIgnoreCase) && int.TryParse(vat.Slice(2, 3), NumberStyles.Integer, CultureInfo.InvariantCulture, out no))
+        if (vatSpan.Length != 9)
         {
-            return no > 499
-                ? VatValidationResult.Success()
-                : VatValidationResult.Failed("Invalid GB Health authorities VAT");
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        if (vat[0].ToInt() == 0)
+        // Check first digit not zero
+        if (vatSpan[0] == '0')
         {
             return VatValidationResult.Failed("0 VAT numbers disallowed");
         }
 
-        // Check range is OK for modulus 97 calculation
-        no = int.Parse(vat.Slice(0, 7),NumberStyles.Integer, CultureInfo.InvariantCulture);
+        // Parse first 7 digits for range check
+        if (!vatSpan[..7].TryConvertToInt(out var first7digits))
+        {
+            return VatValidationResult.Failed("Invalid number format");
+        }
 
-        var total = vat.Sum(Multipliers);
+        var total = vatSpan.Sum(Multipliers);
 
         // Old numbers use a simple 97 modulus, but new numbers use an adaptation of that (less 55). Our
 
@@ -74,25 +84,23 @@ internal sealed class GbVatValidator : VatValidatorAbstract
         // same, then it is a valid traditional check digit. However, even then the number must fit within
         // certain specified ranges.
         cd = Math.Abs(cd);
-        if (cd == int.Parse(vat.Slice(7, 2), NumberStyles.Integer, CultureInfo.InvariantCulture) && no < 9990001 && (no < 100000 || no > 999999) &&
-            (no < 9490001 || no > 9700000))
+
+        if (!vatSpan.Slice(7, 2).TryConvertToInt(out var checkDigits))
+        {
+            return VatValidationResult.Failed("Invalid check digits");
+        }
+
+        // Old method check
+        if (cd == checkDigits && first7digits < 9990001 &&
+            (first7digits < 100000 || first7digits > 999999) &&
+            (first7digits < 9490001 || first7digits > 9700000))
         {
             return VatValidationResult.Success();
         }
 
-        // Now try the new method by subtracting 55 from the check digit if we can - else add 42
-        if (cd >= 55)
-        {
-            cd -= 55;
-        }
-        else
-        {
-            cd += 42;
-        }
+        // New method check
+        cd = cd >= 55 ? cd - 55 : cd + 42;
 
-        var isValid = cd == int.Parse(vat.Slice(7, 2), NumberStyles.Integer, CultureInfo.InvariantCulture) && no > 1000000;
-        return !isValid
-            ? VatValidationResult.Failed("Invalid GB vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(cd == checkDigits && first7digits > 1000000);
     }
 }

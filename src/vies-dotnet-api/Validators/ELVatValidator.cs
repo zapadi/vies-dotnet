@@ -12,38 +12,51 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class ElVatValidator : VatValidatorAbstract
+internal sealed class ElVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{9}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.EL);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {256, 128, 64, 32, 16, 8, 4, 2};
+    private static ReadOnlySpan<int> Multipliers => [256, 128, 64, 32, 16, 8, 4, 2];
 
     public ElVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.EL);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        if (vat.Length == 8)
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if(!vatSpan.ValidateAllDigits())
         {
-            vat = $"0{vat}";
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
         }
 
-        var sum = vat.Sum(Multipliers);
+        var sum = 0;
+        var controlValue = 0;
+        if (vatSpan.Length == 8)
+        {
+            Span<char> paddedVat = stackalloc char[9];
+            paddedVat[0] = '0';
+            vatSpan.CopyTo(paddedVat[1..]);
+            controlValue = paddedVat[8].ToInt();
+            sum = paddedVat.Sum(Multipliers);
+        }
+        else
+        {
+            if (vatSpan.Length != 9)
+            {
+                return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            }
+
+            controlValue = vatSpan[8].ToInt();
+            sum = vatSpan.Sum(Multipliers);
+        }
 
         var checkDigit = sum % 11;
 
@@ -52,9 +65,6 @@ public sealed class ElVatValidator : VatValidatorAbstract
             checkDigit = 0;
         }
 
-        var isValid = checkDigit == vat[8].ToInt();
-        return !isValid
-            ? VatValidationResult.Failed("Invalid EE vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(controlValue, checkDigit);
     }
 }

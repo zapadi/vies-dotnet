@@ -12,41 +12,48 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class AtVatValidator : VatValidatorAbstract
+internal sealed class AtVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^U\d{8}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.AT);
+    private static ReadOnlySpan<int> Multipliers => [1, 2, 1, 2, 1, 2, 1];
 
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-    private static readonly int[] Multipliers = {1, 2, 1, 2, 1, 2, 1};
-
-
-    /// <summary>
-    ///
-    /// </summary>
     public AtVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.AT);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var index = 1;
-        var sum = 0;
-        foreach (var digit in Multipliers)
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 9)
         {
-            var temp = vat[index++].ToInt() * digit;
-            sum += temp > 9 ? (int) Math.Floor(temp / 10D) + temp % 10 : temp;
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if (vatSpan[0] != 'U')
+        {
+            return VatValidationResult.Failed($"Must start with U for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits(1))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        var sum = 0;
+        for (var index = 0; index < Multipliers.Length; index++)
+        {
+            var product = vatSpan[index++].ToInt() * Multipliers[index];
+            sum += product > 9
+                ? (int) Math.Floor(product / 10D) + product % 10
+                : product;
         }
 
         var checkDigit = 10 - (sum + 4) % 10;
@@ -56,10 +63,6 @@ public sealed class AtVatValidator : VatValidatorAbstract
             checkDigit = 0;
         }
 
-        var isValid = checkDigit == vat[8].ToInt();
-
-        return !isValid
-            ? VatValidationResult.Failed($"Invalid {CountryCode} vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 }

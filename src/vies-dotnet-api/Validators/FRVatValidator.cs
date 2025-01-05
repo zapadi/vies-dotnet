@@ -12,44 +12,50 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class FrVatValidator : VatValidatorAbstract
+internal sealed class FrVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN ="^[0-9A-Z]{2}[0-9]{9}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.FR);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
     public FrVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.FR);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var validationKey = vat.Slice(0, 2);
-        var val = int.Parse(vat.Slice(2), CultureInfo.InvariantCulture);
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
-        if (!int.TryParse(validationKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out var temp))
+        if (vatSpan.Length != 11)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        ReadOnlySpan<char> validationKey = vatSpan[..2];
+        ReadOnlySpan<char> numericPart = vatSpan[2..];
+
+        if(!numericPart.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        if (!numericPart.TryConvertToInt(out var numericValue))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+        }
+
+        // If key is not numeric, consider valid
+        if (!validationKey.TryConvertToInt(out var keyValue))
         {
             return VatValidationResult.Success();
         }
 
-        var checkDigit = ( 12 + 3 * ( val % 97 ) ) % 97;
+        var checkDigit = (12 + 3 * (numericValue % 97)) % 97;
 
-        var isValid = checkDigit == temp;
-        return !isValid
-            ? VatValidationResult.Failed("Invalid FR vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(keyValue, checkDigit);
     }
 }

@@ -12,59 +12,104 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 internal sealed class IeVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^(\d{7}[A-W])|([7-9][A-Z\*\+)]\d{5}[A-W])|(\d{7}[A-W][AH])$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.IE);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-    private static readonly Regex RegexType2 = new(@"/^\d[A-Z\*\+]/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-    private static readonly Regex RegexType3 = new(@"/^\d{7}[A-Z][AH]$/", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
-
+    private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
 
     public IeVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.IE);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        if (RegexType2.IsMatch(vat))
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length is <8 or >9)
         {
-            vat = $"0{vat.Slice(2, 7)}{vat.Slice(0, 1)}{vat.Slice(7, 8)}";
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        var sum = vat.Sum(Multipliers);
+        var multiplier = 0;
+        Span<char> normalizedVat = stackalloc char[9];
 
-        // If the number is type 3 then we need to include the trailing A or H in the calculation
-        if (RegexType3.IsMatch(vat))
+        if (IsOldStyleFormat(vatSpan))
         {
-            // Add in a multiplier for the character A (1*9=9) or H (8*9=72)
-            if (vat[8] == 'H')
+            normalizedVat[0] = '0';
+            vatSpan.Slice(2, 5).CopyTo(normalizedVat[1..]);
+            normalizedVat[6] = vatSpan[0];
+            normalizedVat[7] = vatSpan[7];
+        }
+        else
+        {
+            if (Is2013Format(vatSpan))
             {
-                sum += 72;
+                multiplier = vatSpan[8] == 'H'
+                    ? 72
+                    : vatSpan[8] == 'A'
+                        ? 9
+                        : 0;
+
+                vatSpan.Slice(0, 7).CopyTo(normalizedVat);
+                normalizedVat[7] = vatSpan[8];
             }
             else
             {
-                sum += 9;
+                if (IsPre2013Format(vatSpan))
+                {
+                    vatSpan.Slice(0, 7).CopyTo(normalizedVat);
+                    normalizedVat[7] = vatSpan[7];
+                }
+                else
+                {
+                    return VatValidationResult.Failed($"Invalid format for {CountryCode} VAT number");
+                }
             }
         }
 
+        var sum = 0;
+        for (var i = 0; i < 7; i++)
+        {
+            if (!char.IsDigit(normalizedVat[i]))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 7 characters must be digits");
+            }
+
+            sum += normalizedVat[i].ToInt() * Multipliers[i];
+        }
+
+        sum += multiplier;
         var checkDigit = sum % 23;
+        var expectedCheck = checkDigit == 0 ? 'W' : (char)(checkDigit + 64);
 
-        var isValid = vat[7] == (checkDigit == 0 ? 'W' : (char) (checkDigit + 64));
-
-        return !isValid
-            ? VatValidationResult.Failed("Invalid IE vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(normalizedVat[7], expectedCheck);
     }
+
+    /// <summary>
+    /// (1 digit + letter + 5 digits + letter)
+    /// </summary>
+    /// <param name="vat"></param>
+    /// <returns></returns>
+    private static bool IsOldStyleFormat(ReadOnlySpan<char> vat) =>
+        vat.Length == 8 && char.IsDigit(vat[0]) && vat[2..7].ContainsOnlyDigits() && char.IsLetter(vat[7]) && (char.IsLetter(vat[1]) || vat[1] is '+' or '*') ;
+
+    /// <summary>
+    /// 2013+ format (7 digits + letter + [AH])
+    /// </summary>
+    /// <param name="vat"></param>
+    /// <returns></returns>
+    private static bool Is2013Format(ReadOnlySpan<char> vat) =>
+        vat.Length == 9 && vat[..7].ContainsOnlyDigits() && char.IsLetter(vat[7]) && vat[8] is 'A' or 'H';
+
+    /// <summary>
+    /// pre-2013 format (7 digits + [letter/+/*])
+    /// </summary>
+    /// <param name="vat"></param>
+    /// <returns></returns>
+    private static bool IsPre2013Format(ReadOnlySpan<char> vat) =>
+        vat.Length == 8 && vat[..7].ContainsOnlyDigits() && (char.IsLetter(vat[7]) || vat[7] is '+' or '*');
 }

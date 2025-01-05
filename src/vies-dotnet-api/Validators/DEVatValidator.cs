@@ -12,34 +12,43 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class DeVatValidator : VatValidatorAbstract
+internal sealed class DeVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^[1-9]\d{8}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.DE);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
     public DeVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.DE);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 9)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if (vatSpan[0] is < '1' or > '9')
+        {
+            return VatValidationResult.Failed($"First digit must be 1-9 for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
         var product = 10;
         for (var index = 0; index < 8; index++)
         {
-            var sum = (vat[index].ToInt() + product) % 10;
+            var sum = (vatSpan[index].ToInt() + product) % 10;
             if (sum == 0)
             {
                 sum = 10;
@@ -49,14 +58,8 @@ public sealed class DeVatValidator : VatValidatorAbstract
         }
 
         var val = 11 - product;
-        var checkDigit = val == 10
-            ? 0
-            : val;
+        var checkDigit = val == 10 ? 0 : val;
 
-        var isValid = checkDigit == vat[8].ToInt();
-
-        return !isValid
-            ? VatValidationResult.Failed("Invalid DE vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 }

@@ -12,30 +12,65 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class EsVatValidator : VatValidatorAbstract
+internal sealed class EsVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^([A-Z]\d{8})$|^([A-HN-SW]\d{7}[A-J])$|^([0-9YZ]\d{7}[A-Z])|([KLMX]\d{7}[A-Z])$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.ES);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-
     public EsVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.ES);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        return VatValidationResult.Success();
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        var length = vatSpan.Length;
+
+        if (length != 9)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        var firstChar = vatSpan[0];
+        var lastChar = vatSpan[^1];
+
+        ReadOnlySpan<char> middleDigits = vatSpan.Slice(1, 7);
+
+        if(!middleDigits.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        // Pattern 1: Letter + 8 digits
+        if (char.IsLetter(firstChar) && char.IsDigit(lastChar))
+        {
+            return VatValidationResult.Success();
+        }
+
+        // Pattern 2: [A-HN-SW] + 7 digits + [A-J]
+        if (firstChar is >= 'A' and <= 'H' or >= 'N' and <= 'S' or 'W' && lastChar is >= 'A' and <= 'J')
+        {
+            return VatValidationResult.Success();
+        }
+
+        // Pattern 3: [0-9YZ] + 7 digits + letter
+        if ((char.IsDigit(firstChar) || firstChar is 'Y' or 'Z') && char.IsLetter(lastChar))
+        {
+            return VatValidationResult.Success();
+        }
+
+        // Pattern 4: [KLMX] + 7 digits + letter
+        if (firstChar is 'K' or 'L' or 'M' or 'X' && char.IsLetter(lastChar))
+        {
+            return VatValidationResult.Success();
+        }
+
+        return VatValidationResult.Failed($"Invalid {CountryCode} VAT format");
     }
 }

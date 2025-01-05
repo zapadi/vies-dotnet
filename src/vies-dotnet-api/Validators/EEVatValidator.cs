@@ -12,34 +12,42 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class EeVatValidator : VatValidatorAbstract
+internal sealed class EeVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^10\d{7}$"; //[0-9]{9}
-    private const string COUNTRY_CODE = nameof(EuCountryCode.EE);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {3, 7, 1, 3, 7, 1, 3, 7};
+    private static ReadOnlySpan<int> Multipliers => [3, 7, 1, 3, 7, 1, 3, 7];
 
     public EeVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.EE);
     }
-
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var sum = vat.Sum(Multipliers);
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 9)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if (vatSpan[..2] is not "10")
+        {
+            return VatValidationResult.Failed($"Invalid prefix for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        var sum = vatSpan.Sum(Multipliers);
 
         var checkDigit = 10 - sum % 10;
 
@@ -48,9 +56,6 @@ public sealed class EeVatValidator : VatValidatorAbstract
             checkDigit = 0;
         }
 
-        var isValid = checkDigit == vat[8].ToInt();
-        return !isValid
-            ? VatValidationResult.Failed("Invalid EE vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 }

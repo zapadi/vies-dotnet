@@ -12,33 +12,37 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class PtVatValidator : VatValidatorAbstract
+internal sealed class PtVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{9}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.PT);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {9, 8, 7, 6, 5, 4, 3, 2};
+    private static ReadOnlySpan<int> Multipliers => [9, 8, 7, 6, 5, 4, 3, 2];
 
     public PtVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.PT);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var sum = vat.Sum(Multipliers);
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 9)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        var sum = vatSpan.Sum(Multipliers);
 
         var checkDigit = 11 - sum % 11;
 
@@ -46,9 +50,7 @@ public sealed class PtVatValidator : VatValidatorAbstract
         {
             checkDigit = 0;
         }
-        var isValid = checkDigit == vat[8].ToInt();
-        return !isValid
-            ? VatValidationResult.Failed("Invalid PT vat: checkValue")
-            : VatValidationResult.Success();
+
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 }

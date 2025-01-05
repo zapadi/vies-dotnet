@@ -59,6 +59,8 @@
 
    <ItemGroup>
      <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-     <PackageReference Include="Meziantou.Analyzer" Version="2.0.118" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+     <PackageReference Include="Meziantou.Analyzer" Version="2.0.184" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+     <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" Version="4.6.0" />
+     <PackageReference Include="Polyfill" Version="7.11.0" />
    </ItemGroup>
 </Project>

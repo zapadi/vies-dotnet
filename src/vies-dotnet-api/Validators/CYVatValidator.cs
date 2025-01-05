@@ -12,73 +12,66 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class CyVatValidator : VatValidatorAbstract
+internal sealed class CyVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^([0-59]\d{7}[A-Z])$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.CY);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-
     public CyVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.CY);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        if (int.Parse(vat.Slice(0, 2), CultureInfo.InvariantCulture) == 12)
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length is < 9 or > 10)
         {
-            return VatValidationResult.Failed("CY vat first 2 characters cannot be 12");
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits(0, 8))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 8 characters must be digits");
+        }
+
+        if (vatSpan[..2] is "12")
+        {
+            return VatValidationResult.Failed($"{CountryCode} VAT first 2 characters cannot be 12");
+        }
+
+        if (!char.IsLetter(vatSpan[8]))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: last character must be a letter");
         }
 
         var result = 0;
         for (var index = 0; index < 8; index++)
         {
-            var temp = vat[index].ToInt();
+            var temp = vatSpan[index].ToInt();
 
             if (index % 2 == 0)
             {
-                switch (temp)
+                temp = temp switch
                 {
-                    case 0:
-                        temp = 1;
-                        break;
-                    case 1:
-                        temp = 0;
-                        break;
-                    case 2:
-                        temp = 5;
-                        break;
-                    case 3:
-                        temp = 7;
-                        break;
-                    case 4:
-                        temp = 9;
-                        break;
-                    default:
-                        temp = temp * 2 + 3;
-                        break;
-                }
+                    0 => 1,
+                    1 => 0,
+                    2 => 5,
+                    3 => 7,
+                    4 => 9,
+                    _ => temp * 2 + 3
+                };
             }
             result += temp;
         }
 
-        var checkDigit = result % 26;
-        var isValid = Convert.ToInt32(vat[8]) == checkDigit + 65;
+        var checkDigit = result % 26 + 65;
 
-        return !isValid
-            ? VatValidationResult.Failed("Invalid CY vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 }

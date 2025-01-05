@@ -11,7 +11,6 @@
    limitations under the License.
 */
 
-using System.Text.RegularExpressions;
 using Padi.Vies.Errors;
 
 namespace Padi.Vies;
@@ -21,8 +20,7 @@ namespace Padi.Vies;
 /// </summary>
 public abstract class VatValidatorAbstract : IVatValidator
 {
-    protected Regex Regex { get; set; }
-    public static string CountryCode { get; protected set; }
+    protected static string CountryCode { get; set; }
 
     /// <summary>
     ///
@@ -32,14 +30,25 @@ public abstract class VatValidatorAbstract : IVatValidator
     /// <exception cref="ViesValidationException"></exception>
     public VatValidationResult Validate(string vat)
     {
-        if (this.Regex == null)
-        {
-            throw new ViesValidationException("The regex to validate format is null.");
-        }
-            
-        return !this.Regex.IsMatch(vat) 
-            ? VatValidationResult.Failed($"Invalid {CountryCode} vat: format") 
-            : this.OnValidate(vat);
+        VatValidationResult result = OnValidate(vat);
+        return result.IsValid
+            ? result
+            : VatValidationResult.Failed($"Invalid {CountryCode} VAT: format");
     }
     protected abstract VatValidationResult OnValidate(string vat);
+
+    protected static VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null)
+    {
+        var isValid = checkDigit == digit;
+        return !isValid
+            ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
+            : VatValidationResult.Success();
+    }
+
+    protected static VatValidationResult ValidateChecksumDigit(bool isValid, string message = null)
+    {
+        return !isValid
+            ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
+            : VatValidationResult.Success();
+    }
 }

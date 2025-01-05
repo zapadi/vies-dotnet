@@ -12,51 +12,68 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 internal sealed class ItVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{11}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.IT);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {1, 2, 1, 2, 1, 2, 1, 2, 1, 2};
+    private static ReadOnlySpan<int> Multipliers => [1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
 
     public ItVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.IT);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        // The last three digits are the issuing office, and cannot exceed more 201
-        if (int.Parse(vat.Slice(0, 7), NumberStyles.Integer, CultureInfo.InvariantCulture) == 0)
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed("");
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        var temp = int.Parse(vat.Slice(7, 3),NumberStyles.Integer, CultureInfo.InvariantCulture);
-
-        if ((temp < 1 || temp > 201) && temp != 999 && temp != 888)
+        if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed("");
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
         }
 
-        var index = 0;
+        var allZeros = true;
+        for (var i = 0; i < 7; i++)
+        {
+            if (vatSpan[i] == '0')
+            {
+                continue;
+            }
+
+            allZeros = false;
+            break;
+        }
+        if (allZeros)
+        {
+            return VatValidationResult.Failed("First 7 digits cannot be all zeros");
+        }
+
+        // Validate office code (digits 8-10)
+        if (!vatSpan.Slice(7, 3).TryConvertToInt(out var officeCode))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} office code");
+        }
+
+        if (officeCode is < 1 or > 201 && officeCode != 999 && officeCode != 888)
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} office code range");
+        }
+
         var sum = 0;
-        foreach (var m in Multipliers)
+        for (var i = 0; i < Multipliers.Length; i++)
         {
-            temp = vat[index++].ToInt() * m;
-            sum += temp > 9
-                ? (int) Math.Floor(temp / 10D) + temp % 10
-                : temp;
+            var digit = vatSpan[i].ToInt();
+            var product = digit * Multipliers[i];
+            sum += product > 9
+                ? (int) Math.Floor(product / 10D) + product % 10
+                : product;
         }
 
         var checkDigit = 10 - sum % 10;
@@ -66,9 +83,6 @@ internal sealed class ItVatValidator : VatValidatorAbstract
             checkDigit = 0;
         }
 
-        var isValid = checkDigit == vat[10].ToInt();
-        return !isValid
-            ? VatValidationResult.Failed("Invalid IT vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[10].ToInt(), checkDigit);
     }
 }

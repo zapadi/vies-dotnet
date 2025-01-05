@@ -12,32 +12,36 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 internal sealed class HrVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{11}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.HR);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
     public HrVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.HR);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 11)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
         var product = 10;
 
         for (var index = 0; index < 10; index++)
         {
-            var sum = (vat[index].ToInt() + product) % 10;
+            var sum = (vatSpan[index].ToInt() + product) % 10;
 
             if (sum == 0)
             {
@@ -47,11 +51,8 @@ internal sealed class HrVatValidator : VatValidatorAbstract
             product = 2 * sum % 11;
         }
 
-        var checkDigit = (product + vat[10].ToInt()) % 10;
+        var checkDigit = (product + vatSpan[10].ToInt()) % 10;
 
-        var isValid = checkDigit == 1;
-        return !isValid
-            ? VatValidationResult.Failed("Invalid HR vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(1, checkDigit);
     }
 }

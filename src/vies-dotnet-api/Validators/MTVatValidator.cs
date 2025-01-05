@@ -12,38 +12,47 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class MtVatValidator : VatValidatorAbstract
+internal sealed class MtVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^[1-9]\d{7}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.MT);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {3, 4, 6, 7, 8, 9};
+    private static ReadOnlySpan<int> Multipliers => [3, 4, 6, 7, 8, 9];
 
     public MtVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.MT);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var sum = vat.Sum(Multipliers);
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
-        var checkDigit = 37 - sum % 37;
+        if (vatSpan.Length != 8)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
 
-        var isValid = checkDigit == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
+        if (vatSpan[0] is < '1' or > '9')
+        {
+            return VatValidationResult.Failed($"First digit must be 1-9 for {CountryCode} VAT number");
+        }
 
-        return !isValid
-            ? VatValidationResult.Failed("Invalid MT vat: checkValue")
-            : VatValidationResult.Success();
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        var sum = vatSpan.Sum(Multipliers);
+
+        var checkDigits = 37 - sum % 37;
+
+        if (!vatSpan.Slice(6, 2).TryConvertToInt(out var last2Digits))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid check digits");
+        }
+
+        return ValidateChecksumDigit(last2Digits, checkDigits);
     }
 }

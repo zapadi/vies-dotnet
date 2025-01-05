@@ -12,135 +12,117 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class BgVatValidator : VatValidatorAbstract
+internal sealed class BgVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^\d{9,10}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.BG);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-    private static readonly Regex RegexPhysicalPerson = new(@"^\d\d[0-5]\d[0-3]\d\d{4}$", RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] MultipliersPhysicalPerson = {2, 4, 8, 5, 10, 9, 7, 3, 6};
-    private static readonly int[] MultipliersForeignPhysicalPerson = {21, 19, 17, 13, 11, 9, 7, 3, 1};
-    private static readonly int[] MultipliersMiscellaneous = {4, 3, 2, 7, 6, 5, 4, 3, 2};
+    private static ReadOnlySpan<int> MultipliersPhysicalPerson => [2, 4, 8, 5, 10, 9, 7, 3, 6];
+    private static ReadOnlySpan<int> MultipliersForeignPhysicalPerson => [21, 19, 17, 13, 11, 9, 7, 3, 1];
+    private static ReadOnlySpan<int> MultipliersMiscellaneous => [4, 3, 2, 7, 6, 5, 4, 3, 2];
 
     public BgVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.BG);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        bool isValid;
-        if (vat.Length == 9)
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length is not 9 and not 10)
         {
-            isValid = Bg9DigitsVat(vat);
-            return isValid ? VatValidationResult.Success() : VatValidationResult.Failed("Invalid 9 digits vat.");
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        if (BgPhysicalPerson(vat))
+        if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Success();
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
         }
 
-        isValid = BgForeignerPhysicalPerson(vat) || BgMiscellaneousVatNumber(vat);
+        if (vatSpan.Length == 9)
+        {
+            return Validate9DigitVat(vatSpan);
+        }
 
-        return !isValid
-            ? VatValidationResult.Failed("")
-            : VatValidationResult.Success();
+        return ValidatePhysicalPerson(vatSpan) ??
+               ValidateForeignPerson(vatSpan) ??
+               ValidateMiscellaneous(vatSpan) ??
+            VatValidationResult.Failed($"Invalid {CountryCode} VAT number");
     }
 
-    private static bool Bg9DigitsVat(string vat)
+    private static VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
     {
-        var total = 0;
-        var temp = 0;
-        for (var index = 0; index < 8; index++)
+        var sum = vatSpan.Sum(MultipliersPhysicalPerson);
+
+        var checkDigit = sum % 11;
+        if (checkDigit == 10)
         {
-            temp += vat[index].ToInt() * (index + 1);
+            sum = 0;
+            for (var index = 0; index < 8; index++)
+            {
+                sum += vatSpan[index].ToInt() * (index + 3);
+            }
+            checkDigit = sum % 11;
+            if (checkDigit == 10)
+            {
+                checkDigit = 0;
+            }
         }
 
-        total = temp % 11;
-
-        if (total != 10)
-        {
-            return total == vat[8].ToInt();
-        }
-
-        temp = 0;
-        for (var index = 0; index < 8; index++)
-        {
-            temp += vat[index].ToInt() * (index + 3);
-        }
-
-        total = temp % 11;
-
-        if (total == 10)
-        {
-            total = 0;
-        }
-
-        return total == vat[8].ToInt();
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit, $"Invalid checksum for 9-digit {CountryCode} VAT");
     }
 
-    private static bool BgPhysicalPerson(string vat)
+    private static VatValidationResult ValidatePhysicalPerson(ReadOnlySpan<char> vatSpan)
     {
-        if (!RegexPhysicalPerson.IsMatch(vat))
+        // Check date format (YYMMDD)
+        vatSpan.Slice(2, 2).TryConvertToInt(out var month);
+        vatSpan.Slice(4, 2).TryConvertToInt(out var day);
+
+        if (month is < 1 or > 12 || day is < 1 or > 31)
         {
-            return false;
+            return null;
         }
 
-        var month = int.Parse(vat.Slice(2, 2), CultureInfo.InvariantCulture);
+        var sum = vatSpan.Sum(MultipliersPhysicalPerson);
 
-        if ((month <= 0 || month >= 13) && (month <= 20 || month >= 33) && (month <= 40 || month >= 53))
+        var checkDigit = sum % 11;
+        if (checkDigit == 10)
         {
-            return false;
+            checkDigit = 0;
         }
 
-        var total = vat.Sum(MultipliersPhysicalPerson);
-
-        total %= 11;
-
-        if (total == 10)
-        {
-            total = 0;
-        }
-
-        return total == vat[9].ToInt();
+        return checkDigit == vatSpan[9].ToInt()
+            ? VatValidationResult.Success()
+            : null;
     }
 
-    private static bool BgForeignerPhysicalPerson(string vat)
+    private static VatValidationResult ValidateForeignPerson(ReadOnlySpan<char> vatSpan)
     {
-        var total = vat.Sum(MultipliersForeignPhysicalPerson);
+        var sum = vatSpan.Sum(MultipliersForeignPhysicalPerson);
 
-        return total % 10 == vat[9].ToInt();
+        var checkDigit = sum % 10;
+        return checkDigit == vatSpan[9].ToInt()
+            ? VatValidationResult.Success()
+            : null;
     }
 
-    private static bool BgMiscellaneousVatNumber(string vat)
+    private static VatValidationResult ValidateMiscellaneous(ReadOnlySpan<char> vatSpan)
     {
-        var total = vat.Sum(MultipliersMiscellaneous);
+        var sum = vatSpan.Sum(MultipliersMiscellaneous);
 
-        total = 11 - total % 11;
-
-        switch (total)
+        var checkDigit = sum % 11;
+        if (checkDigit == 10)
         {
-            case 10:
-                return false;
-            case 11:
-                total = 0;
-                break;
+            checkDigit = 0;
         }
 
-        return total == vat[9].ToInt();
+        return checkDigit == vatSpan[9].ToInt()
+            ? VatValidationResult.Success()
+            : null;
     }
 }

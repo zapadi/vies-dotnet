@@ -28,13 +28,38 @@ public static class ViesExtensions
             return vatNumber;
         }
 
-        var arr = vatNumber.ToCharArray();
+        ReadOnlySpan<char> vatNumberSpan = vatNumber.AsSpan();
 
-        arr = Array.FindAll(arr, char.IsLetterOrDigit);
+        if (vatNumberSpan.Length <= 1)
+        {
+            return vatNumber;
+        }
 
-        vatNumber = new string(arr);
+        Span<char> result = stackalloc char[vatNumberSpan.Length];
+        var startPos = 0;
+        if ((vatNumberSpan[0] & ~0x20) == 'G' && (vatNumberSpan[1] & ~0x20)== 'R')
+        {
+            result[0] = 'E';
+            result[1] = 'L';
+            startPos = 2;
+        }
 
-        return vatNumber.ReplaceString("GR", "EL");
+        for (var index = startPos; index < vatNumberSpan.Length; index++)
+        {
+            if (char.IsLetter(vatNumberSpan[index]))
+            {
+                result[startPos++] = (char)(vatNumberSpan[index] & ~0x20);
+            }
+            else
+            {
+                if (char.IsDigit(vatNumberSpan[index]))
+                {
+                    result[startPos++] = vatNumberSpan[index];
+                }
+            }
+        }
+
+        return result[..startPos].ToString();
     }
 
     public static string Slice(this string input, int startIndex)
@@ -81,24 +106,6 @@ public static class ViesExtensions
 
     public static int Sum(this string input, int[] multipliers, int start = 0)
     {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return 0;
-        }
-
-        if (multipliers == null)
-        {
-            return 0;
-        }
-
-        var sum = 0;
-
-        for (var index = start; index < multipliers.Length; index++)
-        {
-            var digit = multipliers[index];
-            sum += input[index].ToInt() * digit;
-        }
-
-        return sum;
+        return input.AsSpan().Sum(multipliers, start);
     }
 }

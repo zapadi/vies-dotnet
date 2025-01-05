@@ -12,41 +12,57 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class NlVatValidator : VatValidatorAbstract
+internal sealed class NlVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^\d{9}B\d{2}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.NL);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = { 9, 8, 7, 6, 5, 4, 3, 2 };
+    private static ReadOnlySpan<int> Multipliers => [9, 8, 7, 6, 5, 4, 3, 2];
 
     public NlVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.NL);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var sum = vat.Sum(Multipliers);
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
-        // Old VAT numbers (pre 2020) - Modulus 11 test
+        if (vatSpan.Length != 12)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits(0, 9))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 9 characters must be digits");
+        }
+
+        // Verify 'B' at position 10
+        if (vatSpan[9] != 'B')
+        {
+            return VatValidationResult.Failed("Invalid NL VAT: position 10 must be 'B'");
+        }
+
+        // Verify last 2 chars are digits
+        if (!char.IsDigit(vatSpan[10]) || !char.IsDigit(vatSpan[11]))
+        {
+            return VatValidationResult.Failed("Invalid NL VAT: last 2 characters must be digits");
+        }
+
+        var sum = vatSpan.Sum(Multipliers);
+
+        // Old VAT numbers (pre-2020) - Modulus 11 test
         var checkMod11 = sum % 11;
         if (checkMod11 > 9)
         {
             checkMod11 = 0;
         }
+
         var isValidMod11 = checkMod11 == vat[8].ToInt();
         if (isValidMod11)
         {
@@ -54,14 +70,22 @@ public sealed class NlVatValidator : VatValidatorAbstract
         }
 
         // New VAT numbers (post 2020) - Modulus 97 test
-        const string stringValueNl = "2321";
-        const string stringValueB = "11";
-        vat = vat.ReplaceString("B", stringValueB);
+        Span<char> mod97Input = stackalloc char[17];
 
-        var isValidMod97 = long.Parse($"{stringValueNl}{vat}", NumberStyles.Integer, CultureInfo.InvariantCulture) % 97 == 1;
+        ReadOnlySpan<char> nlValue = ['2','3','2','1'];
+        ReadOnlySpan<char> bValueMap = ['1','1'];
 
-        return !isValidMod97
-            ? VatValidationResult.Failed("Invalid NL vat: checkValue")
-            : VatValidationResult.Success();
+        nlValue.CopyTo(mod97Input);
+        vatSpan[..9].CopyTo(mod97Input[4..]);
+
+        bValueMap.CopyTo(mod97Input[13..]);
+        vatSpan[10..].CopyTo(mod97Input[15..]);
+
+        if (!mod97Input.TryConvertToLong(out var nr))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+        }
+
+        return ValidateChecksumDigit((long)nr % 97 == 1);
     }
 }

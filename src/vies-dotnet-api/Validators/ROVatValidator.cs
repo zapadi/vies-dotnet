@@ -12,41 +12,53 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class RoVatValidator : VatValidatorAbstract
+internal sealed class RoVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^[0-9]{2,10}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.RO);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = { 7, 5, 3, 2, 1, 7, 5, 3, 2 };
+    private static ReadOnlySpan<int> Multipliers => [7, 5, 3, 2, 1, 7, 5, 3, 2];
 
     public RoVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.RO);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var end = vat.Length - 1;
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
-        var controlDigit = vat[end].ToInt();
+        if (vatSpan.Length is < 2 or > 10)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
 
-        var slice = vat.Slice(0, end);
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
 
-        vat = slice.PadLeft(9, '0');
+        var controlDigit = vatSpan[^1].ToInt();
 
-        var sum = vat.Sum(Multipliers);
+        ReadOnlySpan<char> numberSpan = vatSpan[..^1];
+        Span<char> paddedSpan = stackalloc char[9];
+        var padding = 9 - numberSpan.Length;
+
+       if (padding > 0)
+        {
+            paddedSpan[..padding].Fill('0');
+            numberSpan.CopyTo(paddedSpan[padding..]);
+        }
+        else
+        {
+            numberSpan.CopyTo(paddedSpan);
+        }
+
+        var sum = paddedSpan.Sum(Multipliers);
 
         var checkDigit = sum * 10 % 11;
 
@@ -55,9 +67,6 @@ public sealed class RoVatValidator : VatValidatorAbstract
             checkDigit = 0;
         }
 
-        var isValid = checkDigit == controlDigit;
-        return !isValid
-            ? VatValidationResult.Failed("Invalid RO vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(controlDigit, checkDigit);
     }
 }

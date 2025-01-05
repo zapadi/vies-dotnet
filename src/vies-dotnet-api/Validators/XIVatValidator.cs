@@ -12,56 +12,85 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
 internal sealed class XIVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{9}|\d{12}|(GD|HA)\d{3}$";
-    private const string COUNTRY_CODE = nameof(NonEuCountryCode.XI);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {8, 7, 6, 5, 4, 3, 2};
+    private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
 
     public XIVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(NonEuCountryCode.XI);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var prefix = vat.Slice(0, 2);
-        if (string.Equals(prefix, "GD", StringComparison.OrdinalIgnoreCase)
-            && int.TryParse(vat.Slice(2, 3), NumberStyles.Integer, CultureInfo.InvariantCulture,out var no))
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.StartsWith("GD".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
+            if (vatSpan.Length != 5)
+            {
+                return VatValidationResult.Failed($"Invalid length for {CountryCode} GD VAT number");
+            }
+
+            if (!vatSpan[2..].TryConvertToInt(out var no))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} for GD number format");
+            }
+
             return no < 500
                 ? VatValidationResult.Success()
-                : VatValidationResult.Failed("Invalid Government departments VAT");
+                : VatValidationResult.Failed($"Invalid {CountryCode} VAT for Government departments");
         }
 
-        if (string.Equals(prefix, "HA", StringComparison.OrdinalIgnoreCase)
-            && int.TryParse(vat.Slice(2, 3), NumberStyles.Integer, CultureInfo.InvariantCulture, out no))
+        if (vatSpan.StartsWith("HA".AsSpan(), StringComparison.OrdinalIgnoreCase) )
         {
-            return no > 499
+            if (vatSpan.Length != 5)
+            {
+                return VatValidationResult.Failed($"Invalid length for {CountryCode} HA VAT number");
+            }
+
+            if (!vatSpan[2..].TryConvertToInt(out var no))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} HA VAT number format");
+            }
+
+            return no >= 500
                 ? VatValidationResult.Success()
-                : VatValidationResult.Failed("Invalid Health authorities VAT");
+                : VatValidationResult.Failed($"Invalid {CountryCode} VAT for Health authorities");
         }
 
-        var total = vat.Sum(Multipliers);
-        total += int.Parse(vat.Slice(7, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
+        if (vatSpan.Length is not 9 and not 12)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        var total = 0;
+        for (var i = 0; i < 7; i++)
+        {
+            if (!char.IsDigit(vatSpan[i]))
+            {
+                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            }
+            total += vatSpan[i].ToInt() * Multipliers[i];
+        }
+
+        if (!vatSpan.Slice(7, 2).TryConvertToInt(out var checkValue))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: check digits");
+        }
+
+        total += checkValue;
 
         var result1 = total % 97;
         var result2 = (result1 + 55) % 97;
 
-        var isValid = result1 ==0 || result2 == 0;
+        var isValid = result1 == 0 || result2 == 0;
         return !isValid
-            ? VatValidationResult.Failed($"Invalid {CountryCode} vat: checkValue")
+            ? VatValidationResult.Failed($"Invalid {CountryCode} VAT: checkValue")
             : VatValidationResult.Success();
     }
 }

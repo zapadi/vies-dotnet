@@ -12,69 +12,68 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class LvVatValidator : VatValidatorAbstract
+internal sealed class LvVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{11}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.LV);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
-    private static readonly int[] Multipliers = {9, 1, 4, 8, 3, 10, 2, 5, 7, 6};
+    private static ReadOnlySpan<int> Multipliers => [9, 1, 4, 8, 3, 10, 2, 5, 7, 6];
 
     public LvVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.LV);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        // Only check the legal bodies
-        if (Regex.IsMatch(vat, "/^[0-3]/", RegexOptions.None, TimeSpan.FromSeconds(5)))
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 11)
         {
-            var result = Regex.IsMatch(vat, "^[0-3][0-9][0-1][0-9]", RegexOptions.None, TimeSpan.FromSeconds(5));
-            return !result
-                ? VatValidationResult.Failed("Invalid LV vat: checkValue")
-                : VatValidationResult.Success();
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
-        var sum = vat.Sum(Multipliers);
+
+        if (vatSpan[0] == '0')
+        {
+            return VatValidationResult.Failed("First digit cannot be 0");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        // Only check the legal bodies
+        if(vatSpan[0] is >= '0' and <= '3')
+        {
+            if(vatSpan[1] is >= '0' and <= '9' && vatSpan[2] is >= '0' and <= '1' && vatSpan[3] is >= '0' and <= '9')
+            {
+                return VatValidationResult.Success();
+            }
+
+            return VatValidationResult.Failed($"Invalid {CountryCode} vat: checkValue");
+        }
+
+        var sum = vatSpan.Sum(Multipliers);
 
         var checkDigit = sum % 11;
 
-        if (checkDigit == 4 && vat[0] == '9')
+        if (checkDigit == 4 && vatSpan[0] == '9')
         {
             checkDigit -= 45;
         }
 
-        if (checkDigit == 4)
+        checkDigit = checkDigit switch
         {
-            checkDigit = 4 - checkDigit;
-        }
-        else
-        {
-            if (checkDigit > 4)
-            {
-                checkDigit = 14 - checkDigit;
-            }
-            else
-            {
-                checkDigit = 3 - checkDigit;
-            }
-        }
+            4 => 4 - checkDigit,
+            > 4 => 14 - checkDigit,
+            _ => 3 - checkDigit
+        };
 
-        var isValid = checkDigit == vat[10].ToInt();
-
-        return !isValid
-            ? VatValidationResult.Failed("Invalid LV vat: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(vatSpan[10].ToInt(), checkDigit);
     }
 }

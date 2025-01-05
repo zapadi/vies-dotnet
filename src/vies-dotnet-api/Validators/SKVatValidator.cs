@@ -12,35 +12,45 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class SkVatValidator : VatValidatorAbstract
+internal sealed class SkVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN = @"^[1-9]\d[2346-9]\d{7}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.SK);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
     public SkVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.SK);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var nr = ulong.Parse(vat, NumberStyles.Integer, CultureInfo.InvariantCulture);
-        var isValid = nr % 11 == 0;
-        return !isValid
-            ? VatValidationResult.Failed("Invalid SK vat: checkValue")
-            : VatValidationResult.Success();
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 10)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if (vatSpan[0] is < '1' or > '9')
+        {
+            return VatValidationResult.Failed($"First digit must be 1-9 for {CountryCode} VAT number");
+        }
+
+        // Validate third digit (2,3,4,6,7,8,9) or is not (0,1,5)
+        if (vatSpan[2].ToInt() is 0 or 1 or 5)
+        {
+            return VatValidationResult.Failed($"Third digit invalid for {CountryCode} VAT number");
+        }
+
+        if (!vatSpan.TryConvertToInt(out var nr))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+        }
+
+        return ValidateChecksumDigit(nr % 11, 0);
     }
 }

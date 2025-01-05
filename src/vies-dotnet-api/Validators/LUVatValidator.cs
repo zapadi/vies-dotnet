@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 /*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,34 +11,44 @@ using System.Diagnostics.CodeAnalysis;
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-[SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-public sealed class LuVatValidator : VatValidatorAbstract
+internal sealed class LuVatValidator : VatValidatorAbstract
 {
-    private const string REGEX_PATTERN =@"^\d{8}$";
-    private const string COUNTRY_CODE = nameof(EuCountryCode.LU);
-
-    private static readonly Regex _regex = new(REGEX_PATTERN, RegexOptions.Compiled, TimeSpan.FromSeconds(5));
-
     public LuVatValidator()
     {
-        this.Regex = _regex;
-        CountryCode = COUNTRY_CODE;
+        CountryCode = nameof(EuCountryCode.LU);
     }
 
     protected override VatValidationResult OnValidate(string vat)
     {
-        var isValid = int.Parse(vat.Slice(0, 6), NumberStyles.Integer, CultureInfo.InvariantCulture) % 89 == int.Parse(vat.Slice(6, 2), NumberStyles.Integer, CultureInfo.InvariantCulture);
-        return !isValid
-            ? VatValidationResult.Failed("Invalid LU vat: checkValue")
-            : VatValidationResult.Success();
+        ReadOnlySpan<char> vatSpan = vat.AsSpan();
+
+        if (vatSpan.Length != 8)
+        {
+            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+        }
+
+        if(!vatSpan.ValidateAllDigits())
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+        }
+
+        if (!vatSpan[..6].TryConvertToInt(out var baseNumber))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid base number");
+        }
+
+        if (!vatSpan[6..].TryConvertToInt(out var checkDigits))
+        {
+            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid check digits");
+        }
+
+        return ValidateChecksumDigit(baseNumber % 89 , checkDigits);
     }
 }
