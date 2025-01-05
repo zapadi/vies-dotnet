@@ -90,6 +90,7 @@ public static class ViesExtensions
         #endif
     }
 
+    [Obsolete("This method is obsolete and will be removed in a future version.")]
     public static string ReplaceString(this string input, string oldValue, string newValue)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -97,10 +98,10 @@ public static class ViesExtensions
             return input;
         }
 
-        #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
-        return input.ToUpperInvariant().Replace(oldValue, newValue);
+        #if (NET5_0_OR_GREATER || NETSTANDARD2_1)
+        return input.Replace(oldValue, newValue, StringComparison.OrdinalIgnoreCase);
         #else
-            return input.ToUpperInvariant().Replace(oldValue, newValue, StringComparison.OrdinalIgnoreCase);
+        return input.ToUpperInvariant().Replace(oldValue, newValue);
         #endif
     }
 
