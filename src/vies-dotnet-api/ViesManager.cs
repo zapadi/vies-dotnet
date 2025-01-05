@@ -15,11 +15,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Parsers;
+using Padi.Vies.Validators;
 
 namespace Padi.Vies;
 
@@ -34,6 +34,11 @@ public sealed class ViesManager : IDisposable
 {
     private static readonly Dictionary<string, IVatValidator> VatValidators = new(StringComparer.OrdinalIgnoreCase);
 
+    private static readonly Dictionary<string, ExcludedCountryInfo> _excludedCountries = new(StringComparer.OrdinalIgnoreCase)
+    {
+        {"GB", new ExcludedCountryInfo("GB", "Great Britain", "Brexit", "2021-01-01")},
+    };
+
     private static IVatValidator GetValidator(string countryCode)
     {
         if (VatValidators.TryGetValue(countryCode, out var validator))
@@ -41,15 +46,38 @@ public sealed class ViesManager : IDisposable
             return validator;
         }
 
-        var asm = typeof(ViesManager).Assembly;
-        var type = asm.GetType($"Padi.Vies.Validators.{countryCode.ToUpperInvariant()}VatValidator", throwOnError: true, ignoreCase: true);
-
-        if (type == null)
+        validator = countryCode.AsSpan() switch
         {
-            return null;
-        }
-
-        validator = Activator.CreateInstance(type) as IVatValidator;
+            "AT" => new AtVatValidator(),
+            "BE" => new BeVatValidator(),
+            "BG" => new BgVatValidator(),
+            "CY" => new CyVatValidator(),
+            "CZ" => new CzVatValidator(),
+            "DE" => new DeVatValidator(),
+            "DK" => new DkVatValidator(),
+            "EE" => new EeVatValidator(),
+            "EL" => new ElVatValidator(),
+            "ES" => new EsVatValidator(),
+            "FI" => new FiVatValidator(),
+            "FR" => new FrVatValidator(),
+            "HR" => new HrVatValidator(),
+            "HU" => new HuVatValidator(),
+            "IE" => new IeVatValidator(),
+            "IT" => new ItVatValidator(),
+            "LT" => new LtVatValidator(),
+            "LU" => new LuVatValidator(),
+            "LV" => new LvVatValidator(),
+            "MT" => new MtVatValidator(),
+            "NL" => new NlVatValidator(),
+            "PL" => new PlVatValidator(),
+            "PT" => new PtVatValidator(),
+            "RO" => new RoVatValidator(),
+            "SE" => new SeVatValidator(),
+            "SI" => new SiVatValidator(),
+            "SK" => new SkVatValidator(),
+            "XI" => new XIVatValidator(),
+            _ => throw new ArgumentException($"Unknown country code: {countryCode}", nameof(countryCode))
+        };
 
         VatValidators.Add(countryCode, validator);
 
@@ -59,11 +87,6 @@ public sealed class ViesManager : IDisposable
     private readonly bool _disposeClient;
     private readonly HttpClient _httpClient;
     private readonly ViesService _viesService;
-
-    private static readonly Dictionary<string, ExcludedCountryInfo> _excludedCountries = new(StringComparer.OrdinalIgnoreCase)
-    {
-        {"GB", new ExcludedCountryInfo("GB", "Great Britain", "Brexit", "2021-01-01")},
-    };
 
     /// <summary>
     ///
