@@ -69,10 +69,10 @@ public static class ViesExtensions
             return input;
         }
 
-        #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
-        return input.Substring(startIndex);
+        #if (NET5_0_OR_GREATER || NETSTANDARD2_1)
+        return input.AsSpan()[startIndex..].ToString();
         #else
-            return input.AsSpan()[startIndex..].ToString();
+        return input[startIndex..];
         #endif
     }
 
@@ -83,10 +83,10 @@ public static class ViesExtensions
             return input;
         }
 
-        #if !(NET5_0_OR_GREATER || NETSTANDARD2_1)
-        return input.Substring(startIndex, length);
+        #if (NET5_0_OR_GREATER || NETSTANDARD2_1)
+        return input.AsSpan().Slice(startIndex, length).ToString();
         #else
-            return input.AsSpan().Slice(startIndex, length).ToString();
+        return input.Substring(startIndex, length);
         #endif
     }
 

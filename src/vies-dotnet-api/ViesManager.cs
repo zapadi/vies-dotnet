@@ -76,7 +76,7 @@ public sealed class ViesManager : IDisposable
             "SI" => new SiVatValidator(),
             "SK" => new SkVatValidator(),
             "XI" => new XIVatValidator(),
-            _ => throw new ArgumentException($"Unknown country code: {countryCode}", nameof(countryCode))
+            _ => throw new ArgumentException($"Unknown country code: {countryCode}", nameof(countryCode)),
         };
 
         VatValidators.Add(countryCode, validator);
