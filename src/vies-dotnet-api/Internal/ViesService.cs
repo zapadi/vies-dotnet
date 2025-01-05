@@ -13,6 +13,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -47,17 +48,17 @@ internal sealed class ViesService : IViesService
 
     public ViesService(HttpClient httpClient, IResponseParserAsync parseResponse)
     {
-        this._httpClient = httpClient;
-        this._parseResponse = parseResponse;
+        _httpClient = httpClient;
+        _parseResponse = parseResponse;
     }
 
     public async Task<ViesCheckVatResponse> SendRequestAsync(string countryCode, string vatNumber, CancellationToken cancellationToken)
     {
         try
         {
-            using (var requestMessage = CreateHttpRequestMessage(viesUri, countryCode, vatNumber))
+            using (HttpRequestMessage requestMessage = CreateHttpRequestMessage(viesUri, countryCode, vatNumber))
             {
-                using (var httpResponseMessage = await this._httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                using (HttpResponseMessage httpResponseMessage = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                                                            .ConfigureAwait(false))
                 {
                     if (httpResponseMessage.StatusCode != HttpStatusCode.OK)
@@ -65,7 +66,7 @@ internal sealed class ViesService : IViesService
                         await HandleExceptionAsync(httpResponseMessage).ConfigureAwait(false);
                     }
 
-                    return await this.GetViesCheckVatResponseAsync(httpResponseMessage, cancellationToken).ConfigureAwait(false);
+                    return await GetViesCheckVatResponseAsync(httpResponseMessage, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -77,13 +78,15 @@ internal sealed class ViesService : IViesService
 
     private async Task<ViesCheckVatResponse> GetViesCheckVatResponseAsync(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
     {
+        using(Stream content =
 #if !(NETCOREAPP || NET5_0_OR_GREATER)
-        var content = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+         await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
 #else
-        var content = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
 #endif
-
-        return await this._parseResponse.ParseAsync(content).ConfigureAwait(false);
+        {
+            return await _parseResponse.ParseAsync(content).ConfigureAwait(false);
+        }
     }
 
     private static HttpRequestMessage CreateHttpRequestMessage(Uri uri, string countryCode, string vatNumber)
@@ -100,12 +103,11 @@ internal sealed class ViesService : IViesService
 
     private static StringContent CreateContent(string countryCode, string vatNumber)
     {
-        string content;
-
+        var content =
         #if(NET8_0_OR_GREATER)
-        content = string.Format(null, validateVatMessageCompositeFormat, countryCode, vatNumber);
+        string.Format(CultureInfo.InvariantCulture, validateVatMessageCompositeFormat, countryCode, vatNumber);
         #else
-        content = string.Format(CultureInfo.InvariantCulture, SOAP_VALIDATE_VAT_MESSAGE_FORMAT, countryCode, vatNumber);
+        string.Format(CultureInfo.InvariantCulture, SOAP_VALIDATE_VAT_MESSAGE_FORMAT, countryCode, vatNumber);
         #endif
 
         return new StringContent(content, Encoding.UTF8, ViesConstants.MediaTypeTextXml)
@@ -127,9 +129,8 @@ internal sealed class ViesService : IViesService
     /// 501 = Error : GLOBAL_MAX_CONCURRENT_REQ_TIME
     /// 600 = Error : MS_MAX_CONCURRENT_REQ
     /// 601 = Error : MS_MAX_CONCURRENT_REQ_TIME
-    /// For all the other cases, The web service will responds with a "SERVICE_UNAVAILABLE" error.
+    /// For all the other cases, The web service will respond with a "SERVICE_UNAVAILABLE" error.
     /// </summary>
-
     private static async Task HandleExceptionAsync(HttpResponseMessage response)
     {
         var errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

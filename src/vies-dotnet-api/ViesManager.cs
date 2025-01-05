@@ -41,7 +41,7 @@ public sealed class ViesManager : IDisposable
 
     private static IVatValidator GetValidator(string countryCode)
     {
-        if (VatValidators.TryGetValue(countryCode, out var validator))
+        if (VatValidators.TryGetValue(countryCode, out IVatValidator validator))
         {
             return validator;
         }
@@ -93,7 +93,7 @@ public sealed class ViesManager : IDisposable
     /// </summary>
     public ViesManager() : this(HttpClientProvider.GetHttpClient(), disposeClient: true)
     {
-        this._httpClient.DefaultRequestHeaders.Accept.Add(ViesConstants.MediaTypeHeaderTextXml);
+        _httpClient.DefaultRequestHeaders.Accept.Add(ViesConstants.MediaTypeHeaderTextXml);
     }
 
     /// <summary>
@@ -104,9 +104,9 @@ public sealed class ViesManager : IDisposable
     #pragma warning disable
     public ViesManager(HttpClient httpClient, bool disposeClient = false)
     {
-        this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        this._disposeClient = disposeClient;
-        this._viesService = new ViesService(httpClient, new XmlResponseParser());
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _disposeClient = disposeClient;
+        _viesService = new ViesService(httpClient, new XmlResponseParser());
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public sealed class ViesManager : IDisposable
     /// <returns>VatValidationResult</returns>
     public static VatValidationResult IsValid(string vat)
     {
-        (string code, string number) = SplitInput(vat);
+        var (code, number) = SplitInput(vat);
 
         return IsValid(code, number);
     }
@@ -131,11 +131,11 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public static VatValidationResult IsValid(string countryCode, string vatNumber)
     {
-        if (_excludedCountries.TryGetValue(countryCode, out var excludedCountryInfo))
+        if (_excludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
         {
             return VatValidationResult.Failed(excludedCountryInfo.ToString());
         }
-        var validator = GetValidator(countryCode);
+        IVatValidator validator = GetValidator(countryCode);
         return validator == null
             ? VatValidationResult.Failed($"{countryCode} is not a valid ISO_3166-1 European member state.")
             : validator.Validate(vatNumber);
@@ -154,7 +154,7 @@ public sealed class ViesManager : IDisposable
     [Obsolete("Use IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken) instead")]
     public Task<ViesCheckVatResponse> IsActive(string countryCode, string vatNumber, CancellationToken cancellationToken = default)
     {
-        return this.IsActiveAsync(countryCode, vatNumber, cancellationToken);
+        return IsActiveAsync(countryCode, vatNumber, cancellationToken);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public async Task<ViesCheckVatResponse> IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken = default)
     {
-        return await this._viesService.SendRequestAsync(countryCode, vatNumber, cancellationToken).ConfigureAwait(false);
+        return await _viesService.SendRequestAsync(countryCode, vatNumber, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public sealed class ViesManager : IDisposable
     [Obsolete("Use IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken) instead.")]
     public Task<ViesCheckVatResponse> IsActive(string vatNumber, CancellationToken cancellationToken = default)
     {
-        return this.IsActiveAsync(vatNumber, cancellationToken);
+        return IsActiveAsync(vatNumber, cancellationToken);
     }
 
     /// <summary>
@@ -197,9 +197,9 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public async Task<ViesCheckVatResponse> IsActiveAsync(string vatNumber, CancellationToken cancellationToken = default)
     {
-        (string code, string number) = SplitInput(vatNumber);
+        var (code, number) = SplitInput(vatNumber);
 
-        return await this.IsActiveAsync(code, number, cancellationToken).ConfigureAwait(false);
+        return await IsActiveAsync(code, number, cancellationToken).ConfigureAwait(false);
     }
 
     private static (string code, string number) SplitInput(string vat)
@@ -224,9 +224,9 @@ public sealed class ViesManager : IDisposable
 
     public void Dispose()
     {
-        if (this._disposeClient)
+        if (_disposeClient)
         {
-            this._httpClient?.Dispose();
+            _httpClient?.Dispose();
         }
     }
 }

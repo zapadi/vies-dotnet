@@ -20,7 +20,7 @@ internal sealed class ViesHttpClientHandler : HttpClientHandler
 {
     public ViesHttpClientHandler()
     {
-        this.CheckCertificateRevocationList = true;
-        this.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.None;
+        CheckCertificateRevocationList = true;
+        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.None;
     }
 }
