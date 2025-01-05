@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Build">
         <AssemblyName>Padi.Vies</AssemblyName>
         <Deterministic>True</Deterministic>
@@ -25,7 +25,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
-    <PackageValidationBaselineVersion>2.2.0</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>2.3.2</PackageValidationBaselineVersion>
     <Product>Redmine .NET API Client</Product>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ReleaseNotes></ReleaseNotes>
@@ -46,11 +46,11 @@
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
-  
+
   <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>vies-dotnet-api-test</_Parameter1>
