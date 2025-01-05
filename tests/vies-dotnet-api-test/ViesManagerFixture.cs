@@ -22,12 +22,12 @@ public sealed class ViesManagerFixture : IDisposable
 {
     public ViesManagerFixture()
     {
-        this.ViesManager = new ViesManager();
+        ViesManager = new ViesManager();
     }
 
     public void Dispose()
     {
-        this.ViesManager?.Dispose();
+        ViesManager?.Dispose();
     }
 
     public ViesManager ViesManager { get; }

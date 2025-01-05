@@ -18,58 +18,49 @@ using Xunit;
 namespace Padi.Vies.Test;
 
 [Collection("ViesCollection")]
-public sealed class ViesIntegrationTests
+public sealed class ViesIntegrationTests(ViesManagerFixture fixture)
 {
-    private readonly ViesManagerFixture _fixture;
-
-    public ViesIntegrationTests(ViesManagerFixture fixture)
-    {
-        this._fixture = fixture;
-    }
-
     [Theory]
-    [InlineData("LU26375245")]
-    [InlineData("SE 556656688001")]
-    [InlineData("FI 09073468")]
-    [InlineData("NL 858292828B01")]
-    [InlineData("FR 66322120916")]
-    [InlineData("IT 01640320360")]
-    [InlineData("RO26129093")]
-    [InlineData("SK2120046819")]
+    [InlineData("IE8D79739I")]
+    [InlineData("IE8Y41127O")]
+    [InlineData("NL002101624B69")]
     public async Task Should_Return_Vat_Active(string vat)
     {
-        var actual = await this.CheckIfActiveAsync(vat, true);
+        ViesCheckVatResponse actual = await CheckIfActiveAsync(vat);
 
-        Assert.True(actual.IsValid, "Inactive vat number");
+        Assert.True(actual.IsValid, $"Inactive {actual.CountryCode} vat number");
     }
 
     [Theory]
-    [InlineData("RO123456789")]
     [InlineData("ATU12345675")]
+    [InlineData("CY10014000M")]
     [InlineData("CZ612345670")]
     [InlineData("ESK1234567L")]
     [InlineData("IE1234567T")]
+    [InlineData("IE6433435OA")]
     [InlineData("NL123456782B90")]
+    [InlineData("NL123456789B13")]
+    [InlineData("RO123456789")]
     public async Task Should_Return_Vat_Inactive(string vat)
     {
-        var actual = await this.CheckIfActiveAsync(vat, false);
+        ViesCheckVatResponse actual = await CheckIfActiveAsync(vat);
 
-        Assert.False(actual.IsValid, "Inactive vat number");
+        Assert.False(actual.IsValid, $"Inactive {actual.CountryCode} vat number");
     }
 
     [Theory]
-    [InlineData("GB434031494")]
     [InlineData("123")]
-    [InlineData("K99999999L")] //Albania
     [InlineData("CHE-123.456.788 ")]
+    [InlineData("GB434031494")]
+    [InlineData("K99999999L")] //Albania
     public async Task Should_Throw_ViesServiceException(string vat)
     {
-        await Assert.ThrowsAsync<ViesServiceException>(() => this.CheckIfActiveAsync(vat, false));
+        await Assert.ThrowsAsync<ViesServiceException>(() => CheckIfActiveAsync(vat));
     }
 
-    private async Task<ViesCheckVatResponse> CheckIfActiveAsync(string vat, bool mockValue){
+    private async Task<ViesCheckVatResponse> CheckIfActiveAsync(string vat, bool mockValue = false){
 
-        var actual = await this._fixture.ViesManager.IsActiveAsync(vat);
+        ViesCheckVatResponse actual = await fixture.ViesManager.IsActiveAsync(vat);
 
         return actual;
     }

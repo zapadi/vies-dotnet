@@ -28,7 +28,7 @@ public sealed class ViesNonEUUnitTests
     [InlineData("GB12345678", false)]
     public void Should_Validate_GB_Vat(string vatNumber, bool isValid)
     {
-        var result = ViesManager.IsValid(vatNumber);
+        VatValidationResult result = ViesManager.IsValid(vatNumber);
 
         Assert.Equal("Great Britain(GB) is no longer supported by VIES services provided by EC since 2021-01-01 because of Brexit", result.Error);
     }
@@ -44,7 +44,7 @@ public sealed class ViesNonEUUnitTests
     [InlineData("12345678", false)]
     public void Should_Validate_XI_Vat(string vatNumber, bool isValid)
     {
-        var result = ViesManager.IsValid("XI", vatNumber);
+        VatValidationResult result = ViesManager.IsValid("XI", vatNumber);
         Assert.Equal(isValid, result.IsValid);
     }
 }

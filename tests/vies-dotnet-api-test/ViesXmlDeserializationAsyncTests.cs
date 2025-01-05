@@ -46,7 +46,7 @@ public sealed class ViesXmlDeserializationAsyncTests
 
         using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
         {
-            var response = await this._parseResponseAsync.ParseAsync(stream);
+            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream);
             Assert.True(response.IsValid);
             Assert.Equal("LU", response.CountryCode, ignoreCase: true);
             Assert.Equal("26375245", response.VatNumber, ignoreCase: true);
@@ -144,7 +144,7 @@ public sealed class ViesXmlDeserializationAsyncTests
     {
         using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
         {
-            var response = await this._parseResponseAsync.ParseAsync(stream);
+            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream);
             Assert.False(response.IsValid);
             Assert.True(string.IsNullOrWhiteSpace(response.Address));
             Assert.True(string.IsNullOrWhiteSpace(response.Name));
@@ -170,7 +170,7 @@ public sealed class ViesXmlDeserializationAsyncTests
     {
         using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
         {
-            await Assert.ThrowsAsync<ViesServiceException>(() => this._parseResponseAsync.ParseAsync(stream));
+            await Assert.ThrowsAsync<ViesServiceException>(() => _parseResponseAsync.ParseAsync(stream));
         }
     }
 }
