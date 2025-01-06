@@ -1,7 +1,4 @@
 <Project>
-
-   
-
     <PropertyGroup Label="Build">
         <LangVersion>13</LangVersion>
         <Features>strict</Features>
@@ -10,5 +7,4 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageOutputPath>$(SolutionDir)/artifacts</PackageOutputPath>
     </PropertyGroup>
-
 </Project>
