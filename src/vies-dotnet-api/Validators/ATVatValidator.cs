@@ -48,9 +48,10 @@ internal sealed class AtVatValidator : VatValidatorAbstract
         }
 
         var sum = 0;
-        for (var index = 0; index < Multipliers.Length; index++)
+        var index = 1;
+        foreach (var digit in Multipliers)
         {
-            var product = vatSpan[index++].ToInt() * Multipliers[index];
+            var product = vatSpan[index++].ToInt() * digit;
             sum += product > 9
                 ? (int) Math.Floor(product / 10D) + product % 10
                 : product;
