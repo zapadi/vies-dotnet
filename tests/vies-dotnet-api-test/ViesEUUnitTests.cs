@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -434,5 +434,23 @@ public sealed class ViesEUUnitTests
     {
         VatValidationResult result = ViesManager.IsValid(vatNumber);
         Assert.True(result.IsValid, $"VAT '{vatNumber}' is invalid");
+    }
+
+    [Fact]
+    public void ErrorMessage_Should_Contain_CountryCode()
+    {
+        var data = new TheoryData<string, string>
+        {
+            { "IT00000010210", "IT" },
+            { "DE000000206", "DE" },
+            { "IT00000010210", "IT" } // test duplicate
+        };
+
+        foreach (var item in data)
+        {
+            VatValidationResult result = ViesManager.IsValid((string)item[0]);
+            Assert.False(result.IsValid, $"VAT '{item[0]}' is VALID");
+            Assert.Contains((string)item[1], result.Error, System.StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
