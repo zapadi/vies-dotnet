@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ internal sealed class LtVatValidator : VatValidatorAbstract
             : ValidateTemporaryVat(vatSpan);
     }
 
-    private static VatValidationResult ValidateNineDigitVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult ValidateNineDigitVat(ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[7] != '1')
         {
@@ -78,7 +78,7 @@ internal sealed class LtVatValidator : VatValidatorAbstract
         return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 
-    private static VatValidationResult ValidateTemporaryVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult ValidateTemporaryVat(ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[10] != '1')
         {

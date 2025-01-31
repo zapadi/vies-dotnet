@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace Padi.Vies;
 /// </summary>
 public abstract class VatValidatorAbstract : IVatValidator
 {
-    protected static string CountryCode { get; set; }
+    protected string CountryCode { get; set; }
 
     /// <summary>
     ///
@@ -37,7 +37,7 @@ public abstract class VatValidatorAbstract : IVatValidator
     }
     protected abstract VatValidationResult OnValidate(string vat);
 
-    protected static VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null)
+    protected VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null)
     {
         var isValid = checkDigit == digit;
         return !isValid
@@ -45,7 +45,7 @@ public abstract class VatValidatorAbstract : IVatValidator
             : VatValidationResult.Success();
     }
 
-    protected static VatValidationResult ValidateChecksumDigit(bool isValid, string message = null)
+    protected VatValidationResult ValidateChecksumDigit(bool isValid, string message = null)
     {
         return !isValid
             ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
