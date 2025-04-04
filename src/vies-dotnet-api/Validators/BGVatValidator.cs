@@ -57,7 +57,12 @@ internal sealed class BgVatValidator : VatValidatorAbstract
 
     private static VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
     {
-        var sum = vatSpan.Sum(MultipliersPhysicalPerson);
+        var sum = 0;
+
+        for (int index = 0; index < 8; index++)
+        {
+            sum += vatSpan[index].ToInt() * (index + 1);
+        }
 
         var checkDigit = sum % 11;
         if (checkDigit == 10)
