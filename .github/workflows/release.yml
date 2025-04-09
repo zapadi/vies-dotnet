@@ -1,0 +1,52 @@
+name: Generate Changelog
+
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'The reason for running the workflow'
+        required: false
+        default: 'Manual build and run tests'
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  release:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # Required to create release
+      packages: write   # Required to publish to GitHub Packages if used
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Extract version from tag
+        id: extract_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Generate changelog from commits
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: .github/changelog-config.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: "Release ${{ env.VERSION }}"
+          body: ${{ steps.changelog.outputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
