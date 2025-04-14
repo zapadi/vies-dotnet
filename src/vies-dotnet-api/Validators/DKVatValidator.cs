@@ -24,9 +24,8 @@ internal sealed class DkVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [2, 7, 6, 5, 4, 3, 2, 1];
 
-    public DkVatValidator()
+    public DkVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.DK);
     }
 
     protected override VatValidationResult OnValidate(string vat)

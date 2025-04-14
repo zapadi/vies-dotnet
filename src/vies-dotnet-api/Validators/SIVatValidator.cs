@@ -12,7 +12,7 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -24,9 +24,8 @@ internal sealed class SiVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
 
-    public SiVatValidator()
+    public SiVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.SI);
     }
 
     protected override VatValidationResult OnValidate(string vat)

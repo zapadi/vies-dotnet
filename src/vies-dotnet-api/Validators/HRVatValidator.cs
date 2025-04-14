@@ -19,9 +19,8 @@ namespace Padi.Vies.Validators;
 
 internal sealed class HrVatValidator : VatValidatorAbstract
 {
-    public HrVatValidator()
+    public HrVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.HR);
     }
 
     protected override VatValidationResult OnValidate(string vat)

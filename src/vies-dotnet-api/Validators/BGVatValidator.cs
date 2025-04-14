@@ -26,9 +26,8 @@ internal sealed class BgVatValidator : VatValidatorAbstract
     private static ReadOnlySpan<int> MultipliersForeignPhysicalPerson => [21, 19, 17, 13, 11, 9, 7, 3, 1];
     private static ReadOnlySpan<int> MultipliersMiscellaneous => [4, 3, 2, 7, 6, 5, 4, 3, 2];
 
-    public BgVatValidator()
+    public BgVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.BG);
     }
 
     protected override VatValidationResult OnValidate(string vat)

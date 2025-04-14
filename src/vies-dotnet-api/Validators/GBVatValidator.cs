@@ -21,9 +21,8 @@ internal sealed class GbVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
 
-    public GbVatValidator()
+    public GbVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(NonEuCountryCode.GB);
     }
 
     protected override VatValidationResult OnValidate(string vat)

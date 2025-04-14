@@ -20,6 +20,11 @@ namespace Padi.Vies;
 /// </summary>
 public abstract class VatValidatorAbstract : IVatValidator
 {
+    protected VatValidatorAbstract(string countryCode)
+    {
+        CountryCode = countryCode;
+    }
+
     protected static string CountryCode { get; set; }
 
     /// <summary>

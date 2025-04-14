@@ -24,9 +24,8 @@ internal sealed class EeVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [3, 7, 1, 3, 7, 1, 3, 7];
 
-    public EeVatValidator()
+    public EeVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.EE);
     }
 
     protected override VatValidationResult OnValidate(string vat)

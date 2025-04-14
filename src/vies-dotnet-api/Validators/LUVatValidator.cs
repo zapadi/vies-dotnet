@@ -23,9 +23,8 @@ namespace Padi.Vies.Validators;
 /// </summary>
 internal sealed class LuVatValidator : VatValidatorAbstract
 {
-    public LuVatValidator()
+    public LuVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.LU);
     }
 
     protected override VatValidationResult OnValidate(string vat)

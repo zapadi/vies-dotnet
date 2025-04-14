@@ -19,11 +19,8 @@ namespace Padi.Vies.Validators;
 
 internal sealed class HuVatValidator : VatValidatorAbstract
 {
-    private static ReadOnlySpan<int> Multipliers => [9, 7, 3, 1, 9, 7, 3];
-
-    public HuVatValidator()
+    public HuVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.HU);
     }
 
     protected override VatValidationResult OnValidate(string vat)

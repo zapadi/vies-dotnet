@@ -23,9 +23,8 @@ namespace Padi.Vies.Validators;
 /// </summary>
 internal sealed class CyVatValidator : VatValidatorAbstract
 {
-    public CyVatValidator()
+    public CyVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.CY);
     }
 
     protected override VatValidationResult OnValidate(string vat)

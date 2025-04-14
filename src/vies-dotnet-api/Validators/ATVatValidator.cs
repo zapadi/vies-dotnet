@@ -24,9 +24,8 @@ internal sealed class AtVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [1, 2, 1, 2, 1, 2, 1];
 
-    public AtVatValidator()
+    public AtVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.AT);
     }
 
     protected override VatValidationResult OnValidate(string vat)

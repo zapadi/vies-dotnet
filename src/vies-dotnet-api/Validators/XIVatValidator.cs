@@ -12,18 +12,15 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 internal sealed class XIVatValidator : VatValidatorAbstract
 {
-    private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
-
-    public XIVatValidator()
+    public XiVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(NonEuCountryCode.XI);
     }
 
     protected override VatValidationResult OnValidate(string vat)

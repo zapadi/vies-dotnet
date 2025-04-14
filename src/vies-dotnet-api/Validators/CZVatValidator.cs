@@ -24,9 +24,8 @@ internal sealed class CzVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
 
-    public CzVatValidator()
+    public CzVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.CZ);
     }
 
     protected override VatValidationResult OnValidate(string vat)

@@ -24,9 +24,8 @@ internal sealed class ElVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [256, 128, 64, 32, 16, 8, 4, 2];
 
-    public ElVatValidator()
+    public ElVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.EL);
     }
 
     protected override VatValidationResult OnValidate(string vat)

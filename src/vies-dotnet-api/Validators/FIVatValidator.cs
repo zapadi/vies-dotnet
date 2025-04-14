@@ -24,9 +24,8 @@ internal sealed class FiVatValidator : VatValidatorAbstract
 {
     private static ReadOnlySpan<int> Multipliers => [7, 9, 10, 5, 8, 4, 2];
 
-    public FiVatValidator()
+    public FiVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.FI);
     }
 
     protected override VatValidationResult OnValidate(string vat)

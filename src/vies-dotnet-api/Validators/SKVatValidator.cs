@@ -22,9 +22,8 @@ namespace Padi.Vies.Validators;
 /// </summary>
 internal sealed class SkVatValidator : VatValidatorAbstract
 {
-    public SkVatValidator()
+    public SkVatValidator(string countryCode) : base(countryCode)
     {
-        CountryCode = nameof(EuCountryCode.SK);
     }
 
     protected override VatValidationResult OnValidate(string vat)
