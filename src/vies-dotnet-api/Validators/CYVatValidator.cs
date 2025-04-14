@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 */
 
 using System;
+
 using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -35,7 +36,7 @@ internal sealed class CyVatValidator : VatValidatorAbstract
             return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
         }
 
-        if(!vatSpan.ValidateAllDigits(0, 8))
+        if (!vatSpan.ValidateAllDigits(0, 8))
         {
             return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 8 characters must be digits");
         }
@@ -72,6 +73,6 @@ internal sealed class CyVatValidator : VatValidatorAbstract
 
         var checkDigit = result % 26 + 65;
 
-        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
+        return ValidateChecksumDigit(vatSpan[8], checkDigit);
     }
 }
