@@ -20,13 +20,9 @@ namespace Padi.Vies.Validators;
 /// <summary>
 ///
 /// </summary>
-internal sealed class CzVatValidator : VatValidatorAbstract
+internal sealed class CzVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
-
-    public CzVatValidator(string countryCode) : base(countryCode)
-    {
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {

@@ -17,13 +17,9 @@ using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class MtVatValidator : VatValidatorAbstract
+internal sealed class MtVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [3, 4, 6, 7, 8, 9];
-
-    public MtVatValidator(string countryCode) : base(countryCode)
-    {
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {

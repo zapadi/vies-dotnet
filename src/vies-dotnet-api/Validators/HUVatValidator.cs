@@ -17,11 +17,9 @@ using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class HuVatValidator : VatValidatorAbstract
+internal sealed class HuVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [9, 7, 3, 1, 9, 7, 3];
-    {
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {

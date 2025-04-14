@@ -20,13 +20,9 @@ namespace Padi.Vies.Validators;
 /// <summary>
 ///
 /// </summary>
-internal sealed class SeVatValidator : VatValidatorAbstract
+internal sealed class SeVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [2, 1, 2, 1, 2, 1, 2, 1, 2];
-
-    public SeVatValidator(string countryCode) : base(countryCode)
-    {
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {

@@ -20,15 +20,11 @@ namespace Padi.Vies.Validators;
 /// <summary>
 ///
 /// </summary>
-internal sealed class BgVatValidator : VatValidatorAbstract
+internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> MultipliersPhysicalPerson => [2, 4, 8, 5, 10, 9, 7, 3, 6];
     private static ReadOnlySpan<int> MultipliersForeignPhysicalPerson => [21, 19, 17, 13, 11, 9, 7, 3, 1];
     private static ReadOnlySpan<int> MultipliersMiscellaneous => [4, 3, 2, 7, 6, 5, 4, 3, 2];
-
-    public BgVatValidator(string countryCode) : base(countryCode)
-    {
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {

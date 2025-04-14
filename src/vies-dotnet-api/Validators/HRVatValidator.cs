@@ -17,12 +17,8 @@ using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class HrVatValidator : VatValidatorAbstract
+internal sealed class HrVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public HrVatValidator(string countryCode) : base(countryCode)
-    {
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();

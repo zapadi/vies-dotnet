@@ -20,12 +20,8 @@ namespace Padi.Vies.Validators;
 /// <summary>
 ///
 /// </summary>
-internal sealed class SkVatValidator : VatValidatorAbstract
+internal sealed class SkVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public SkVatValidator(string countryCode) : base(countryCode)
-    {
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();

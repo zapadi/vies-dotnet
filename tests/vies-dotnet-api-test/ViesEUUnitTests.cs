@@ -20,14 +20,8 @@ using Xunit;
 namespace Padi.Vies.Test;
 
 [Collection("ViesCollection")]
-public sealed class ViesEUUnitTests
+public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
 {
-    private readonly ViesManagerFixture _fixture;
-    public ViesEUUnitTests(ViesManagerFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Theory]
     [InlineData("AT U12345678", "ATU12345678")]
     [InlineData("  ATU12345678", "ATU12345678")]
@@ -45,7 +39,7 @@ public sealed class ViesEUUnitTests
     [InlineData("")]
     public async Task Should_Throw_ViesValidationException(string vat)
     {
-        await Assert.ThrowsAsync<ViesValidationException>(() => _fixture.ViesManager.IsActiveAsync(vat));
+        await Assert.ThrowsAsync<ViesValidationException>(() => fixture.ViesManager.IsActiveAsync(vat));
     }
 
     [Theory]

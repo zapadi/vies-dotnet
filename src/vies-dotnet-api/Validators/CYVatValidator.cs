@@ -20,12 +20,8 @@ namespace Padi.Vies.Validators;
 /// <summary>
 ///
 /// </summary>
-internal sealed class CyVatValidator : VatValidatorAbstract
+internal sealed class CyVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public CyVatValidator(string countryCode) : base(countryCode)
-    {
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
