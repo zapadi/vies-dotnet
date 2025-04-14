@@ -34,17 +34,17 @@ internal sealed class SeVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,VatValidationErrorMessageHelper.GetLengthMessage(12));
         }
 
         if (vatSpan[^2..] is not "01")
         {
-            return VatValidationResult.Failed($"Invalid format for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Last 2 characters must be '0' and '1'");
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = 0;

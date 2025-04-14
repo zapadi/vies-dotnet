@@ -12,7 +12,7 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -36,12 +36,12 @@ internal sealed class BgVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is not 9 and not 10)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 10));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         if (vatSpan.Length == 9)
@@ -52,14 +52,14 @@ internal sealed class BgVatValidator : VatValidatorAbstract
         return ValidatePhysicalPerson(vatSpan) ??
                ValidateForeignPerson(vatSpan) ??
                ValidateMiscellaneous(vatSpan) ??
-            VatValidationResult.Failed($"Invalid {CountryCode} VAT number");
+            VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
     }
 
     private static VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
     {
         var sum = 0;
 
-        for (int index = 0; index < 8; index++)
+        for (var index = 0; index < 8; index++)
         {
             sum += vatSpan[index].ToInt() * (index + 1);
         }
@@ -79,7 +79,7 @@ internal sealed class BgVatValidator : VatValidatorAbstract
             }
         }
 
-        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit, $"Invalid checksum for 9-digit {CountryCode} VAT");
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit, VatValidationErrorMessageHelper.GetInvalidChecksumMessage(), CountryCode);
     }
 
     private static VatValidationResult ValidatePhysicalPerson(ReadOnlySpan<char> vatSpan)

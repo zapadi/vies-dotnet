@@ -12,7 +12,7 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -32,17 +32,17 @@ internal sealed class BeVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is not 9 and not 10)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 10));
         }
 
         if (vatSpan.Length == 10 && vatSpan[0] is not '0' and not '1')
         {
-            return VatValidationResult.Failed("First character of 10 digit numbers should be 0 or 1");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, "For 10-digit numbers, first character must be '0' or '1'");
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         int firstPart, checkPart;
@@ -50,14 +50,14 @@ internal sealed class BeVatValidator : VatValidatorAbstract
         {
             if (!vatSpan[..7].TryConvertToInt(out firstPart) || !vatSpan[7..].TryConvertToInt(out checkPart))
             {
-                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
             }
         }
         else
         {
             if (!vatSpan[..8].TryConvertToInt(out firstPart) || !vatSpan[8..].TryConvertToInt(out checkPart))
             {
-                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
             }
         }
 

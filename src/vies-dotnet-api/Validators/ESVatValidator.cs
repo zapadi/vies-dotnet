@@ -12,7 +12,7 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -34,7 +34,7 @@ internal sealed class EsVatValidator : VatValidatorAbstract
 
         if (length != 9)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
         var firstChar = vatSpan[0];
@@ -44,7 +44,7 @@ internal sealed class EsVatValidator : VatValidatorAbstract
 
         if(!middleDigits.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         // Pattern 1: Letter + 8 digits
@@ -71,6 +71,6 @@ internal sealed class EsVatValidator : VatValidatorAbstract
             return VatValidationResult.Success();
         }
 
-        return VatValidationResult.Failed($"Invalid {CountryCode} VAT format");
+        return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
     }
 }

@@ -36,24 +36,24 @@ internal sealed class LtVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is not 9 and not 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 12));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         return vatSpan.Length == 9
-            ? ValidateNineDigitVat(vatSpan)
-            : ValidateTemporaryVat(vatSpan);
+            ? ValidateNineDigitVat(CountryCode,vatSpan)
+            : ValidateTemporaryVat(CountryCode,vatSpan);
     }
 
-    private static VatValidationResult ValidateNineDigitVat(ReadOnlySpan<char> vatSpan)
+    private static VatValidationResult ValidateNineDigitVat(string countryCode, ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[7] != '1')
         {
-            return VatValidationResult.Failed($"9 character {CountryCode} VAT numbers should have 1 in 8th position.");
+            return VatValidationResult.Failed(countryCode, VatValidationErrorCode.InvalidFormat,"9 character VAT numbers should have '1' in 8th position.");
         }
 
         var sum = 0;
@@ -78,11 +78,11 @@ internal sealed class LtVatValidator : VatValidatorAbstract
         return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 
-    private static VatValidationResult ValidateTemporaryVat(ReadOnlySpan<char> vatSpan)
+    private static VatValidationResult ValidateTemporaryVat(string countryCode, ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[10] != '1')
         {
-            return VatValidationResult.Failed("Temporarily Registered Tax Payers should have 11th character one");
+            return VatValidationResult.Failed(countryCode, VatValidationErrorCode.InvalidFormat,"Temporarily Registered Tax Payers should have '1' in 11th position.");
         }
 
         var total = vatSpan.Sum(MultipliersTemporarily);

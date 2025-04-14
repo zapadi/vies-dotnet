@@ -34,24 +34,22 @@ internal sealed class NlVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(12));
         }
 
         if(!vatSpan.ValidateAllDigits(0, 9))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 9 characters must be digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(0, 9));
         }
 
-        // Verify 'B' at position 10
         if (vatSpan[9] != 'B')
         {
-            return VatValidationResult.Failed("Invalid NL VAT: position 10 must be 'B'");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(10, "'B'"));
         }
 
-        // Verify last 2 chars are digits
         if (!char.IsDigit(vatSpan[10]) || !char.IsDigit(vatSpan[11]))
         {
-            return VatValidationResult.Failed("Invalid NL VAT: last 2 characters must be digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidNumberMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);
@@ -83,7 +81,7 @@ internal sealed class NlVatValidator : VatValidatorAbstract
 
         if (!mod97Input.TryConvertToLong(out var nr))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit((long)nr % 97 == 1);

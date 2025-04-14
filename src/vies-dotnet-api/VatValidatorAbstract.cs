@@ -25,7 +25,7 @@ public abstract class VatValidatorAbstract : IVatValidator
         CountryCode = countryCode;
     }
 
-    protected static string CountryCode { get; set; }
+    protected static string CountryCode { get; private set; }
 
     /// <summary>
     ///
@@ -35,25 +35,22 @@ public abstract class VatValidatorAbstract : IVatValidator
     /// <exception cref="ViesValidationException"></exception>
     public VatValidationResult Validate(string vat)
     {
-        VatValidationResult result = OnValidate(vat);
-        return result.IsValid
-            ? result
-            : VatValidationResult.Failed($"Invalid {CountryCode} VAT: format");
+        return OnValidate(vat);
     }
     protected abstract VatValidationResult OnValidate(string vat);
 
-    protected static VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null)
+    protected static VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null, string countryCode = null)
     {
         var isValid = checkDigit == digit;
         return !isValid
-            ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
+            ? VatValidationResult.Failed(countryCode ?? CountryCode, VatValidationErrorCode.InvalidCheckDigit, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
             : VatValidationResult.Success();
     }
 
-    protected static VatValidationResult ValidateChecksumDigit(bool isValid, string message = null)
+    protected static VatValidationResult ValidateChecksumDigit(bool isValid, string message = null, string countryCode = null)
     {
         return !isValid
-            ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
+            ? VatValidationResult.Failed(countryCode ?? CountryCode, VatValidationErrorCode.InvalidCheckDigit, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
             : VatValidationResult.Success();
     }
 }

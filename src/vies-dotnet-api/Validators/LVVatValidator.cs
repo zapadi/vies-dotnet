@@ -34,17 +34,17 @@ internal sealed class LvVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(11));
         }
 
         if (vatSpan[0] == '0')
         {
-            return VatValidationResult.Failed("First digit cannot be 0");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(0, "different than '0'"));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         // Only check the legal bodies
@@ -55,7 +55,7 @@ internal sealed class LvVatValidator : VatValidatorAbstract
                 return VatValidationResult.Success();
             }
 
-            return VatValidationResult.Failed($"Invalid {CountryCode} vat: checkValue");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,VatValidationErrorMessageHelper.GetInvalidChecksumMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);
@@ -71,7 +71,7 @@ internal sealed class LvVatValidator : VatValidatorAbstract
         {
             4 => 4 - checkDigit,
             > 4 => 14 - checkDigit,
-            _ => 3 - checkDigit
+            _ => 3 - checkDigit,
         };
 
         return ValidateChecksumDigit(vatSpan[10].ToInt(), checkDigit);

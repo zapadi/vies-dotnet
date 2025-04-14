@@ -11,15 +11,15 @@
    limitations under the License.
 */
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 internal sealed class HuVatValidator : VatValidatorAbstract
 {
-    public HuVatValidator(string countryCode) : base(countryCode)
+    private static ReadOnlySpan<int> Multipliers => [9, 7, 3, 1, 9, 7, 3];
     {
     }
 
@@ -29,12 +29,12 @@ internal sealed class HuVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 8)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(8));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);

@@ -14,7 +14,6 @@ using Padi.Vies.Internal.Extensions;
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
@@ -33,22 +32,22 @@ internal sealed class LuVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 8)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(8));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         if (!vatSpan[..6].TryConvertToInt(out var baseNumber))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid base number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         if (!vatSpan[6..].TryConvertToInt(out var checkDigits))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid check digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit(baseNumber % 89 , checkDigits);

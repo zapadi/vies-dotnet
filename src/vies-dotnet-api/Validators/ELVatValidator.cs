@@ -12,7 +12,7 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -32,9 +32,14 @@ internal sealed class ElVatValidator : VatValidatorAbstract
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
+        if (vatSpan.Length is not 8 and not 9)
+        {
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthRangeMessage(8, 9));
+        }
+
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = 0;
@@ -49,11 +54,6 @@ internal sealed class ElVatValidator : VatValidatorAbstract
         }
         else
         {
-            if (vatSpan.Length != 9)
-            {
-                return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
-            }
-
             controlValue = vatSpan[8].ToInt();
             sum = vatSpan.Sum(Multipliers);
         }

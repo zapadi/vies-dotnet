@@ -1,4 +1,4 @@
-﻿/*
+/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,8 +12,7 @@
 */
 
 using System;
-
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
@@ -33,22 +32,22 @@ internal sealed class CyVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is < 9 or > 10)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 10));
         }
 
         if (!vatSpan.ValidateAllDigits(0, 8))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 8 characters must be digits");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(0, 8));
         }
 
         if (vatSpan[..2] is "12")
         {
-            return VatValidationResult.Failed($"{CountryCode} VAT first 2 characters cannot be 12");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidPrefixMessage(2, "different than 12"));
         }
 
         if (!char.IsLetter(vatSpan[8]))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: last character must be a letter");
+            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(8, "letter"));
         }
 
         var result = 0;
@@ -65,7 +64,7 @@ internal sealed class CyVatValidator : VatValidatorAbstract
                     2 => 5,
                     3 => 7,
                     4 => 9,
-                    _ => temp * 2 + 3
+                    _ => temp * 2 + 3,
                 };
             }
             result += temp;
