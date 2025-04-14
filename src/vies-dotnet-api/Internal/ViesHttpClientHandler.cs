@@ -14,7 +14,7 @@
 using System.Net;
 using System.Net.Http;
 
-namespace Padi.Vies;
+namespace Padi.Vies.Internal;
 
 internal sealed class ViesHttpClientHandler : HttpClientHandler
 {

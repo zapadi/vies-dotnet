@@ -14,7 +14,7 @@
 using System;
 using System.Globalization;
 
-namespace Padi.Vies.Extensions;
+namespace Padi.Vies.Internal.Extensions;
 
 internal static class SpanExtensions
 {

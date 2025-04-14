@@ -16,6 +16,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Parsers;
 

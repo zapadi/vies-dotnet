@@ -13,7 +13,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Padi.Vies.Extensions;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies;
 

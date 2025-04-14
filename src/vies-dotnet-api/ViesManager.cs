@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Padi.Vies.Errors;
+using Padi.Vies.Internal;
 using Padi.Vies.Parsers;
 using Padi.Vies.Validators;
 

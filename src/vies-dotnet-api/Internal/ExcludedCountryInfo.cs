@@ -11,7 +11,7 @@
    limitations under the License.
 */
 
-namespace Padi.Vies;
+namespace Padi.Vies.Internal;
 
 internal readonly struct ExcludedCountryInfo
 {

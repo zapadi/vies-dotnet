@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Parsers;
 
-namespace Padi.Vies;
+namespace Padi.Vies.Internal;
 
 internal sealed class ViesService : IViesService
 {
