@@ -1,4 +1,4 @@
-﻿/*
+/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -248,8 +248,12 @@ public sealed class ViesEUUnitTests
     [InlineData(" BE1400004463")]
     [InlineData(" BG205242290")]
     [InlineData(" BG202320104")]
-    [InlineData("CY10435775C")]
-    [InlineData("CY10014000M")]
+    [InlineData(" CY10435775C")]
+    [InlineData(" CY10014000M")]
+    [InlineData(" CY10018402C")]
+    [InlineData("CY10111176Z")]
+    [InlineData("CY10227520I")]
+    [InlineData("CY10247148S")]
     [InlineData("   FR00000000190")]
     [InlineData("   FR00300076965")]
     [InlineData("   FR00303656847")]
