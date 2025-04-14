@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,7 +12,9 @@
 */
 
 using System.Threading.Tasks;
+
 using Padi.Vies.Errors;
+
 using Xunit;
 
 namespace Padi.Vies.Test;
@@ -27,12 +29,12 @@ public sealed class ViesEUUnitTests
     }
 
     [Theory]
-    [InlineData("AT U12345678","ATU12345678")]
-    [InlineData("  ATU12345678","ATU12345678")]
-    [InlineData("AT - -U12345678","ATU12345678")]
-    [InlineData("at-U-12345678 ","ATU12345678")]
-    [InlineData("GR12345678 ","EL12345678")]
-    [InlineData("DE 123.456.789. ","DE123456789")]
+    [InlineData("AT U12345678", "ATU12345678")]
+    [InlineData("  ATU12345678", "ATU12345678")]
+    [InlineData("AT - -U12345678", "ATU12345678")]
+    [InlineData("at-U-12345678 ", "ATU12345678")]
+    [InlineData("GR12345678 ", "EL12345678")]
+    [InlineData("DE 123.456.789. ", "DE123456789")]
     public void Should_Sanitize_Vat(string inputVatNumber, string expectedVatNumber)
     {
         Assert.Equal(expectedVatNumber, inputVatNumber.Sanitize());
@@ -102,7 +104,6 @@ public sealed class ViesEUUnitTests
     [InlineData("DE000000167")]
     [InlineData("DE000000183")]
     [InlineData("DE000000191")]
-    [InlineData("CY10014000M")]
     [InlineData("DK10000030")]
     [InlineData("DK1234567")]
     [InlineData("DK10000000")]
@@ -247,6 +248,8 @@ public sealed class ViesEUUnitTests
     [InlineData(" BE1400004463")]
     [InlineData(" BG205242290")]
     [InlineData(" BG202320104")]
+    [InlineData("CY10435775C")]
+    [InlineData("CY10014000M")]
     [InlineData("   FR00000000190")]
     [InlineData("   FR00300076965")]
     [InlineData("   FR00303656847")]
