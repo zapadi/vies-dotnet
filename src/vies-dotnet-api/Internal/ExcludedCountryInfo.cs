@@ -13,20 +13,12 @@
 
 namespace Padi.Vies.Internal;
 
-internal readonly struct ExcludedCountryInfo
+internal readonly struct ExcludedCountryInfo(string code, string name, string reason, string date)
 {
-    public ExcludedCountryInfo(string code, string name, string reason, string date)
-    {
-        Code = code;
-        Name = name;
-        Reason = reason;
-        Date = date;
-    }
-
-    public string Code { get; }
-    public string Name { get; }
-    public string Reason { get; }
-    public string Date { get; }
+    public string Code { get; } = code;
+    public string Name { get; } = name;
+    public string Reason { get; } = reason;
+    public string Date { get; } = date;
 
     public override string ToString()
     {

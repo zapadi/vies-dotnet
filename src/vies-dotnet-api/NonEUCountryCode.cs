@@ -22,5 +22,5 @@ public enum NonEuCountryCode
     /// <summary>
     /// United Kingdom (Northern Ireland)
     /// </summary>
-    XI
+    XI,
 }
