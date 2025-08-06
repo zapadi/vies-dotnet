@@ -17,15 +17,15 @@ The fastest way of getting started using Vies api is to install the NuGet packag
 
 **Package Manager:**
 ```
-Install-Package vies-dotnet-api -Version 2.4.0
+Install-Package vies-dotnet-api -Version 3.0.0
 ```
 **.NET CLI:**
 ```
-dotnet add package vies-dotnet-api --version 2.4.0
+dotnet add package vies-dotnet-api --version 3.0.0
 ```
 **Package Reference**
 ```
-<PackageReference Include="vies-dotnet-api" Version="2.4.0" />
+<PackageReference Include="vies-dotnet-api" Version="3.0.0" />
 ```
 # Usage
 
@@ -81,3 +81,4 @@ The API is released under Apache 2 open-source license. You can use it for both 
 * [JetBrains](http://www.jetbrains.com/) for my Open Source [![Resharper](https://github.com/zapadi/vies-dotnet/blob/master/logo-resharper.gif)](http://www.jetbrains.com/resharper/) licence
 
 * AppVeyor for allowing free build CI services for Open Source projects
+
