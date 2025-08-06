@@ -30,22 +30,22 @@ internal sealed class NlVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length != 12)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(12));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(12));
         }
 
         if(!vatSpan.ValidateAllDigits(0, 9))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(0, 9));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(0, 9));
         }
 
         if (vatSpan[9] != 'B')
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(10, "'B'"));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(10, "'B'"));
         }
 
         if (!char.IsDigit(vatSpan[10]) || !char.IsDigit(vatSpan[11]))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidNumberMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidNumberMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);
@@ -77,7 +77,7 @@ internal sealed class NlVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (!mod97Input.TryConvertToLong(out var nr))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit((long)nr % 97 == 1);

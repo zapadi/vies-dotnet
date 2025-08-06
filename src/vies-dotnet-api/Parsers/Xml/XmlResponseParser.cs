@@ -47,8 +47,8 @@ public sealed class XmlResponseParser : IResponseParserAsync
                 ReadOnlySpan<char> localName = xmlReader.LocalName.AsSpan();
                 if (ViesKeys.Fault.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var (_, error) = ReadError(xmlReader);
-                    throw new ViesServiceException(error);
+                    var (errorCode, errorMessage) = ReadError(xmlReader);
+                    throw new ViesServiceException(errorCode, errorMessage);
                 }
 
                 if (!ViesKeys.CheckVatResponse.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
@@ -60,7 +60,7 @@ public sealed class XmlResponseParser : IResponseParserAsync
             }
         }
 
-        throw new ViesDeserializationException($"Could not deserialize response: {response}");
+        throw new ViesDeserializationException(message: "The response could not be parsed.");
     }
 
     public async Task<ViesCheckVatResponse> ParseAsync(Stream response)
@@ -76,8 +76,8 @@ public sealed class XmlResponseParser : IResponseParserAsync
 
                 if (ViesKeys.Fault.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var (_, error) = await ReadErrorAsync(xmlReader).ConfigureAwait(false);
-                    throw new ViesServiceException(error);
+                    var (errorCode, errorMessage) = await ReadErrorAsync(xmlReader).ConfigureAwait(false);
+                    throw new ViesServiceException(errorCode, errorMessage);
                 }
 
                 if (!ViesKeys.CheckVatResponse.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))

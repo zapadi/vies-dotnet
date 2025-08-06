@@ -32,39 +32,39 @@ internal sealed class XiVatValidator(string countryCode) : VatValidatorAbstract(
         {
             if (vatSpan.Length != 5)
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,"GD code length must be 5 characters");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"GD code length must be 5 characters");
             }
 
             if (!vatSpan[2..].TryConvertToInt(out var no))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Invalid GD number format");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid GD number format");
             }
 
             return no < 500
                 ? VatValidationResult.Success()
-                : VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,"Invalid for Government departments");
+                : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid for Government departments");
         }
 
         if (vatSpan.StartsWith("HA".AsSpan(), StringComparison.OrdinalIgnoreCase) )
         {
             if (vatSpan.Length != 5)
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,"HA code length must be 5 characters");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"HA code length must be 5 characters");
             }
 
             if (!vatSpan[2..].TryConvertToInt(out var no))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Invalid HA number format");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid HA number format");
             }
 
             return no >= 500
                 ? VatValidationResult.Success()
-                : VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,"Invalid for Health authorities");
+                : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid for Health authorities");
         }
 
         if (vatSpan.Length is not 9 and not 12)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,"Length must not be 9 or 12 characters");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Length must not be 9 or 12 characters");
         }
 
         var total = 0;
@@ -72,14 +72,14 @@ internal sealed class XiVatValidator(string countryCode) : VatValidatorAbstract(
         {
             if (!char.IsDigit(vatSpan[i]))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"All characters must be digits");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"All characters must be digits");
             }
             total += vatSpan[i].ToInt() * Multipliers[i];
         }
 
         if (!vatSpan.Slice(7, 2).TryConvertToInt(out var checkValue))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Invalid format for last 2 digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid format for last 2 digits");
         }
 
         total += checkValue;

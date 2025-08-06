@@ -12,7 +12,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 
 namespace Padi.Vies;
 
@@ -21,8 +20,6 @@ namespace Padi.Vies;
 /// </summary>
 public sealed class VatValidationResult
 {
-    private VatValidationResult() { }
-
     /// <summary>
     /// Creates a successful validation result
     /// </summary>
@@ -56,13 +53,15 @@ public sealed class VatValidationResult
     /// <param name="errorCode">The error code</param>
     /// <param name="errorMessage">The error message</param>
     /// <returns>A validation result indicating failure</returns>
-    public static VatValidationResult Failed(string countryCode, string errorCode, string errorMessage)
+    public static VatValidationResult Failed(string countryCode, string errorCode, string errorMessage, string param = null, string userMessage = null)
     {
         return new VatValidationResult
         {
             Error = errorMessage,
             ErrorCode = errorCode,
             CountryCode = countryCode,
+            Param = param,
+            UserMessage = userMessage,
         };
     }
 
@@ -85,4 +84,14 @@ public sealed class VatValidationResult
     /// Gets the country code for which the validation was performed
     /// </summary>
     public string CountryCode { get; private set; }
+
+    /// <summary>
+    /// Indicates the specific field causing the error
+    /// </summary>
+    public string Param { get; private set; }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public string UserMessage { get; private set; }
 }

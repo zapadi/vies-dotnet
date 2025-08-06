@@ -28,23 +28,23 @@ internal sealed class SkVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length != 10)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(10));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(10));
         }
 
         if (vatSpan[0] is < '1' or > '9')
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFirstDigitRangeMessage(1, 9));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFirstDigitRangeMessage(1, 9));
         }
 
         // Validate third digit (2,3,4,6,7,8,9) or is not (0,1,5)
         if (vatSpan[2].ToInt() is 0 or 1 or 5)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(3, "different than '0', '1' and '5'"));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(3, "different than '0', '1' and '5'"));
         }
 
         if (!vatSpan.TryConvertToInt(out var nr))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit(nr % 11, 0);

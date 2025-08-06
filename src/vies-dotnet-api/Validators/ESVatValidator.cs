@@ -30,7 +30,7 @@ internal sealed class EsVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (length != 9)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(9));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
         var firstChar = vatSpan[0];
@@ -40,7 +40,7 @@ internal sealed class EsVatValidator(string countryCode) : VatValidatorAbstract(
 
         if(!middleDigits.ValidateAllDigits())
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         // Pattern 1: Letter + 8 digits
@@ -67,6 +67,6 @@ internal sealed class EsVatValidator(string countryCode) : VatValidatorAbstract(
             return VatValidationResult.Success();
         }
 
-        return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+        return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
     }
 }

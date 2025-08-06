@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,16 +15,11 @@ using System;
 
 namespace Padi.Vies.Errors;
 
-public class ViesValidationException : ViesException
+public class ViesInvalidInputException : ViesException
 {
-    public ViesValidationException(string errorCode, string message, string param = null, string userMessage = null)
-        : base(errorCode, "validation_error", message, param, userMessage)
-    {
-    }
+    public ViesInvalidInputException(string errorCode, string message, string param = null, string userMessage = null)
+        : base(errorCode, "invalid_request_error", message, param, userMessage) { }
 
-    public ViesValidationException(string errorCode, string message, Exception innerException, string param = null,
-        string userMessage = null)
-        : base(errorCode, "validation_error", message, innerException, param, userMessage)
-    {
-    }
+    public ViesInvalidInputException(string errorCode, string message, Exception innerException, string param = null, string userMessage = null)
+        : base(errorCode, "invalid_request_error", message, innerException, param, userMessage) { }
 }

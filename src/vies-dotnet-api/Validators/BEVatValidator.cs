@@ -28,17 +28,17 @@ internal sealed class BeVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length is not 9 and not 10)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 10));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 10));
         }
 
         if (vatSpan.Length == 10 && vatSpan[0] is not '0' and not '1')
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, "For 10-digit numbers, first character must be '0' or '1'");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, "For 10-digit numbers, first character must be '0' or '1'");
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         int firstPart, checkPart;
@@ -46,14 +46,14 @@ internal sealed class BeVatValidator(string countryCode) : VatValidatorAbstract(
         {
             if (!vatSpan[..7].TryConvertToInt(out firstPart) || !vatSpan[7..].TryConvertToInt(out checkPart))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat);
             }
         }
         else
         {
             if (!vatSpan[..8].TryConvertToInt(out firstPart) || !vatSpan[8..].TryConvertToInt(out checkPart))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat);
             }
         }
 

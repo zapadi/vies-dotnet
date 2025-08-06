@@ -15,17 +15,15 @@ using System;
 
 namespace Padi.Vies.Errors;
 
-public sealed class ViesDeserializationException : Exception
+public sealed class ViesDeserializationException : ViesException
 {
-    public ViesDeserializationException()
+    public ViesDeserializationException( string message, string param = null, string userMessage = null)
+        : base("deserialization-failed", "deserialization_error", message, param, userMessage)
     {
     }
 
-    public ViesDeserializationException(string message) : base(message)
-    {
-    }
-
-    public ViesDeserializationException(string message, Exception inner) : base(message, inner)
+    public ViesDeserializationException( string message, Exception innerException, string param = null, string userMessage = null)
+        : base("deserialization-failed", "deserialization_error", message, innerException, param, userMessage)
     {
     }
 }

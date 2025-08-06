@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -11,16 +11,15 @@
    limitations under the License.
 */
 
+using System;
+
 namespace Padi.Vies.Errors;
 
-/// <summary>
-/// Contains all VAT validation error codes
-/// </summary>
-internal static class VatValidationErrorCode
+public class ViesUnsupportedRegionException : ViesException
 {
-    public const string InvalidVat = "INVALID_VAT";
-    public const string InvalidEUVat = "INVALID_EU_VAT";
-    public const string InvalidLength = "INVALID_LENGTH";
-    public const string InvalidFormat = "INVALID_FORMAT";
-    public const string InvalidCheckDigit = "INVALID_CHECK_DIGIT";
+    public ViesUnsupportedRegionException(string errorCode, string message, string param = null, string userMessage = null)
+        : base(errorCode, "unsupported_region_error", message, param, userMessage) { }
+
+    public ViesUnsupportedRegionException(string errorCode, string message, Exception innerException, string param = null, string userMessage = null)
+        : base(errorCode, "unsupported_region_error", message, innerException, param, userMessage) { }
 }

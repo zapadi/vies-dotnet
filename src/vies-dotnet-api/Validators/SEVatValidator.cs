@@ -30,17 +30,17 @@ internal sealed class SeVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length != 12)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,VatValidationErrorMessageHelper.GetLengthMessage(12));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(12));
         }
 
         if (vatSpan[^2..] is not "01")
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Last 2 characters must be '0' and '1'");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Last 2 characters must be '0' and '1'");
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = 0;

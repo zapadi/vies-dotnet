@@ -64,7 +64,12 @@ internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync pa
         }
         catch (HttpRequestException httpRequestException)
         {
-            throw new ViesServiceException(httpRequestException.GetBaseException().Message, httpRequestException);
+            throw new ViesServiceException(
+                errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
+                message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
+                userMessage: httpRequestException.GetBaseException().Message,
+                innerException: httpRequestException
+            );
         }
     }
 
@@ -127,6 +132,11 @@ internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync pa
     {
         var errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-        throw new ViesServiceException($"VIES service error: {response.StatusCode:D} - {response.ReasonPhrase}{(!string.IsNullOrWhiteSpace(errorBody) ? $": {errorBody}" : string.Empty)}");
+        throw new ViesServiceException(
+            errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
+            message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
+            userMessage: ViesErrorCodes.ServiceError.ServiceUnavailable.UserMessage
+        );
+       // throw new ViesServiceException($"VIES service error: {response.StatusCode:D} - {response.ReasonPhrase}{(!string.IsNullOrWhiteSpace(errorBody) ? $": {errorBody}" : string.Empty)}");
     }
 }

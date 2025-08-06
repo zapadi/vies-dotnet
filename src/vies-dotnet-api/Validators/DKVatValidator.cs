@@ -30,7 +30,7 @@ internal sealed class DkVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length > 12)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthExceedMessage(12));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthExceedMessage(12));
         }
 
         Span<char> cleanVat = stackalloc char[8];
@@ -45,7 +45,7 @@ internal sealed class DkVatValidator(string countryCode) : VatValidatorAbstract(
 
             if (!char.IsDigit(vatSpan[i]))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, "All non-whitespace characters must be digits");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, "All non-whitespace characters must be digits");
             }
 
             cleanVat[cleanIndex] = vatSpan[i];
@@ -54,7 +54,7 @@ internal sealed class DkVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (cleanIndex != 8)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, "Must contain exactly 8 digits (excluding whitespace)");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Must contain exactly 8 digits (excluding whitespace)");
         }
 
         var sum = cleanVat.Sum(Multipliers);

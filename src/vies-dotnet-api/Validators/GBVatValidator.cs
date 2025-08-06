@@ -30,39 +30,39 @@ internal sealed class GbVatValidator(string countryCode) : VatValidatorAbstract(
         {
             if (!vatSpan[2..].TryConvertToInt(out var no))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,"GD/HA: Last 3 characters must be digits");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"GD/HA: Last 3 characters must be digits");
             }
 
             if (vatSpan.StartsWith("GD", StringComparison.OrdinalIgnoreCase))
             {
                 return no < 500
                     ? VatValidationResult.Success()
-                    : VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,"Invalid Government departments VAT");
+                    : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid Government departments VAT");
             }
 
             if (vatSpan.StartsWith("HA", StringComparison.OrdinalIgnoreCase))
             {
                 return no >= 500
                     ? VatValidationResult.Success()
-                    : VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,"Invalid Health authorities VAT");
+                    : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid Health authorities VAT");
             }
         }
 
         if (vatSpan.Length != 9)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat, VatValidationErrorMessageHelper.GetLengthMessage(9));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
-        // Check first digit not zero
+        // Check if the first digit not zero
         if (vatSpan[0] == '0')
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,"0 VAT numbers disallowed");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"0 VAT numbers disallowed");
         }
 
         // Parse first 7 digits for range check
         if (!vatSpan[..7].TryConvertToInt(out var first7digits))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         var total = vatSpan.Sum(Multipliers);
@@ -83,7 +83,7 @@ internal sealed class GbVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (!vatSpan.Slice(7, 2).TryConvertToInt(out var checkDigits))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidVat,VatValidationErrorMessageHelper.GetInvalidNumberMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidNumberMessage());
         }
 
         // Old method check

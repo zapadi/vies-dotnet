@@ -30,17 +30,17 @@ internal sealed class LvVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(11));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(11));
         }
 
         if (vatSpan[0] == '0')
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(0, "different than '0'"));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(0, "different than '0'"));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         // Only check the legal bodies
@@ -51,7 +51,7 @@ internal sealed class LvVatValidator(string countryCode) : VatValidatorAbstract(
                 return VatValidationResult.Success();
             }
 
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,VatValidationErrorMessageHelper.GetInvalidChecksumMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidChecksumMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);

@@ -32,12 +32,12 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length is not 9 and not 10)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength,VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 10));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(9, 10));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         if (vatSpan.Length == 9)
@@ -48,10 +48,10 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
         return ValidatePhysicalPerson(vatSpan) ??
                ValidateForeignPerson(vatSpan) ??
                ValidateMiscellaneous(vatSpan) ??
-            VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+               VatValidationDispatcher.InvalidVatFormat(CountryCode, vat);
     }
 
-    private static VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
     {
         var sum = 0;
 

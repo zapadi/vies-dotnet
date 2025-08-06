@@ -27,7 +27,7 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length is <8 or >9)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthRangeMessage(8, 9));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthRangeMessage(8, 9));
         }
 
         var multiplier = 0;
@@ -62,7 +62,7 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
                 }
                 else
                 {
-                    return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
+                    return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
                 }
             }
         }
@@ -72,7 +72,7 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
         {
             if (!char.IsDigit(normalizedVat[i]))
             {
-                return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(1, 7));
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(1, 7));
             }
 
             sum += normalizedVat[i].ToInt() * Multipliers[i];

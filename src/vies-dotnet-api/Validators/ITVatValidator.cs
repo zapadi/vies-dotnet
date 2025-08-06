@@ -27,12 +27,12 @@ internal sealed class ItVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidLength, VatValidationErrorMessageHelper.GetLengthMessage(11));
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(11));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var allZeros = true;
@@ -49,18 +49,18 @@ internal sealed class ItVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (allZeros)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"First 7 digits cannot be all zeros");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"First 7 digits cannot be all zeros");
         }
 
         // Validate office code (digits 8-10)
         if (!vatSpan.Slice(7, 3).TryConvertToInt(out var officeCode))
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Invalid office code");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid office code");
         }
 
         if (officeCode is < 1 or > 201 && officeCode != 999 && officeCode != 888)
         {
-            return VatValidationResult.Failed(CountryCode, VatValidationErrorCode.InvalidFormat,"Invalid office code range");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid office code range");
         }
 
         var sum = 0;
