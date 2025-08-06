@@ -12,18 +12,14 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class ItVatValidator : VatValidatorAbstract
+internal sealed class ItVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
-
-    public ItVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.IT);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -31,12 +27,12 @@ internal sealed class ItVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(11));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var allZeros = true;
@@ -50,20 +46,21 @@ internal sealed class ItVatValidator : VatValidatorAbstract
             allZeros = false;
             break;
         }
+
         if (allZeros)
         {
-            return VatValidationResult.Failed("First 7 digits cannot be all zeros");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"First 7 digits cannot be all zeros");
         }
 
         // Validate office code (digits 8-10)
         if (!vatSpan.Slice(7, 3).TryConvertToInt(out var officeCode))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} office code");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid office code");
         }
 
         if (officeCode is < 1 or > 201 && officeCode != 999 && officeCode != 888)
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} office code range");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid office code range");
         }
 
         var sum = 0;

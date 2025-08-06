@@ -1,9 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using System.Xml;
-using Padi.Vies.Extensions;
 
-namespace Padi.Vies.Parsers;
+namespace Padi.Vies.Internal.Extensions;
 
 internal static class XmlReaderExtensions
 {

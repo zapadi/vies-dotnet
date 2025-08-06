@@ -12,23 +12,19 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class LtVatValidator : VatValidatorAbstract
+internal sealed class LtVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [3, 4, 5, 6, 7, 8, 9, 1 ];
     private static ReadOnlySpan<int> MultipliersTemporarily => [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2];
     private static ReadOnlySpan<int> MultipliersDoubleCheck => [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
-
-    public LtVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.LT);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -36,24 +32,24 @@ internal sealed class LtVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is not 9 and not 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthRangeMessage(9, 12));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         return vatSpan.Length == 9
-            ? ValidateNineDigitVat(vatSpan)
-            : ValidateTemporaryVat(vatSpan);
+            ? ValidateNineDigitVat(CountryCode,vatSpan)
+            : ValidateTemporaryVat(CountryCode,vatSpan);
     }
 
-    private static VatValidationResult ValidateNineDigitVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult ValidateNineDigitVat(string countryCode, ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[7] != '1')
         {
-            return VatValidationResult.Failed($"9 character {CountryCode} VAT numbers should have 1 in 8th position.");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vatSpan.ToString(),"9 character VAT numbers should have '1' in 8th position.");
         }
 
         var sum = 0;
@@ -78,11 +74,11 @@ internal sealed class LtVatValidator : VatValidatorAbstract
         return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
     }
 
-    private static VatValidationResult ValidateTemporaryVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult ValidateTemporaryVat(string countryCode, ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[10] != '1')
         {
-            return VatValidationResult.Failed("Temporarily Registered Tax Payers should have 11th character one");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vatSpan.ToString(),"Temporarily Registered Tax Payers should have '1' in 11th position.");
         }
 
         var total = vatSpan.Sum(MultipliersTemporarily);

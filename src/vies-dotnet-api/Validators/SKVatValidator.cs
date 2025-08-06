@@ -12,43 +12,39 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class SkVatValidator : VatValidatorAbstract
+internal sealed class SkVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public SkVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.SK);
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
         if (vatSpan.Length != 10)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(10));
         }
 
         if (vatSpan[0] is < '1' or > '9')
         {
-            return VatValidationResult.Failed($"First digit must be 1-9 for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFirstDigitRangeMessage(1, 9));
         }
 
         // Validate third digit (2,3,4,6,7,8,9) or is not (0,1,5)
         if (vatSpan[2].ToInt() is 0 or 1 or 5)
         {
-            return VatValidationResult.Failed($"Third digit invalid for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(3, "different than '0', '1' and '5'"));
         }
 
         if (!vatSpan.TryConvertToInt(out var nr))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit(nr % 11, 0);

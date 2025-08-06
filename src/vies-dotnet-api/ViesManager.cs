@@ -18,6 +18,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Padi.Vies.Errors;
+using Padi.Vies.Internal;
 using Padi.Vies.Parsers;
 using Padi.Vies.Validators;
 
@@ -34,7 +35,7 @@ public sealed class ViesManager : IDisposable
 {
     private static readonly Dictionary<string, IVatValidator> VatValidators = new(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly Dictionary<string, ExcludedCountryInfo> _excludedCountries = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, ExcludedCountryInfo> ExcludedCountries = new(StringComparer.OrdinalIgnoreCase)
     {
         {"GB", new ExcludedCountryInfo("GB", "Great Britain", "Brexit", "2021-01-01")},
     };
@@ -48,36 +49,41 @@ public sealed class ViesManager : IDisposable
 
         validator = countryCode.AsSpan() switch
         {
-            "AT" => new AtVatValidator(),
-            "BE" => new BeVatValidator(),
-            "BG" => new BgVatValidator(),
-            "CY" => new CyVatValidator(),
-            "CZ" => new CzVatValidator(),
-            "DE" => new DeVatValidator(),
-            "DK" => new DkVatValidator(),
-            "EE" => new EeVatValidator(),
-            "EL" => new ElVatValidator(),
-            "ES" => new EsVatValidator(),
-            "FI" => new FiVatValidator(),
-            "FR" => new FrVatValidator(),
-            "HR" => new HrVatValidator(),
-            "HU" => new HuVatValidator(),
-            "IE" => new IeVatValidator(),
-            "IT" => new ItVatValidator(),
-            "LT" => new LtVatValidator(),
-            "LU" => new LuVatValidator(),
-            "LV" => new LvVatValidator(),
-            "MT" => new MtVatValidator(),
-            "NL" => new NlVatValidator(),
-            "PL" => new PlVatValidator(),
-            "PT" => new PtVatValidator(),
-            "RO" => new RoVatValidator(),
-            "SE" => new SeVatValidator(),
-            "SI" => new SiVatValidator(),
-            "SK" => new SkVatValidator(),
-            "XI" => new XIVatValidator(),
-            _ => throw new ArgumentException($"Unknown country code: {countryCode}", nameof(countryCode)),
+            "AT" => new AtVatValidator(countryCode),
+            "BE" => new BeVatValidator(countryCode),
+            "BG" => new BgVatValidator(countryCode),
+            "CY" => new CyVatValidator(countryCode),
+            "CZ" => new CzVatValidator(countryCode),
+            "DE" => new DeVatValidator(countryCode),
+            "DK" => new DkVatValidator(countryCode),
+            "EE" => new EeVatValidator(countryCode),
+            "EL" => new ElVatValidator(countryCode),
+            "ES" => new EsVatValidator(countryCode),
+            "FI" => new FiVatValidator(countryCode),
+            "FR" => new FrVatValidator(countryCode),
+            "HR" => new HrVatValidator(countryCode),
+            "HU" => new HuVatValidator(countryCode),
+            "IE" => new IeVatValidator(countryCode),
+            "IT" => new ItVatValidator(countryCode),
+            "LT" => new LtVatValidator(countryCode),
+            "LU" => new LuVatValidator(countryCode),
+            "LV" => new LvVatValidator(countryCode),
+            "MT" => new MtVatValidator(countryCode),
+            "NL" => new NlVatValidator(countryCode),
+            "PL" => new PlVatValidator(countryCode),
+            "PT" => new PtVatValidator(countryCode),
+            "RO" => new RoVatValidator(countryCode),
+            "SE" => new SeVatValidator(countryCode),
+            "SI" => new SiVatValidator(countryCode),
+            "SK" => new SkVatValidator(countryCode),
+            "XI" => new XiVatValidator(countryCode),
+            _ => null,
         };
+
+        if (validator == null)
+        {
+            return null;
+        }
 
         VatValidators.Add(countryCode, validator);
 
@@ -131,30 +137,15 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public static VatValidationResult IsValid(string countryCode, string vatNumber)
     {
-        if (_excludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
+        if (ExcludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
         {
-            return VatValidationResult.Failed(excludedCountryInfo.ToString());
+            return VatValidationDispatcher.RegionUnsupported(countryCode, excludedCountryInfo.ToString());
         }
+
         IVatValidator validator = GetValidator(countryCode);
         return validator == null
-            ? VatValidationResult.Failed($"{countryCode} is not a valid ISO_3166-1 European member state.")
+            ? VatValidationDispatcher.InvalidCountryCode(countryCode, "Not a valid ISO_3166-1 European member state.")
             : validator.Validate(vatNumber);
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="countryCode">The two-character country code of a European member country</param>
-    /// <param name="vatNumber">The VAT number (without the country identification) of a registered company</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>ViesCheckVatResponse</returns>
-    /// <exception cref="ViesValidationException"></exception>
-    /// <exception cref="ViesServiceException"></exception>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-    [Obsolete("Use IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken) instead")]
-    public Task<ViesCheckVatResponse> IsActive(string countryCode, string vatNumber, CancellationToken cancellationToken = default)
-    {
-        return IsActiveAsync(countryCode, vatNumber, cancellationToken);
     }
 
     /// <summary>
@@ -180,20 +171,6 @@ public sealed class ViesManager : IDisposable
     /// <returns>ViesCheckVatResponse</returns>
     /// <exception cref="ViesValidationException"></exception>
     /// <exception cref="ViesServiceException"></exception>
-    [Obsolete("Use IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken) instead.")]
-    public Task<ViesCheckVatResponse> IsActive(string vatNumber, CancellationToken cancellationToken = default)
-    {
-        return IsActiveAsync(vatNumber, cancellationToken);
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="vatNumber"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>ViesCheckVatResponse</returns>
-    /// <exception cref="ViesValidationException"></exception>
-    /// <exception cref="ViesServiceException"></exception>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public async Task<ViesCheckVatResponse> IsActiveAsync(string vatNumber, CancellationToken cancellationToken = default)
     {
@@ -208,12 +185,13 @@ public sealed class ViesManager : IDisposable
 
         if (string.IsNullOrWhiteSpace(vat))
         {
-            throw new ViesValidationException("VAT number cannot be null or empty.");
+            ExceptionDispatcher.ThrowInvalidVatNumber(nameof(vat),"VAT number cannot be null or empty.");
         }
 
+        // ReSharper disable once PossibleNullReferenceException
         if (vat.Length < 3)
         {
-            throw new ViesValidationException($"VAT number '{vat}' is too short.");
+            ExceptionDispatcher.ThrowInvalidVatNumber(nameof(vat), $"VAT number '{vat}' is too short.");
         }
 
         var countryCode = vat.Slice(0, 2);

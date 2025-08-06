@@ -1,4 +1,7 @@
 using System;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
+
 /*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,42 +14,36 @@ using System;
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-using Padi.Vies.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class LuVatValidator : VatValidatorAbstract
+internal sealed class LuVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public LuVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.LU);
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
         if (vatSpan.Length != 8)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(8));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         if (!vatSpan[..6].TryConvertToInt(out var baseNumber))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid base number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         if (!vatSpan[6..].TryConvertToInt(out var checkDigits))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid check digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit(baseNumber % 89 , checkDigits);

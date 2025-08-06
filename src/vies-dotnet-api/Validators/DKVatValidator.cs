@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class DkVatValidator : VatValidatorAbstract
+internal sealed class DkVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [2, 7, 6, 5, 4, 3, 2, 1];
-
-    public DkVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.DK);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,10 +30,9 @@ internal sealed class DkVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length > 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthExceedMessage(12));
         }
 
-        // Create buffer for sanitized number
         Span<char> cleanVat = stackalloc char[8];
         var cleanIndex = 0;
 
@@ -50,15 +45,16 @@ internal sealed class DkVatValidator : VatValidatorAbstract
 
             if (!char.IsDigit(vatSpan[i]))
             {
-                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, "All non-whitespace characters must be digits");
             }
 
-            cleanVat[cleanIndex++] = vatSpan[i];
+            cleanVat[cleanIndex] = vatSpan[i];
+            cleanIndex += 1;
         }
 
         if (cleanIndex != 8)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Must contain exactly 8 digits (excluding whitespace)");
         }
 
         var sum = cleanVat.Sum(Multipliers);

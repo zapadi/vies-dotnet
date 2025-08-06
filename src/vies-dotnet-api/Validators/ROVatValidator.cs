@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class RoVatValidator : VatValidatorAbstract
+internal sealed class RoVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [7, 5, 3, 2, 1, 7, 5, 3, 2];
-
-    public RoVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.RO);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,12 +30,12 @@ internal sealed class RoVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is < 2 or > 10)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthRangeMessage(2, 10));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var controlDigit = vatSpan[^1].ToInt();

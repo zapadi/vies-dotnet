@@ -14,7 +14,7 @@
 using System;
 using System.Globalization;
 
-namespace Padi.Vies.Extensions;
+namespace Padi.Vies.Internal.Extensions;
 
 internal static class SpanExtensions
 {
@@ -133,26 +133,5 @@ internal static class SpanExtensions
         }
 
         return true;
-    }
-
-    public static VatValidationResult EnsureAllDigits(
-        this ReadOnlySpan<char> span,
-        string countryCode,
-        int? start = null,
-        int? length = null,
-        string message = null)
-    {
-        var startIndex = start ?? 0;
-        var endIndex = length.HasValue ? startIndex + length.Value : span.Length;
-
-        for (var i = startIndex; i < endIndex; i++)
-        {
-            if (!char.IsDigit(span[i]))
-            {
-                return VatValidationResult.Failed(message ?? $"Invalid {countryCode} VAT: not all digits");
-            }
-        }
-
-        return VatValidationResult.Success();
     }
 }

@@ -12,23 +12,20 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Padi.Vies.Test;
 
 /// <summary>
 ///
 /// </summary>
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class ViesManagerFixture : IDisposable
 {
-    public ViesManagerFixture()
-    {
-        ViesManager = new ViesManager();
-    }
-
     public void Dispose()
     {
         ViesManager?.Dispose();
     }
 
-    public ViesManager ViesManager { get; }
+    public ViesManager ViesManager { get; } = new();
 }

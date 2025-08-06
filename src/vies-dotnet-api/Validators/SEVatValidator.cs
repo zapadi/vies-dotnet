@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class SeVatValidator : VatValidatorAbstract
+internal sealed class SeVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [2, 1, 2, 1, 2, 1, 2, 1, 2];
-
-    public SeVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.SE);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,17 +30,17 @@ internal sealed class SeVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(12));
         }
 
         if (vatSpan[^2..] is not "01")
         {
-            return VatValidationResult.Failed($"Invalid format for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Last 2 characters must be '0' and '1'");
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = 0;

@@ -14,7 +14,7 @@
 using System;
 using System.Net.Http;
 
-namespace Padi.Vies;
+namespace Padi.Vies.Internal;
 
 internal static class HttpClientProvider
 {

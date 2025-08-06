@@ -1,4 +1,4 @@
-﻿/*
+/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,14 +20,8 @@ using Xunit;
 namespace Padi.Vies.Test;
 
 [Collection("ViesCollection")]
-public sealed class ViesEUUnitTests
+public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
 {
-    private readonly ViesManagerFixture _fixture;
-    public ViesEUUnitTests(ViesManagerFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Theory]
     [InlineData("AT U12345678", "ATU12345678")]
     [InlineData("  ATU12345678", "ATU12345678")]
@@ -45,7 +39,7 @@ public sealed class ViesEUUnitTests
     [InlineData("")]
     public async Task Should_Throw_ViesValidationException(string vat)
     {
-        await Assert.ThrowsAsync<ViesValidationException>(() => _fixture.ViesManager.IsActiveAsync(vat));
+        await Assert.ThrowsAsync<ViesValidationException>(() => fixture.ViesManager.IsActiveAsync(vat));
     }
 
     [Theory]
@@ -248,8 +242,12 @@ public sealed class ViesEUUnitTests
     [InlineData(" BE1400004463")]
     [InlineData(" BG205242290")]
     [InlineData(" BG202320104")]
-    [InlineData("CY10435775C")]
-    [InlineData("CY10014000M")]
+    [InlineData(" CY10435775C")]
+    [InlineData(" CY10014000M")]
+    [InlineData(" CY10018402C")]
+    [InlineData("CY10111176Z")]
+    [InlineData("CY10227520I")]
+    [InlineData("CY10247148S")]
     [InlineData("   FR00000000190")]
     [InlineData("   FR00300076965")]
     [InlineData("   FR00303656847")]

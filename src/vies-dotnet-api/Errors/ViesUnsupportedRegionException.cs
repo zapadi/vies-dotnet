@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -11,16 +11,15 @@
    limitations under the License.
 */
 
-namespace Padi.Vies;
+using System;
 
-public enum NonEuCountryCode
+namespace Padi.Vies.Errors;
+
+public class ViesUnsupportedRegionException : ViesException
 {
-    /// <summary>
-    /// United Kingdom
-    /// </summary>
-    GB,
-    /// <summary>
-    /// United Kingdom (Northern Ireland)
-    /// </summary>
-    XI,
+    public ViesUnsupportedRegionException(string errorCode, string message, string param = null, string userMessage = null)
+        : base(errorCode, "unsupported_region_error", message, param, userMessage) { }
+
+    public ViesUnsupportedRegionException(string errorCode, string message, Exception innerException, string param = null, string userMessage = null)
+        : base(errorCode, "unsupported_region_error", message, innerException, param, userMessage) { }
 }

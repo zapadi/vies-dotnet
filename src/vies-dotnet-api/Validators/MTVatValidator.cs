@@ -12,18 +12,14 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class MtVatValidator : VatValidatorAbstract
+internal sealed class MtVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [3, 4, 6, 7, 8, 9];
-
-    public MtVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.MT);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -31,17 +27,17 @@ internal sealed class MtVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 8)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(8));
         }
 
         if (vatSpan[0] is < '1' or > '9')
         {
-            return VatValidationResult.Failed($"First digit must be 1-9 for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(1, 9));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);
@@ -50,7 +46,7 @@ internal sealed class MtVatValidator : VatValidatorAbstract
 
         if (!vatSpan.Slice(6, 2).TryConvertToInt(out var last2Digits))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: invalid check digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit(last2Digits, checkDigits);

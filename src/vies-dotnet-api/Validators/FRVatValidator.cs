@@ -12,27 +12,23 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class FrVatValidator : VatValidatorAbstract
+internal sealed class FrVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public FrVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.FR);
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
         if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(11));
         }
 
         ReadOnlySpan<char> validationKey = vatSpan[..2];
@@ -40,12 +36,12 @@ internal sealed class FrVatValidator : VatValidatorAbstract
 
         if(!numericPart.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, "Characters from position 3 onwards must be digits");
         }
 
         if (!numericPart.TryConvertToInt(out var numericValue))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, "Invalid numeric format for characters from position 3 onwards");
         }
 
         // If key is not numeric, consider valid

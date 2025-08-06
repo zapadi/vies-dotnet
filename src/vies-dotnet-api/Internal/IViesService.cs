@@ -14,7 +14,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Padi.Vies;
+namespace Padi.Vies.Internal;
 
 internal interface IViesService
 {

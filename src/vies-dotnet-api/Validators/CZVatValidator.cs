@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class CzVatValidator : VatValidatorAbstract
+internal sealed class CzVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
-
-    public CzVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.CZ);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,12 +30,12 @@ internal sealed class CzVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is <8 or >13)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthRangeMessage(8, 13));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         // Only do check digit validation for 8-digit numbers

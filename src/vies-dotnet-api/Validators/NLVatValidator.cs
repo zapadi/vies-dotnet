@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class NlVatValidator : VatValidatorAbstract
+internal sealed class NlVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [9, 8, 7, 6, 5, 4, 3, 2];
-
-    public NlVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.NL);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,24 +30,22 @@ internal sealed class NlVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(12));
         }
 
         if(!vatSpan.ValidateAllDigits(0, 9))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: first 9 characters must be digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(0, 9));
         }
 
-        // Verify 'B' at position 10
         if (vatSpan[9] != 'B')
         {
-            return VatValidationResult.Failed("Invalid NL VAT: position 10 must be 'B'");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(10, "'B'"));
         }
 
-        // Verify last 2 chars are digits
         if (!char.IsDigit(vatSpan[10]) || !char.IsDigit(vatSpan[11]))
         {
-            return VatValidationResult.Failed("Invalid NL VAT: last 2 characters must be digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidNumberMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);
@@ -83,7 +77,7 @@ internal sealed class NlVatValidator : VatValidatorAbstract
 
         if (!mod97Input.TryConvertToLong(out var nr))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: parsing error");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         return ValidateChecksumDigit((long)nr % 97 == 1);

@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class AtVatValidator : VatValidatorAbstract
+internal sealed class AtVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [1, 2, 1, 2, 1, 2, 1];
-
-    public AtVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.AT);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,17 +30,17 @@ internal sealed class AtVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 9)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
         if (vatSpan[0] != 'U')
         {
-            return VatValidationResult.Failed($"Must start with U for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidCharacterAtMessage(0, "U"));
         }
 
         if(!vatSpan.ValidateAllDigits(1))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(1, 8));
         }
 
         var sum = 0;

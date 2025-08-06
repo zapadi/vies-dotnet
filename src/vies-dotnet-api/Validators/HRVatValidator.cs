@@ -12,29 +12,25 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class HrVatValidator : VatValidatorAbstract
+internal sealed class HrVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public HrVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.HR);
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
         if (vatSpan.Length != 11)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(11));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var product = 10;

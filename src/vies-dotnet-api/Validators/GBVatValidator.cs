@@ -12,18 +12,14 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class GbVatValidator : VatValidatorAbstract
+internal sealed class GbVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
-
-    public GbVatValidator()
-    {
-        CountryCode = nameof(NonEuCountryCode.GB);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,39 +30,39 @@ internal sealed class GbVatValidator : VatValidatorAbstract
         {
             if (!vatSpan[2..].TryConvertToInt(out var no))
             {
-                return VatValidationResult.Failed("Last 3 characters must be digits");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"GD/HA: Last 3 characters must be digits");
             }
 
             if (vatSpan.StartsWith("GD", StringComparison.OrdinalIgnoreCase))
             {
                 return no < 500
                     ? VatValidationResult.Success()
-                    : VatValidationResult.Failed("Invalid Government departments VAT");
+                    : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid Government departments VAT");
             }
 
             if (vatSpan.StartsWith("HA", StringComparison.OrdinalIgnoreCase))
             {
                 return no >= 500
                     ? VatValidationResult.Success()
-                    : VatValidationResult.Failed("Invalid Health authorities VAT");
+                    : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid Health authorities VAT");
             }
         }
 
         if (vatSpan.Length != 9)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
-        // Check first digit not zero
+        // Check if the first digit not zero
         if (vatSpan[0] == '0')
         {
-            return VatValidationResult.Failed("0 VAT numbers disallowed");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"0 VAT numbers disallowed");
         }
 
         // Parse first 7 digits for range check
         if (!vatSpan[..7].TryConvertToInt(out var first7digits))
         {
-            return VatValidationResult.Failed("Invalid number format");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
         var total = vatSpan.Sum(Multipliers);
@@ -87,7 +83,7 @@ internal sealed class GbVatValidator : VatValidatorAbstract
 
         if (!vatSpan.Slice(7, 2).TryConvertToInt(out var checkDigits))
         {
-            return VatValidationResult.Failed("Invalid check digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidNumberMessage());
         }
 
         // Old method check

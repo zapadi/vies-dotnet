@@ -15,9 +15,16 @@ using System;
 
 namespace Padi.Vies.Errors;
 
-public sealed class ViesValidationException : Exception
+public class ViesValidationException : ViesException
 {
-    public ViesValidationException() { }
-    public ViesValidationException( string message ) : base( message ) { }
-    public ViesValidationException( string message, Exception inner ) : base( message, inner ) { }
+    public ViesValidationException(string errorCode, string message, string param = null, string userMessage = null)
+        : base(errorCode, "validation_error", message, param, userMessage)
+    {
+    }
+
+    public ViesValidationException(string errorCode, string message, Exception innerException, string param = null,
+        string userMessage = null)
+        : base(errorCode, "validation_error", message, innerException, param, userMessage)
+    {
+    }
 }

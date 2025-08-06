@@ -12,18 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class XIVatValidator : VatValidatorAbstract
+/// <summary>
+///
+/// </summary>
+internal sealed class XiVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [8, 7, 6, 5, 4, 3, 2];
-
-    public XIVatValidator()
-    {
-        CountryCode = nameof(NonEuCountryCode.XI);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -33,39 +32,39 @@ internal sealed class XIVatValidator : VatValidatorAbstract
         {
             if (vatSpan.Length != 5)
             {
-                return VatValidationResult.Failed($"Invalid length for {CountryCode} GD VAT number");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"GD code length must be 5 characters");
             }
 
             if (!vatSpan[2..].TryConvertToInt(out var no))
             {
-                return VatValidationResult.Failed($"Invalid {CountryCode} for GD number format");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid GD number format");
             }
 
             return no < 500
                 ? VatValidationResult.Success()
-                : VatValidationResult.Failed($"Invalid {CountryCode} VAT for Government departments");
+                : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid for Government departments");
         }
 
         if (vatSpan.StartsWith("HA".AsSpan(), StringComparison.OrdinalIgnoreCase) )
         {
             if (vatSpan.Length != 5)
             {
-                return VatValidationResult.Failed($"Invalid length for {CountryCode} HA VAT number");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"HA code length must be 5 characters");
             }
 
             if (!vatSpan[2..].TryConvertToInt(out var no))
             {
-                return VatValidationResult.Failed($"Invalid {CountryCode} HA VAT number format");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid HA number format");
             }
 
             return no >= 500
                 ? VatValidationResult.Success()
-                : VatValidationResult.Failed($"Invalid {CountryCode} VAT for Health authorities");
+                : VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid for Health authorities");
         }
 
         if (vatSpan.Length is not 9 and not 12)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Length must not be 9 or 12 characters");
         }
 
         var total = 0;
@@ -73,14 +72,14 @@ internal sealed class XIVatValidator : VatValidatorAbstract
         {
             if (!char.IsDigit(vatSpan[i]))
             {
-                return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+                return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"All characters must be digits");
             }
             total += vatSpan[i].ToInt() * Multipliers[i];
         }
 
         if (!vatSpan.Slice(7, 2).TryConvertToInt(out var checkValue))
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: check digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Invalid format for last 2 digits");
         }
 
         total += checkValue;
@@ -88,9 +87,6 @@ internal sealed class XIVatValidator : VatValidatorAbstract
         var result1 = total % 97;
         var result2 = (result1 + 55) % 97;
 
-        var isValid = result1 == 0 || result2 == 0;
-        return !isValid
-            ? VatValidationResult.Failed($"Invalid {CountryCode} VAT: checkValue")
-            : VatValidationResult.Success();
+        return ValidateChecksumDigit(result1 == 0 || result2 == 0);
     }
 }

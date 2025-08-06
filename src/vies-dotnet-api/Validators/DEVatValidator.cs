@@ -12,37 +12,33 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class DeVatValidator : VatValidatorAbstract
+internal sealed class DeVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public DeVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.DE);
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
 
         if (vatSpan.Length != 9)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
         if (vatSpan[0] is < '1' or > '9')
         {
-            return VatValidationResult.Failed($"First digit must be 1-9 for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFirstDigitRangeMessage(1, 9));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var product = 10;

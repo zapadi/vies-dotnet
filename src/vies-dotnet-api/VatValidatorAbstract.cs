@@ -20,7 +20,14 @@ namespace Padi.Vies;
 /// </summary>
 public abstract class VatValidatorAbstract : IVatValidator
 {
-    protected static string CountryCode { get; set; }
+    protected VatValidatorAbstract(string countryCode)
+    {
+        CountryCode = countryCode;
+    }
+
+    protected static string CountryCode { get; private set; }
+
+    private string _vat;
 
     /// <summary>
     ///
@@ -30,25 +37,23 @@ public abstract class VatValidatorAbstract : IVatValidator
     /// <exception cref="ViesValidationException"></exception>
     public VatValidationResult Validate(string vat)
     {
-        VatValidationResult result = OnValidate(vat);
-        return result.IsValid
-            ? result
-            : VatValidationResult.Failed($"Invalid {CountryCode} VAT: format");
+        _vat = vat;
+        return OnValidate(vat);
     }
     protected abstract VatValidationResult OnValidate(string vat);
 
-    protected static VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null)
+    protected VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null, string countryCode = null)
     {
         var isValid = checkDigit == digit;
         return !isValid
-            ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
+            ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, _vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
             : VatValidationResult.Success();
     }
 
-    protected static VatValidationResult ValidateChecksumDigit(bool isValid, string message = null)
+    protected VatValidationResult ValidateChecksumDigit(bool isValid, string message = null, string countryCode = null)
     {
         return !isValid
-            ? VatValidationResult.Failed(message ?? $"Invalid {CountryCode} VAT: checkValue")
+            ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, _vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
             : VatValidationResult.Success();
     }
 }

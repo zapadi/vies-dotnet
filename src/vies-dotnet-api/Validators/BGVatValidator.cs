@@ -12,23 +12,19 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class BgVatValidator : VatValidatorAbstract
+internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> MultipliersPhysicalPerson => [2, 4, 8, 5, 10, 9, 7, 3, 6];
     private static ReadOnlySpan<int> MultipliersForeignPhysicalPerson => [21, 19, 17, 13, 11, 9, 7, 3, 1];
     private static ReadOnlySpan<int> MultipliersMiscellaneous => [4, 3, 2, 7, 6, 5, 4, 3, 2];
-
-    public BgVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.BG);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -36,12 +32,12 @@ internal sealed class BgVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length is not 9 and not 10)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(9, 10));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         if (vatSpan.Length == 9)
@@ -52,14 +48,14 @@ internal sealed class BgVatValidator : VatValidatorAbstract
         return ValidatePhysicalPerson(vatSpan) ??
                ValidateForeignPerson(vatSpan) ??
                ValidateMiscellaneous(vatSpan) ??
-            VatValidationResult.Failed($"Invalid {CountryCode} VAT number");
+               VatValidationDispatcher.InvalidVatFormat(CountryCode, vat);
     }
 
-    private static VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
     {
         var sum = 0;
 
-        for (int index = 0; index < 8; index++)
+        for (var index = 0; index < 8; index++)
         {
             sum += vatSpan[index].ToInt() * (index + 1);
         }
@@ -79,7 +75,7 @@ internal sealed class BgVatValidator : VatValidatorAbstract
             }
         }
 
-        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit, $"Invalid checksum for 9-digit {CountryCode} VAT");
+        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit, VatValidationErrorMessageHelper.GetInvalidChecksumMessage(), CountryCode);
     }
 
     private static VatValidationResult ValidatePhysicalPerson(ReadOnlySpan<char> vatSpan)

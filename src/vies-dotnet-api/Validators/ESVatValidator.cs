@@ -12,20 +12,16 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class EsVatValidator : VatValidatorAbstract
+internal sealed class EsVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
-    public EsVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.ES);
-    }
-
     protected override VatValidationResult OnValidate(string vat)
     {
         ReadOnlySpan<char> vatSpan = vat.AsSpan();
@@ -34,7 +30,7 @@ internal sealed class EsVatValidator : VatValidatorAbstract
 
         if (length != 9)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
         var firstChar = vatSpan[0];
@@ -44,7 +40,7 @@ internal sealed class EsVatValidator : VatValidatorAbstract
 
         if(!middleDigits.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         // Pattern 1: Letter + 8 digits
@@ -71,6 +67,6 @@ internal sealed class EsVatValidator : VatValidatorAbstract
             return VatValidationResult.Success();
         }
 
-        return VatValidationResult.Failed($"Invalid {CountryCode} VAT format");
+        return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
     }
 }

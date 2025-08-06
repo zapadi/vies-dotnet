@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Build">
         <AssemblyName>Padi.Vies</AssemblyName>
         <Deterministic>True</Deterministic>
@@ -24,7 +24,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
-    
+
     <Product>Redmine .NET API Client</Product>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ReleaseNotes></ReleaseNotes>
@@ -34,7 +34,7 @@
     <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
     <Title>VIES NET API</Title>
   </PropertyGroup>
-  
+
   <PropertyGroup Label="Package Validation">
     <EnablePackageValidation>true</EnablePackageValidation>
     <GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile>
@@ -65,8 +65,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.184" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
-    <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" Version="4.6.0" />
-    <PackageReference Include="Polyfill" Version="7.11.0" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.196" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" Version="4.6.3" />
+    <PackageReference Include="Polyfill" Version="7.27.0" />
   </ItemGroup>
 </Project>

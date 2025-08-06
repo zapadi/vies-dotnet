@@ -12,21 +12,17 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
 /// <summary>
 ///
 /// </summary>
-internal sealed class EeVatValidator : VatValidatorAbstract
+internal sealed class EeVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [3, 7, 1, 3, 7, 1, 3, 7];
-
-    public EeVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.EE);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -34,17 +30,17 @@ internal sealed class EeVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 9)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(9));
         }
 
         if (vatSpan[..2] is not "10")
         {
-            return VatValidationResult.Failed($"Invalid prefix for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidPrefixMessage(2, "10"));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);

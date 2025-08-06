@@ -22,9 +22,9 @@ using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Parsers;
 
-namespace Padi.Vies;
+namespace Padi.Vies.Internal;
 
-internal sealed class ViesService : IViesService
+internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync parseResponse) : IViesService
 {
     private const string SOAP_VALIDATE_VAT_MESSAGE_FORMAT =
         """
@@ -42,15 +42,7 @@ internal sealed class ViesService : IViesService
     private static readonly CompositeFormat validateVatMessageCompositeFormat = CompositeFormat.Parse(SOAP_VALIDATE_VAT_MESSAGE_FORMAT);
     #endif
 
-    private readonly HttpClient _httpClient;
-    private readonly IResponseParserAsync _parseResponse;
     private static readonly Uri viesUri = new(ViesConstants.ViesUri);
-
-    public ViesService(HttpClient httpClient, IResponseParserAsync parseResponse)
-    {
-        _httpClient = httpClient;
-        _parseResponse = parseResponse;
-    }
 
     public async Task<ViesCheckVatResponse> SendRequestAsync(string countryCode, string vatNumber, CancellationToken cancellationToken)
     {
@@ -58,7 +50,7 @@ internal sealed class ViesService : IViesService
         {
             using (HttpRequestMessage requestMessage = CreateHttpRequestMessage(viesUri, countryCode, vatNumber))
             {
-                using (HttpResponseMessage httpResponseMessage = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                                                            .ConfigureAwait(false))
                 {
                     if (httpResponseMessage.StatusCode != HttpStatusCode.OK)
@@ -72,20 +64,25 @@ internal sealed class ViesService : IViesService
         }
         catch (HttpRequestException httpRequestException)
         {
-            throw new ViesServiceException(httpRequestException.GetBaseException().Message, httpRequestException);
+            throw new ViesServiceException(
+                errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
+                message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
+                userMessage: httpRequestException.GetBaseException().Message,
+                innerException: httpRequestException
+            );
         }
     }
 
     private async Task<ViesCheckVatResponse> GetViesCheckVatResponseAsync(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
     {
-        using(Stream content =
+        using(Stream stream =
 #if !(NETCOREAPP || NET5_0_OR_GREATER)
-         await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
+         await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
 #else
         await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
 #endif
         {
-            return await _parseResponse.ParseAsync(content).ConfigureAwait(false);
+            return await parseResponse.ParseAsync(stream).ConfigureAwait(false);
         }
     }
 
@@ -135,6 +132,11 @@ internal sealed class ViesService : IViesService
     {
         var errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-        throw new ViesServiceException($"VIES service error: {response.StatusCode:D} - {response.ReasonPhrase}{(!string.IsNullOrWhiteSpace(errorBody) ? $": {errorBody}" : string.Empty)}");
+        throw new ViesServiceException(
+            errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
+            message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
+            userMessage: ViesErrorCodes.ServiceError.ServiceUnavailable.UserMessage
+        );
+       // throw new ViesServiceException($"VIES service error: {response.StatusCode:D} - {response.ReasonPhrase}{(!string.IsNullOrWhiteSpace(errorBody) ? $": {errorBody}" : string.Empty)}");
     }
 }

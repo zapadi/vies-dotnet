@@ -12,18 +12,14 @@
 */
 
 using System;
-using Padi.Vies.Extensions;
+using Padi.Vies.Errors;
+using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Validators;
 
-internal sealed class HuVatValidator : VatValidatorAbstract
+internal sealed class HuVatValidator(string countryCode) : VatValidatorAbstract(countryCode)
 {
     private static ReadOnlySpan<int> Multipliers => [9, 7, 3, 1, 9, 7, 3];
-
-    public HuVatValidator()
-    {
-        CountryCode = nameof(EuCountryCode.HU);
-    }
 
     protected override VatValidationResult OnValidate(string vat)
     {
@@ -31,12 +27,12 @@ internal sealed class HuVatValidator : VatValidatorAbstract
 
         if (vatSpan.Length != 8)
         {
-            return VatValidationResult.Failed($"Invalid length for {CountryCode} VAT number");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetLengthMessage(8));
         }
 
         if(!vatSpan.ValidateAllDigits())
         {
-            return VatValidationResult.Failed($"Invalid {CountryCode} VAT: not all digits");
+            return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetAllDigitsMessage());
         }
 
         var sum = vatSpan.Sum(Multipliers);
