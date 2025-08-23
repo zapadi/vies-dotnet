@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ public abstract class VatValidatorAbstract : IVatValidator
         CountryCode = countryCode;
     }
 
-    protected static string CountryCode { get; private set; }
+    protected string CountryCode { get; }
 
     private string _vat;
 
