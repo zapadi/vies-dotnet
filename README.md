@@ -6,10 +6,9 @@
 
 ---
 
-European(EU)  VIES API VAT validation for dotnet based on the most current information from the official source
+European (EU) **VIES API VAT validation** for `dotnet` based on the most current information from the official source
 
-The objective of this API is to allow persons involved in the intra-Community supply of goods or of services to obtain confirmation of the validity of the VAT identification number of any specified person.
-
+The `vies-dotnet-api` enables users to verify the validity of a specified VAT identification number for intra-Community goods or services transactions
 
 # Installing
 
@@ -17,21 +16,21 @@ The fastest way of getting started using Vies api is to install the NuGet packag
 
 **Package Manager:**
 ```
-Install-Package vies-dotnet-api -Version 3.0.0
+Install-Package vies-dotnet-api -Version 3.0.1
 ```
 **.NET CLI:**
 ```
-dotnet add package vies-dotnet-api --version 3.0.0
+dotnet add package vies-dotnet-api --version 3.0.1
 ```
 **Package Reference**
 ```
-<PackageReference Include="vies-dotnet-api" Version="3.0.0" />
+<PackageReference Include="vies-dotnet-api" Version="3.0.1" />
 ```
 # Usage
 
 ### Checking a VAT number using the vies-dotnet-api
 
-Checking if a EU VAT number is **valid**
+Checking if an EU VAT number is **valid**
 ```
  var result = ViesManager.IsValid("RO123456789");
 ```
@@ -41,7 +40,7 @@ Checking if a EU VAT number is **valid**
  var result = ViesManager.IsValid("RO","123456789");
 ```
 
-Checking if a EU VAT number is **active**
+Checking if an EU VAT number is **active**
 
 ```
 var viesManager = new ViesManager();
@@ -56,7 +55,7 @@ var result = await viesManager.IsActiveAsync("RO","123456789");
 
 ### Clarification
 
-Since January 1, 2021 the UK is no longer a member of the European Union and as a result, the VIES service provided by the European Commission no longer validates VAT ID's for the UK.
+__Since January 1, 2021 the UK is no longer a member of the European Union and as a result, the VIES service provided by the European Commission no longer validates VAT ID's for the UK.__
 
 Checking GB VAT number
 ```
@@ -74,7 +73,7 @@ will return the following message:
 ## License
 [![GitHub license](https://img.shields.io/github/license/zapadi/vies-dotnet?color=blue)](https://github.com/zapadi/vies-dotnet/blob/master/LICENSE)
 
-The API is released under Apache 2 open-source license. You can use it for both personal and commercial purposes, build upon it and modify it.
+The API is released under the Apache 2 open-source license. You can use it for both personal and commercial purposes, build upon it and modify it.
 
 ## Thanks
 
