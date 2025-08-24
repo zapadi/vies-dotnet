@@ -6,6 +6,10 @@ on:
         types: [ requested ]
         branches: [ master ]
 
+    push:
+      tags:
+        - '[0-9]+.[0-9]+.[0-9]+'
+
     workflow_dispatch:
         inputs:
             version:
