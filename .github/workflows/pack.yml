@@ -22,6 +22,7 @@ env:
 jobs:
   pack:
     runs-on: ubuntu-latest
+    needs: build
     steps:
     - name: Determine version
       run: |

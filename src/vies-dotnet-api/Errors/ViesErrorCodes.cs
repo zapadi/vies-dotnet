@@ -10,6 +10,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
 namespace Padi.Vies.Errors;
 
 internal static class ViesErrorCodes
@@ -17,8 +18,6 @@ internal static class ViesErrorCodes
     public static class InvalidRequestError
     {
         public const string Type = "invalid_request_error";
-
-
 
         public static class VatInactive
         {
@@ -35,7 +34,6 @@ internal static class ViesErrorCodes
             public const string UserMessage = "The VAT number could not be found.";
             public const string Param = "vatNumber";
         }
-
     }
 
     public static class ServiceError
@@ -101,13 +99,6 @@ internal static class ViesErrorCodes
             public const string Param = "vatNumber";
         }
 
-        // public static class VatInvalid
-        // {
-        //     public const string Code = "vat-invalid";
-        //     public const string Message = "VAT number is invalid.";
-        //     public const string UserMessage = "The VAT number is not valid.";
-        // }
-
         public static class InvalidVatChecksumDigit
         {
             public const string Code = "invalid-vat-checksum-digit";
@@ -153,6 +144,18 @@ internal static class ViesErrorCodes
             public const string Code = "unexpected-error";
             public const string Message = "An unexpected error occurred.";
             public const string UserMessage = "Something went wrong. Please try again.";
+        }
+    }
+
+    public static class DeserializationError
+    {
+        public const string Type = "deserialization_error";
+
+        public static class Failed
+        {
+            public const string Code = "deserialization-failed";
+            public const string Message = "Deserialization failed.";
+            public const string UserMessage = "Could not deserialize the response from VIES service.";
         }
     }
 }

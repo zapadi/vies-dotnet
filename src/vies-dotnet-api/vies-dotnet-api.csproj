@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Build">
         <AssemblyName>Padi.Vies</AssemblyName>
-        <Deterministic>True</Deterministic>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <RootNamespace>$(AssemblyName)</RootNamespace>
         <TargetFrameworks>net9.0;net8.0;net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -41,13 +39,6 @@
     <PackageValidationBaselineVersion>2.3.2</PackageValidationBaselineVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="Analyzers">
-    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <AnalysisLevel>latest</AnalysisLevel>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
@@ -63,9 +54,9 @@
    </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.196" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
-    <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" Version="4.6.3" />
-    <PackageReference Include="Polyfill" Version="7.27.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="Meziantou.Analyzer"  PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" />
+    <PackageReference Include="Polyfill" />
   </ItemGroup>
 </Project>

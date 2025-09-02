@@ -15,15 +15,22 @@ using System;
 
 namespace Padi.Vies.Errors;
 
+/// <summary>
+///
+/// </summary>
+#pragma warning disable CA1032
 public sealed class ViesDeserializationException : ViesException
+#pragma warning restore CA1032
 {
+    /// <inheritdoc />
     public ViesDeserializationException( string message, string param = null, string userMessage = null)
-        : base("deserialization-failed", "deserialization_error", message, param, userMessage)
+        : base(ViesErrorCodes.DeserializationError.Failed.Code, ViesErrorCodes.DeserializationError.Type, message ?? ViesErrorCodes.DeserializationError.Failed.Message, param, userMessage ?? ViesErrorCodes.DeserializationError.Failed.UserMessage)
     {
     }
 
+    /// <inheritdoc />
     public ViesDeserializationException( string message, Exception innerException, string param = null, string userMessage = null)
-        : base("deserialization-failed", "deserialization_error", message, innerException, param, userMessage)
+        : base(ViesErrorCodes.DeserializationError.Failed.Code, ViesErrorCodes.DeserializationError.Type, message ?? ViesErrorCodes.DeserializationError.Failed.Message, innerException, param, userMessage ?? ViesErrorCodes.DeserializationError.Failed.UserMessage)
     {
     }
 }

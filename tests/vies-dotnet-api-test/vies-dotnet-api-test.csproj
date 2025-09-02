@@ -1,27 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="build">
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <TargetFramework>net9.0</TargetFramework>
       <NoWarn>
           CA1016;
+          CA1515;
+          CA1859;
           CA2007;
+          CA2211;
           MA0051;
           IDE0063;
       </NoWarn>
   </PropertyGroup>
-    
+
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.692" />
-    <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
-    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NuGet.Frameworks" Version="6.8.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
-    <PackageReference Include="xunit" Version="2.6.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
 
   <ItemGroup>

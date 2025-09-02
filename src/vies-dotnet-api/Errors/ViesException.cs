@@ -15,13 +15,41 @@ using System;
 
 namespace Padi.Vies.Errors;
 
+/// <summary>
+///
+/// </summary>
+#pragma warning disable CA1032
 public class ViesException : Exception
+#pragma warning restore CA1032
 {
+    /// <summary>
+    ///
+    /// </summary>
     public string ErrorCode { get; }
+
+    /// <summary>
+    ///
+    /// </summary>
     public string ErrorType { get; }
+
+    /// <summary>
+    ///
+    /// </summary>
     public string Param { get; }
+
+    /// <summary>
+    ///
+    /// </summary>
     public string UserMessage { get; }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="errorCode"></param>
+    /// <param name="errorType"></param>
+    /// <param name="message"></param>
+    /// <param name="param"></param>
+    /// <param name="userMessage"></param>
     public ViesException(string errorCode, string errorType, string message, string param = null, string userMessage = null)
         : base(message)
     {
@@ -31,6 +59,15 @@ public class ViesException : Exception
         UserMessage = userMessage ?? message;
     }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="errorCode"></param>
+    /// <param name="errorType"></param>
+    /// <param name="message"></param>
+    /// <param name="innerException"></param>
+    /// <param name="param"></param>
+    /// <param name="userMessage"></param>
     public ViesException(string errorCode, string errorType, string message, Exception innerException, string param = null, string userMessage = null)
         : base(message, innerException)
     {

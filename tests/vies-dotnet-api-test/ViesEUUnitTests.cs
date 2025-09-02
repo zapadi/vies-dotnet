@@ -1,4 +1,4 @@
-﻿/*
+/*
    Copyright 2017-2024 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,14 +12,13 @@
 */
 
 using System.Threading.Tasks;
-
 using Padi.Vies.Errors;
-
 using Xunit;
 
 namespace Padi.Vies.Test;
 
 [Collection("ViesCollection")]
+// ReSharper disable once InconsistentNaming
 public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
 {
     [Theory]
@@ -39,195 +38,18 @@ public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
     [InlineData("")]
     public async Task Should_Throw_ViesValidationException(string vat)
     {
-        await Assert.ThrowsAsync<ViesValidationException>(() => fixture.ViesManager.IsActiveAsync(vat));
+        await Assert.ThrowsAsync<ViesValidationException>(() => fixture.ViesManager.IsActiveAsync(vat, TestContext.Current.CancellationToken));
     }
 
     [Theory]
-    [InlineData("ATU1234567")]
-    [InlineData("BE012345678")]
-    [InlineData("BE123456789")]
-    [InlineData("BE897221791")]
-    [InlineData(" BE0897221791")]
-    [InlineData(" BE1897221789")]
-    [InlineData(" BE2897221888")]
-    [InlineData(" BE3897221987")]
-    [InlineData(" BE4897222086")]
-    [InlineData(" BE5897222185")]
-    [InlineData(" BE6897222284")]
-    [InlineData(" BE7897222383")]
-    [InlineData(" BE8897222482")]
-    [InlineData(" BE9897222581")]
-    [InlineData(" BEa897222680")]
-    [InlineData(" BE8a97222680")]
-    [InlineData(" BE89a7222680")]
-    [InlineData(" BE897a222680")]
-    [InlineData(" BE8972a22680")]
-    [InlineData(" BE89722a2680")]
-    [InlineData(" BE897222a680")]
-    [InlineData(" BE8972226a80")]
-    [InlineData(" BE89722268a0")]
-    [InlineData(" BE897222680a")]
-    [InlineData(" BE2602602623")]
-    [InlineData(" BE2400521335")]
-    [InlineData(" BE2400521330")]
-    [InlineData(" BE2400004463")]
-    [InlineData(" BE0603601206")]
-    [InlineData(" BE603601206")]
-    [InlineData(" BE60260262")]
-    [InlineData("BG1234567")]
-    [InlineData("CY1234567X")]
-    [InlineData("CZ1234567")]
-    [InlineData("DE111111126")]
-    [InlineData("DE111111127")]
-    [InlineData("DE111111128")]
-    [InlineData("DE111111129")]
-    [InlineData("DE111111120")]
-    [InlineData("DE111111121")]
-    [InlineData("DE000000020")]
-    [InlineData("DE000000038")]
-    [InlineData("DE000000046")]
-    [InlineData("DE000000206")]
-    [InlineData("DE000000062")]
-    [InlineData("DE000000079")]
-    [InlineData("DE000000087")]
-    [InlineData("DE000000100")]
-    [InlineData("DE000000118")]
-    [InlineData("DE000000126")]
-    [InlineData("DE000000142")]
-    [InlineData("DE000000159")]
-    [InlineData("DE000000167")]
-    [InlineData("DE000000183")]
-    [InlineData("DE000000191")]
-    [InlineData("DK10000030")]
-    [InlineData("DK1234567")]
-    [InlineData("DK10000000")]
-    [InlineData("DK10000010")]
-    [InlineData("DK10000020")]
-    [InlineData("DK10000150")]
-    [InlineData("EE12345678")]
-    [InlineData("EE000207418")]
-    [InlineData("EE110207418")]
-    [InlineData("EL12345678")]
-    [InlineData("EL000000022")]
-    [InlineData("EL000000032")]
-    [InlineData("EL000000042")]
-    [InlineData("EL000000202")]
-    [InlineData("EL000000062")]
-    [InlineData("EL000000072")]
-    [InlineData("EL000000082")]
-    [InlineData("ESX1234567")]
-    [InlineData("ESB1233456899999")]
-    [InlineData("FI1234567")]
-    [InlineData("FI09853601")]
-    [InlineData("FI00000023")]
-    [InlineData("FI00000036")]
-    [InlineData("FI00000048")]
-    [InlineData("FI00000173")]
-    [InlineData("FI00000071")]
-    [InlineData("   FR00300076967")]
-    [InlineData("   fr90000000027")]
-    [InlineData("   fr17000000037")]
-    [InlineData("   FR41000000047")]
-    [InlineData("   FR01000000157")]
-    [InlineData("   FR19000000068")]
-    [InlineData("FR190000000689")]
-    [InlineData("FR190000000689423543534")]
-    [InlineData("FR00300076967")]
-    [InlineData("FR90000000027")]
-    [InlineData("FR17000000037")]
-    [InlineData("FR41000000047")]
-    [InlineData("FR01000000157")]
-    [InlineData("FR19000000068")]
     [InlineData("GB99999997")]
-    [InlineData("gR999999999")]
-    [InlineData("HU1234567")]
-    [InlineData("HU65730981")]
-    [InlineData("HU65731980")]
-    [InlineData("HR1234567890")]
-    [InlineData("HR9363442948")]
-    [InlineData("HR93634429488")]
-    [InlineData("HR936344294871")]
-    [InlineData("IE 123")]
-    [InlineData("IE123456X")]
-    [InlineData("IE6433435OA")]
-    [InlineData("IE6433435E")]
-    [InlineData("IE8?79739J")]
-    [InlineData("IE9S99999L")]
-    [InlineData("IE9999999WI")]
-    [InlineData("IE9999999A")]
-    [InlineData("IE9999999H")]
-    [InlineData("IE87654321SA")]
-    [InlineData("IE8Z49289A")]
-    [InlineData("IE0000002A")]
-    [InlineData("IE0000003A")]
-    [InlineData("IE0000004A")]
-    [InlineData("IE0000020A")]
-    [InlineData("IE0000006A")]
-    [InlineData("IE0000007A")]
-    [InlineData("IT1234567890")]
-    [InlineData("IT00000010210")]
-    [InlineData("IT10000100010")]
-    [InlineData("IT10000200010")]
-    [InlineData("IT0000300010")]
-    [InlineData("IT10001900010")]
-    [InlineData("IT10000500010")]
-    [InlineData("IT10000600010")]
-    [InlineData("IT10001708882")]
-    [InlineData("IT10001701202")]
-    [InlineData("IT10001701216")]
-    [InlineData("IT10001709997")]
-    [InlineData("LT12345678")]
-    [InlineData("LU1234567")]
-    [InlineData("LU10000350")]
-    [InlineData("LU00000200")]
-    [InlineData("LU00000300")]
-    [InlineData("LU00000400")]
-    [InlineData("LU00002021")]
-    [InlineData("LU00000600")]
-    [InlineData("LU00000700")]
-    [InlineData("LU00000800")]
-    [InlineData("LV1234567890")]
-    [InlineData("MT1234567")]
-    [InlineData("MT2039051")]
-    [InlineData("MT20390515")]
-    [InlineData("NL12345678B12")]
-    [InlineData("NL010000445B01")]
-    [InlineData("NL000000025B01")]
-    [InlineData("NL000000035B01")]
-    [InlineData("NL000000045B01")]
-    [InlineData("NL000000205B01")]
-    [InlineData("NL123456789B14")]
-    [InlineData("PL7122913628")]
-    [InlineData("PL7122913427")]
-    [InlineData("PL123456789")]
-    [InlineData("PT502757192")]
-    [InlineData("PT100000012")]
-    [InlineData("PT100000022")]
-    [InlineData("PT100000032")]
-    [InlineData("PT100000192")]
-    [InlineData("PT100000052")]
-    [InlineData("PT12345678")]
-    [InlineData("RO4197779")]
-    [InlineData("RO1")]
-    [InlineData("RO11198698")]
-    [InlineData("RO99907")]
-    [InlineData("RO18")]
-    [InlineData("RO125")]
-    [InlineData("RO1238")]
-    [InlineData("RO12349")]
-    [InlineData("RO123451")]
-    [InlineData("RO1234564")]
-    [InlineData("RO123456780")]
-    [InlineData("SE12345678901")]
-    [InlineData("SE556188840301")]
-    [InlineData("SE000000003301")]
-    [InlineData("SE000000002301")]
-    [InlineData("SE000000004301")]
-    [InlineData("SE000000006301")]
-    [InlineData("SI1234567")]
-    [InlineData("SI05936241")]
-    [InlineData("SK5407062531")]
-    [InlineData("SK7020001680")]
+    public void Should_Throw_ViesUnsupportedRegion_Exception(string vatNumber)
+    {
+        Assert.Throws<ViesUnsupportedRegionException>(() => ViesManager.IsValid(vatNumber));
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidCodeData))]
     public void Should_Not_Validate_Vat(string vatNumber)
     {
         VatValidationResult result = ViesManager.IsValid(vatNumber);
@@ -235,225 +57,427 @@ public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
     }
 
     [Theory]
-    [InlineData(" BE0000200334")]
-    [InlineData("BE1000019421")]
-    [InlineData(" BE1602602623")]
-    [InlineData(" BE1400521335")]
-    [InlineData(" BE1400004463")]
-    [InlineData(" BG205242290")]
-    [InlineData(" BG202320104")]
-    [InlineData(" CY10435775C")]
-    [InlineData(" CY10014000M")]
-    [InlineData(" CY10018402C")]
-    [InlineData("CY10111176Z")]
-    [InlineData("CY10227520I")]
-    [InlineData("CY10247148S")]
-    [InlineData("   FR00000000190")]
-    [InlineData("   FR00300076965")]
-    [InlineData("   FR00303656847")]
-    [InlineData("   FR01000000158")]
-    [InlineData("   FR03552081317")]
-    [InlineData("   FR03512803495")]
-    [InlineData("   FR03784359069")]
-    [InlineData("   FR04494487341")]
-    [InlineData("   FR05442977302")]
-    [InlineData("   FR17000000034")]
-    [InlineData("   FR19000000067")]
-    [InlineData("   FR43000000075")]
-    [InlineData("   FR47000000141")]
-    [InlineData("   FR48000000109")]
-    [InlineData("   FR54000000208")]
-    [InlineData("   FR13393892815")]
-    [InlineData("   FR14722057460")]
-    [InlineData("   FR20562016774")]
-    [InlineData("   FR25000000166")]
-    [InlineData("   FR22528117732")]
-    [InlineData("   FR25432701258")]
-    [InlineData("   FR27514868827")]
-    [InlineData("   FR29312010820")]
-    [InlineData("   FR31387589179")]
-    [InlineData("   FR38438710865")]
-    [InlineData("   FR39412658767")]
-    [InlineData("   FR40303265045")]
-    [InlineData("   FR40391895109")]
-    [InlineData("   FR40402628838")]
-    [InlineData("   FR41000000042")]
-    [InlineData("   FR41343848552")]
-    [InlineData("   FR42403335904")]
-    [InlineData("   FR42504207853")]
-    [InlineData("   FR44527865992")]
-    [InlineData("   FR45395080138")]
-    [InlineData("   FR45542065305")]
-    [InlineData("   FR46400477089")]
-    [InlineData("   FR47323875187")]
-    [InlineData("   FR53418304010")]
-    [InlineData("   FR55440243988")]
-    [InlineData("   FR55480081306")]
-    [InlineData("   FR55338966385")]
-    [InlineData("   FR56439795816")]
-    [InlineData("   FR57609803416")]
-    [InlineData("   FR58399360817")]
-    [InlineData("   FR58499528255")]
-    [InlineData("   FR61300986619")]
-    [InlineData("   FR61954506077")]
-    [InlineData("   FR64518539093")]
-    [InlineData("   FR65489465542")]
-    [InlineData("   FR67000000083")]
-    [InlineData("   FR71383076817")]
-    [InlineData("   FR72000000117")]
-    [InlineData("   FR73000000182")]
-    [InlineData("   FR74532287844")]
-    [InlineData("   FR82494628696")]
-    [InlineData("   FR82542065479")]
-    [InlineData("   FR83404833048")]
-    [InlineData("   FR85418228102")]
-    [InlineData("   FR88414997130")]
-    [InlineData("   FR89540090917")]
-    [InlineData("   FR90000000026")]
-    [InlineData("   FR90524670213")]
-    [InlineData("   FR96000000125")]
-    [InlineData("   FRA0123456789")]
-    [InlineData("   FR0A012345678")]
-    [InlineData("   FRAB012345678")]
-    [InlineData("IE8Y41127O")]
-    [InlineData("IE6433435F")]
-    [InlineData("IE8D79739I")]
-    [InlineData("LT684289716")]
-    [InlineData("LT100003346713")]
-    [InlineData("LT100000009017")]
-    [InlineData("LT100000031710")]
-    [InlineData("LT100001410314")]
-    [InlineData("LT100001647810")]
-    [InlineData("LT100002247911")]
-    [InlineData("LT100002640213")]
-    [InlineData("LT100002992518")]
-    [InlineData("LT100003099412")]
-    [InlineData("LT100003222911")]
-    [InlineData("LT100003776115")]
-    [InlineData("LT100003806615")]
-    [InlineData("LT100004463513")]
-    [InlineData("LT100005808219")]
-    [InlineData("LT100005772517")]
-    [InlineData("LT100005847815")]
-    [InlineData("LT100006555419")]
-    [InlineData("LT100006615910")]
-    [InlineData("LT100006688411")]
-    [InlineData("LT100006852615")]
-    [InlineData("LT100007390914")]
-    [InlineData("LT100008061513")]
-    [InlineData("LT100119219")]
-    [InlineData("LT104019515")]
-    [InlineData("LT108940716")]
-    [InlineData("LT115521113")]
-    [InlineData("LT105672113")]
-    [InlineData("LT115184219")]
-    [InlineData("LT119515314")]
-    [InlineData("LT119513417")]
-    [InlineData("LT119505811")]
-    [InlineData("LT119502413")]
-    [InlineData("LT119508113")]
-    [InlineData("LT119517219")]
-    [InlineData("LT120212314")]
-    [InlineData("LT120296515")]
-    [InlineData("LT205052113")]
-    [InlineData("LT205458414")]
-    [InlineData("LT208640716")]
-    [InlineData("LT210811811")]
-    [InlineData("LT213179412")]
-    [InlineData("LT238708219")]
-    [InlineData("LT239056314")]
-    [InlineData("LT243857314")]
-    [InlineData("LT245702113")]
-    [InlineData("LT246655314")]
-    [InlineData("LT254096515")]
-    [InlineData("LT258223515")]
-    [InlineData("LT290061371314")]
-    [InlineData("LT321389515")]
-    [InlineData("LT330214917")]
-    [InlineData("LT331842113")]
-    [InlineData("LT351634917")]
-    [InlineData("LT408382716")]
-    [InlineData("LT458248716")]
-    [InlineData("LT530091413")]
-    [InlineData("LT566098412")]
-    [InlineData("LT852320917")]
-    [InlineData("LT907560811")]
-    [InlineData("LU10000356")]
-    [InlineData("NL000000024B01")]
-    [InlineData("NL000000036B01")]
-    [InlineData("NL000000048B01")]
-    [InlineData("NL000000206B01")]
-    [InlineData("NL000000061B01")]
-    [InlineData("NL000000073B01")]
-    [InlineData("NL000000085B01")]
-    [InlineData("NL000000103B01")]
-    [InlineData("NL000000115B01")]
-    [InlineData("NL000000127B01")]
-    [InlineData("NL000000140B01")]
-    [InlineData("NL000000152B01")]
-    [InlineData("NL000000164B01")]
-    [InlineData("NL000000188B01")]
-    [InlineData("NL002101624B69")]
-    [InlineData("NL001079293B01")]
-    [InlineData("NL001368023B01")]
-    [InlineData("NL003156709B01")]
-    [InlineData("NL004909665B07")]
-    [InlineData("NL005033019B01")]
-    [InlineData("NL006292227B01")]
-    [InlineData("NL010000446B01")]
-    [InlineData("NL121745417B01")]
-    [InlineData("NL128297906B01")]
-    [InlineData("NL147804668B01")]
-    [InlineData("NL173389909B01")]
-    [InlineData("NL208560129B01")]
-    [InlineData("NL800272912B01")]
-    [InlineData("NL805332674B01")]
-    [InlineData("NL805969317B01")]
-    [InlineData("NL806825790B01")]
-    [InlineData("NL806925206B01")]
-    [InlineData("NL809442127B01")]
-    [InlineData("NL810195835B01")]
-    [InlineData("NL810876334B01")]
-    [InlineData("NL813195779B01")]
-    [InlineData("NL814170511B01")]
-    [InlineData("NL815216002B01")]
-    [InlineData("NL815498093B01")]
-    [InlineData("NL818152011B01")]
-    [InlineData("NL818793120B01")]
-    [InlineData("NL818937841B01")]
-    [InlineData("NL822502975B01")]
-    [InlineData("NL822667800B01")]
-    [InlineData("NL822754812B01")]
-    [InlineData("NL823363247B01")]
-    [InlineData("PT 980526779")]
-    [InlineData("PL1132191233 ")]
-    [InlineData("PT100000037")]
-    [InlineData("RO8440074")]
-    [InlineData("RO4107779")]
-    [InlineData("RO00099908")]
-    [InlineData("RO0000099908")]
-    [InlineData("SK2120046819")]
+    [MemberData(nameof(ValidCodeData))]
     public void Should_Validate_Vat(string vatNumber)
     {
         VatValidationResult result = ViesManager.IsValid(vatNumber);
         Assert.True(result.IsValid, $"VAT '{vatNumber}' is invalid");
     }
 
-    [Fact]
-    public void ErrorMessage_Should_Contain_CountryCode()
+    [Theory]
+    [MemberData(nameof(VatCodeData))]
+    public void ErrorMessage_Should_Contain_CountryCode(string vatCode, string countryCode)
     {
-        var data = new TheoryData<string, string>
-        {
-            { "IT00000010210", "IT" },
-            { "DE000000206", "DE" },
-            { "IT00000010210", "IT" } // test duplicate
-        };
-
-        foreach (var item in data)
-        {
-            VatValidationResult result = ViesManager.IsValid((string)item[0]);
-            Assert.False(result.IsValid, $"VAT '{item[0]}' is VALID");
-            Assert.Equal(item[1], result.CountryCode);
-        }
+        VatValidationResult result = ViesManager.IsValid(vatCode);
+        Assert.False(result.IsValid, $"VAT '{vatCode}' is VALID");
+        Assert.Equal(countryCode, result.CountryCode);
     }
+
+    public static TheoryData<string, string> VatCodeData = new()
+    {
+        { "IT00000010210", "IT" },
+        { "DE000000206", "DE" },
+        { "IT00000010210", "IT" } // test duplicate
+    };
+
+    public static TheoryData<string> ValidCodeData =
+    [
+        " BE0000200334",
+        "BE1000019421",
+        " BE1602602623",
+        " BE1400521335",
+        " BE1400004463",
+        " BG205242290",
+        " BG202320104",
+        " CY10435775C",
+        " CY10014000M",
+        " CY10018402C",
+        "CY10111176Z",
+        "CY10227520I",
+        "CY10247148S",
+        "   FR00000000190",
+        "   FR00300076965",
+        "   FR00303656847",
+        "   FR01000000158",
+        "   FR03552081317",
+        "   FR03512803495",
+        "   FR03784359069",
+        "   FR04494487341",
+        "   FR05442977302",
+        "   FR17000000034",
+        "   FR19000000067",
+        "   FR43000000075",
+        "   FR47000000141",
+        "   FR48000000109",
+        "   FR54000000208",
+        "   FR13393892815",
+        "   FR14722057460",
+        "   FR20562016774",
+        "   FR25000000166",
+        "   FR22528117732",
+        "   FR25432701258",
+        "   FR27514868827",
+        "   FR29312010820",
+        "   FR31387589179",
+        "   FR38438710865",
+        "   FR39412658767",
+        "   FR40303265045",
+        "   FR40391895109",
+        "   FR40402628838",
+        "   FR41000000042",
+        "   FR41343848552",
+        "   FR42403335904",
+        "   FR42504207853",
+        "   FR44527865992",
+        "   FR45395080138",
+        "   FR45542065305",
+        "   FR46400477089",
+        "   FR47323875187",
+        "   FR53418304010",
+        "   FR55440243988",
+        "   FR55480081306",
+        "   FR55338966385",
+        "   FR56439795816",
+        "   FR57609803416",
+        "   FR58399360817",
+        "   FR58499528255",
+        "   FR61300986619",
+        "   FR61954506077",
+        "   FR64518539093",
+        "   FR65489465542",
+        "   FR67000000083",
+        "   FR71383076817",
+        "   FR72000000117",
+        "   FR73000000182",
+        "   FR74532287844",
+        "   FR82494628696",
+        "   FR82542065479",
+        "   FR83404833048",
+        "   FR85418228102",
+        "   FR88414997130",
+        "   FR89540090917",
+        "   FR90000000026",
+        "   FR90524670213",
+        "   FR96000000125",
+        "   FRA0123456789",
+        "   FR0A012345678",
+        "   FRAB012345678",
+        "IE8Y41127O",
+        "IE6433435F",
+        "IE3336483DH",
+        "IE8D79739I",
+        "IE3706224MH",
+        "IE3706224mh",
+        "IE6433435OA",
+        "IE8Z49289F",
+        "IE3628739L",
+        "IE5343381W",
+        "IE6433435OA",
+        "IE3336483DH",
+        "LT684289716",
+        "LT100003346713",
+        "LT100000009017",
+        "LT100000031710",
+        "LT100001410314",
+        "LT100001647810",
+        "LT100002247911",
+        "LT100002640213",
+        "LT100002992518",
+        "LT100003099412",
+        "LT100003222911",
+        "LT100003776115",
+        "LT100003806615",
+        "LT100004463513",
+        "LT100005808219",
+        "LT100005772517",
+        "LT100005847815",
+        "LT100006555419",
+        "LT100006615910",
+        "LT100006688411",
+        "LT100006852615",
+        "LT100007390914",
+        "LT100008061513",
+        "LT100119219",
+        "LT104019515",
+        "LT108940716",
+        "LT115521113",
+        "LT105672113",
+        "LT115184219",
+        "LT119515314",
+        "LT119513417",
+        "LT119505811",
+        "LT119502413",
+        "LT119508113",
+        "LT119517219",
+        "LT120212314",
+        "LT120296515",
+        "LT205052113",
+        "LT205458414",
+        "LT208640716",
+        "LT210811811",
+        "LT213179412",
+        "LT238708219",
+        "LT239056314",
+        "LT243857314",
+        "LT245702113",
+        "LT246655314",
+        "LT254096515",
+        "LT258223515",
+        "LT290061371314",
+        "LT321389515",
+        "LT330214917",
+        "LT331842113",
+        "LT351634917",
+        "LT408382716",
+        "LT458248716",
+        "LT530091413",
+        "LT566098412",
+        "LT852320917",
+        "LT907560811",
+        "LU10000356",
+        "NL000000024B01",
+        "NL000000036B01",
+        "NL000000048B01",
+        "NL000000206B01",
+        "NL000000061B01",
+        "NL000000073B01",
+        "NL000000085B01",
+        "NL000000103B01",
+        "NL000000115B01",
+        "NL000000127B01",
+        "NL000000140B01",
+        "NL000000152B01",
+        "NL000000164B01",
+        "NL000000188B01",
+        "NL002101624B69",
+        "NL001079293B01",
+        "NL001368023B01",
+        "NL003156709B01",
+        "NL004909665B07",
+        "NL005033019B01",
+        "NL006292227B01",
+        "NL010000446B01",
+        "NL121745417B01",
+        "NL128297906B01",
+        "NL147804668B01",
+        "NL173389909B01",
+        "NL208560129B01",
+        "NL800272912B01",
+        "NL805332674B01",
+        "NL805969317B01",
+        "NL806825790B01",
+        "NL806925206B01",
+        "NL809442127B01",
+        "NL810195835B01",
+        "NL810876334B01",
+        "NL813195779B01",
+        "NL814170511B01",
+        "NL815216002B01",
+        "NL815498093B01",
+        "NL818152011B01",
+        "NL818793120B01",
+        "NL818937841B01",
+        "NL822502975B01",
+        "NL822667800B01",
+        "NL822754812B01",
+        "NL823363247B01",
+        "PT 980526779",
+        "PL1132191233 ",
+        "PT100000037",
+        "RO8440074",
+        "RO4107779",
+        "RO00099908",
+        "RO0000099908",
+        "SK2120046819"
+    ];
+
+    public static TheoryData<string> InvalidCodeData =
+    [
+        "ATU1234567",
+        "BE012345678",
+        "BE123456789",
+        "BE897221791",
+        " BE0897221791",
+        " BE1897221789",
+        " BE2897221888",
+        " BE3897221987",
+        " BE4897222086",
+        " BE5897222185",
+        " BE6897222284",
+        " BE7897222383",
+        " BE8897222482",
+        " BE9897222581",
+        " BEa897222680",
+        " BE8a97222680",
+        " BE89a7222680",
+        " BE897a222680",
+        " BE8972a22680",
+        " BE89722a2680",
+        " BE897222a680",
+        " BE8972226a80",
+        " BE89722268a0",
+        " BE897222680a",
+        " BE2602602623",
+        " BE2400521335",
+        " BE2400521330",
+        " BE2400004463",
+        " BE0603601206",
+        " BE603601206",
+        " BE60260262",
+        "BG1234567",
+        "CY1234567X",
+        "CZ1234567",
+        "DE111111126",
+        "DE111111127",
+        "DE111111128",
+        "DE111111129",
+        "DE111111120",
+        "DE111111121",
+        "DE000000020",
+        "DE000000038",
+        "DE000000046",
+        "DE000000206",
+        "DE000000062",
+        "DE000000079",
+        "DE000000087",
+        "DE000000100",
+        "DE000000118",
+        "DE000000126",
+        "DE000000142",
+        "DE000000159",
+        "DE000000167",
+        "DE000000183",
+        "DE000000191",
+        "DK10000030",
+        "DK1234567",
+        "DK10000000",
+        "DK10000010",
+        "DK10000020",
+        "DK10000150",
+        "EE12345678",
+        "EE000207418",
+        "EE110207418",
+        "EL12345678",
+        "EL000000022",
+        "EL000000032",
+        "EL000000042",
+        "EL000000202",
+        "EL000000062",
+        "EL000000072",
+        "EL000000082",
+        "ESX1234567",
+        "ESB1233456899999",
+        "FI1234567",
+        "FI09853601",
+        "FI00000023",
+        "FI00000036",
+        "FI00000048",
+        "FI00000173",
+        "FI00000071",
+        "   FR00300076967",
+        "   fr90000000027",
+        "   fr17000000037",
+        "   FR41000000047",
+        "   FR01000000157",
+        "   FR19000000068",
+        "FR190000000689",
+        "FR190000000689423543534",
+        "FR00300076967",
+        "FR90000000027",
+        "FR17000000037",
+        "FR41000000047",
+        "FR01000000157",
+        "FR19000000068",
+        "gR999999999",
+        "HU1234567",
+        "HU65730981",
+        "HU65731980",
+        "HR1234567890",
+        "HR9363442948",
+        "HR93634429488",
+        "HR936344294871",
+        "IE 123",
+        "IE123456X",
+        "IE6433435E",
+        "IE8?79739J",
+        "IE9S99999L",
+        "IE9999999WI",
+        "IE9999999A",
+        "IE9999999H",
+        "IE87654321SA",
+        "IE8Z49289A",
+        "IE8Z49389F",
+        "IE1234567",
+        "IE6433435OB",
+        "IE0000002A",
+        "IE0000003A",
+        "IE0000004A",
+        "IE0000020A",
+        "IE0000006A",
+        "IE0000007A",
+        "IT1234567890",
+        "IT00000010210",
+        "IT10000100010",
+        "IT10000200010",
+        "IT0000300010",
+        "IT10001900010",
+        "IT10000500010",
+        "IT10000600010",
+        "IT10001708882",
+        "IT10001701202",
+        "IT10001701216",
+        "IT10001709997",
+        "LT12345678",
+        "LU1234567",
+        "LU10000350",
+        "LU00000200",
+        "LU00000300",
+        "LU00000400",
+        "LU00002021",
+        "LU00000600",
+        "LU00000700",
+        "LU00000800",
+        "LV1234567890",
+        "MT1234567",
+        "MT2039051",
+        "MT20390515",
+        "NL12345678B12",
+        "NL010000445B01",
+        "NL000000025B01",
+        "NL000000035B01",
+        "NL000000045B01",
+        "NL000000205B01",
+        "NL123456789B14",
+        "PL7122913628",
+        "PL7122913427",
+        "PL123456789",
+        "PT502757192",
+        "PT100000012",
+        "PT100000022",
+        "PT100000032",
+        "PT100000192",
+        "PT100000052",
+        "PT12345678",
+        "RO4197779",
+        "RO1",
+        "RO11198698",
+        "RO99907",
+        "RO18",
+        "RO125",
+        "RO1238",
+        "RO12349",
+        "RO123451",
+        "RO1234564",
+        "RO123456780",
+        "SE12345678901",
+        "SE556188840301",
+        "SE000000003301",
+        "SE000000002301",
+        "SE000000004301",
+        "SE000000006301",
+        "SI1234567",
+        "SI05936241",
+        "SK5407062531",
+        "SK7020001680"
+    ];
 }
