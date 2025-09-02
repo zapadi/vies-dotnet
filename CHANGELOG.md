@@ -1,4 +1,13 @@
 
+## [3.1.0] - 2025-09-03
+
+## Bug Fixes 🐛
+
+* Fixed IEValidator wrong checksum for 2013+ format
+## Improvements 🙌
+
+* Replace exceptions magic strings error codes with constants
+
 ### [3.0.1] - 2025-08-23
 
 ## Bug Fixes 🐛
