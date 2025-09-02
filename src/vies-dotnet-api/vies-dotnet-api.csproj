@@ -40,13 +40,6 @@
     <PackageValidationBaselineVersion>2.3.2</PackageValidationBaselineVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="Analyzers">
-    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <AnalysisLevel>latest</AnalysisLevel>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
