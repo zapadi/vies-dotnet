@@ -7,4 +7,10 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageOutputPath>$(SolutionDir)/artifacts</PackageOutputPath>
     </PropertyGroup>
+  <PropertyGroup Label="Analyzers">
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
 </Project>
