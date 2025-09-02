@@ -1,4 +1,4 @@
-﻿/*
+/*
    Copyright 2017-2025 Adrian Popescu.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -100,13 +100,6 @@ internal static class ViesErrorCodes
             public const string UserMessage = "The VAT number entered is not in a valid format.";
             public const string Param = "vatNumber";
         }
-
-        // public static class VatInvalid
-        // {
-        //     public const string Code = "vat-invalid";
-        //     public const string Message = "VAT number is invalid.";
-        //     public const string UserMessage = "The VAT number is not valid.";
-        // }
 
         public static class InvalidVatChecksumDigit
         {
