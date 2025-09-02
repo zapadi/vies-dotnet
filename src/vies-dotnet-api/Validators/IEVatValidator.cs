@@ -51,7 +51,7 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
                         : 0;
 
                 vatSpan.Slice(0, 7).CopyTo(normalizedVat);
-                normalizedVat[7] = vatSpan[8];
+                normalizedVat[7] = vatSpan[7];
             }
             else
             {
@@ -68,30 +68,34 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
         }
 
         var sum = 0;
-        for (var i = 0; i < 7; i++)
+        for (var index = 0; index < 7; index++)
         {
-            if (!char.IsDigit(normalizedVat[i]))
+            if (!char.IsDigit(normalizedVat[index]))
             {
                 return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidRangeDigitsMessage(1, 7));
             }
 
-            sum += normalizedVat[i].ToInt() * Multipliers[i];
+            sum += normalizedVat[index].ToInt() * Multipliers[index];
         }
 
         sum += multiplier;
         var checkDigit = sum % 23;
-        var expectedCheck = checkDigit == 0 ? 'W' : (char)(checkDigit + 64);
+        var expectedCheck = checkDigit == 0 ? 'W' : (char)(64 + checkDigit);
 
         return ValidateChecksumDigit(normalizedVat[7], expectedCheck);
     }
 
     /// <summary>
-    /// (1 digit + letter + 5 digits + letter)
+    /// (1 digit + [letter/+/*] + 5 digits + letter)
     /// </summary>
     /// <param name="vat"></param>
     /// <returns></returns>
     private static bool IsOldStyleFormat(ReadOnlySpan<char> vat) =>
-        vat.Length == 8 && char.IsDigit(vat[0]) && vat[2..7].ContainsOnlyDigits() && char.IsLetter(vat[7]) && (char.IsLetter(vat[1]) || vat[1] is '+' or '*') ;
+        vat.Length == 8
+        && char.IsDigit(vat[0])
+        && (char.IsLetter(vat[1]) || vat[1] is '+' or '*')
+        && char.IsLetter(vat[7])
+        && vat[2..7].ContainsOnlyDigits();
 
     /// <summary>
     /// 2013+ format (7 digits + letter + [AH])
@@ -99,13 +103,18 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
     /// <param name="vat"></param>
     /// <returns></returns>
     private static bool Is2013Format(ReadOnlySpan<char> vat) =>
-        vat.Length == 9 && vat[..7].ContainsOnlyDigits() && char.IsLetter(vat[7]) && vat[8] is 'A' or 'H';
+        vat.Length == 9
+        && char.IsLetter(vat[7])
+        && vat[..7].ContainsOnlyDigits()
+        && (vat[8] is 'A' or 'H');
 
     /// <summary>
-    /// pre-2013 format (7 digits + [letter/+/*])
+    /// pre-2013 format (7 digits)
     /// </summary>
     /// <param name="vat"></param>
     /// <returns></returns>
     private static bool IsPre2013Format(ReadOnlySpan<char> vat) =>
-        vat.Length == 8 && vat[..7].ContainsOnlyDigits() && (char.IsLetter(vat[7]) || vat[7] is '+' or '*');
+        vat.Length == 8
+        && char.IsLetter(vat[7])
+        && vat[..7].ContainsOnlyDigits();
 }
