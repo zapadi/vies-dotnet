@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Build">
         <AssemblyName>Padi.Vies</AssemblyName>
-        <Deterministic>True</Deterministic>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <RootNamespace>$(AssemblyName)</RootNamespace>
         <TargetFrameworks>net9.0;net8.0;net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -24,14 +22,13 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
-
     <Product>Redmine .NET API Client</Product>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ReleaseNotes></ReleaseNotes>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/zapadi/vies-dotnetcore</RepositoryUrl>
     <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
-    <Summary>VIES (VAT Information Exchange System)  NET API helps you to verify if EU VAT information exists (valid) or it doesn't exist (invalid).</Summary>
+    <Summary>The VIES (VAT Information Exchange System) .NET API enables users to verify the validity of EU VAT identification numbers.</Summary>
     <Title>VIES NET API</Title>
   </PropertyGroup>
 
@@ -40,13 +37,6 @@
     <GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile>
     <CompatibilitySuppressionFilePath>ApiCompatSuppressions.xml</CompatibilitySuppressionFilePath>
     <PackageValidationBaselineVersion>2.3.2</PackageValidationBaselineVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Analyzers">
-    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
@@ -64,9 +54,9 @@
    </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.196" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
-    <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" Version="4.6.3" />
-    <PackageReference Include="Polyfill" Version="7.27.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="Meziantou.Analyzer"  PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" />
+    <PackageReference Include="Polyfill" />
   </ItemGroup>
 </Project>

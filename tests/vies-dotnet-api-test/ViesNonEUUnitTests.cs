@@ -16,7 +16,9 @@ using Xunit;
 
 namespace Padi.Vies.Test;
 
+#pragma warning disable CA1515
 public sealed class ViesNonEUUnitTests
+#pragma warning restore CA1515
 {
     [Theory]
     [InlineData("GB434031494")]

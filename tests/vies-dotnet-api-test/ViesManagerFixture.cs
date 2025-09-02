@@ -20,7 +20,9 @@ namespace Padi.Vies.Test;
 ///
 /// </summary>
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+#pragma warning disable CA1515
 public sealed class ViesManagerFixture : IDisposable
+#pragma warning restore CA1515
 {
     public void Dispose()
     {

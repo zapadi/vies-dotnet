@@ -15,16 +15,23 @@ using System;
 
 namespace Padi.Vies.Errors;
 
+/// <summary>
+///
+/// </summary>
+#pragma warning disable CA1032
 public class ViesValidationException : ViesException
+#pragma warning restore CA1032
 {
+    /// <inheritdoc />
     public ViesValidationException(string errorCode, string message, string param = null, string userMessage = null)
-        : base(errorCode, "validation_error", message, param, userMessage)
+        : base(errorCode, ViesErrorCodes.ValidationError.Type, message, param, userMessage)
     {
     }
 
+    /// <inheritdoc />
     public ViesValidationException(string errorCode, string message, Exception innerException, string param = null,
         string userMessage = null)
-        : base(errorCode, "validation_error", message, innerException, param, userMessage)
+        : base(errorCode, ViesErrorCodes.ValidationError.Type, message, innerException, param, userMessage)
     {
     }
 }
