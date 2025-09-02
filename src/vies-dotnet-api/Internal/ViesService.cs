@@ -76,8 +76,8 @@ internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync pa
     private async Task<ViesCheckVatResponse> GetViesCheckVatResponseAsync(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
     {
         using(Stream stream =
-#if !(NETCOREAPP || NET5_0_OR_GREATER)
-         await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+#if (NETSTANDARD2_0 || NETSTANDARD2_1)
+         await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
 #else
         await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
 #endif
