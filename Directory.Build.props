@@ -3,10 +3,13 @@
         <LangVersion>13</LangVersion>
         <Features>strict</Features>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <Deterministic>True</Deterministic>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <DebugType>embedded</DebugType>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <PackageOutputPath>$(SolutionDir)/artifacts</PackageOutputPath>
     </PropertyGroup>
+
   <PropertyGroup Label="Analyzers">
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
