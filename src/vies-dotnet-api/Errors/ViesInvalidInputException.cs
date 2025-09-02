@@ -15,11 +15,18 @@ using System;
 
 namespace Padi.Vies.Errors;
 
+/// <summary>
+///
+/// </summary>
+#pragma warning disable CA1032
 public class ViesInvalidInputException : ViesException
+#pragma warning restore CA1032
 {
+    /// <inheritdoc />
     public ViesInvalidInputException(string errorCode, string message, string param = null, string userMessage = null)
-        : base(errorCode, "invalid_request_error", message, param, userMessage) { }
+        : base(errorCode, ViesErrorCodes.InvalidRequestError.Type, message, param, userMessage) { }
 
+    /// <inheritdoc />
     public ViesInvalidInputException(string errorCode, string message, Exception innerException, string param = null, string userMessage = null)
-        : base(errorCode, "invalid_request_error", message, innerException, param, userMessage) { }
+        : base(errorCode, ViesErrorCodes.InvalidRequestError.Type, message, innerException, param, userMessage) { }
 }

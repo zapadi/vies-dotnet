@@ -15,11 +15,19 @@ using System;
 
 namespace Padi.Vies.Errors;
 
+/// <summary>
+///
+/// </summary>
+#pragma warning disable CA1032
 public class ViesUnsupportedRegionException : ViesException
+#pragma warning restore CA1032
 {
+    /// <inheritdoc />
     public ViesUnsupportedRegionException(string errorCode, string message, string param = null, string userMessage = null)
-        : base(errorCode, "unsupported_region_error", message, param, userMessage) { }
+        : base(errorCode, ViesErrorCodes.UnsupportedRegionError.Type, message, param, userMessage) { }
 
+
+    /// <inheritdoc />
     public ViesUnsupportedRegionException(string errorCode, string message, Exception innerException, string param = null, string userMessage = null)
-        : base(errorCode, "unsupported_region_error", message, innerException, param, userMessage) { }
+        : base(errorCode, ViesErrorCodes.UnsupportedRegionError.Type, message, innerException, param, userMessage) { }
 }
