@@ -1,16 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="build">
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <TargetFramework>net9.0</TargetFramework>
       <NoWarn>
           CA1016;
+          CA1515;
+          CA1859;
           CA2007;
+          CA2211;
           MA0051;
           IDE0063;
       </NoWarn>
   </PropertyGroup>
-    
+
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
