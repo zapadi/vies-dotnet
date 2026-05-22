@@ -12,6 +12,7 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
@@ -33,7 +34,7 @@ namespace Padi.Vies;
 /// </remarks>
 public sealed class ViesManager : IDisposable
 {
-    private static readonly Dictionary<string, IVatValidator> VatValidators = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, IVatValidator> VatValidators = new(StringComparer.OrdinalIgnoreCase);
 
     private static readonly Dictionary<string, ExcludedCountryInfo> ExcludedCountries = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -85,7 +86,7 @@ public sealed class ViesManager : IDisposable
             return null;
         }
 
-        VatValidators.Add(countryCode, validator);
+        VatValidators.GetOrAdd(countryCode, validator);
 
         return validator;
     }
