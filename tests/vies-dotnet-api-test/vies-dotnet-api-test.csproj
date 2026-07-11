@@ -11,6 +11,8 @@
           MA0051;
           IDE0063;
       </NoWarn>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\vies.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

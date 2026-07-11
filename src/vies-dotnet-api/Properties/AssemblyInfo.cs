@@ -1,3 +1,3 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("vies-dotnet-api-test")] 
+[assembly: InternalsVisibleTo("vies-dotnet-api-test,PublicKey=00240000048000009400000006020000002400005253413100040000010001007d20ac260f7c3b3cbb053c56a28bc1ecdc3febe9838ec8176ee4cc5e02236a0fb64d0b3325bb762ac2a3046bf5cbb5e55465dbeac0b065d7ec9bf2ad743944ab00819eac80700312f022d6883acee5a3967e8a5d9754a253224d1950d1c6f0d750fc18aa2035435cdb77ca4d104bba4f0370e48c29cf28f2a20db018d80d4aac")]
