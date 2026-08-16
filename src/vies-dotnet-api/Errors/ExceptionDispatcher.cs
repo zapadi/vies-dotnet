@@ -19,8 +19,6 @@ namespace Padi.Vies.Errors;
 
 internal static class ExceptionDispatcher
 {
-    private const string ResponseCouldNotBeParsed = "The response could not be parsed.";
-
     [DoesNotReturn]
     public static void ThrowInvalidVatNumber(string param = null, string userMessage = null)
     {
@@ -33,13 +31,13 @@ internal static class ExceptionDispatcher
     }
 
     [DoesNotReturn]
-    public static void ThrowDeserialization(Exception innerException = null, string message = ResponseCouldNotBeParsed)
+    public static void ThrowDeserialization(Exception innerException = null, string message = null)
     {
         throw new ViesDeserializationException(message, innerException);
     }
 
     [DoesNotReturn]
-    public static T ThrowDeserialization<T>(Exception innerException = null, string message = ResponseCouldNotBeParsed)
+    public static T ThrowDeserialization<T>(Exception innerException = null, string message = null)
     {
         throw new ViesDeserializationException(message, innerException);
     }
@@ -48,7 +46,7 @@ internal static class ExceptionDispatcher
     public static T ThrowInvalidCast<T>(string value)
     {
         var typeName = typeof(T) == typeof(bool) ? "bool" : typeof(T).Name;
-        throw new InvalidCastException(InvariantString.Format($"Unable to convert '{value}' to {typeName}"));
+        throw new ViesDeserializationException(InvariantString.Format($"Unable to convert '{value}' to {typeName}"));
     }
 
     [DoesNotReturn]
