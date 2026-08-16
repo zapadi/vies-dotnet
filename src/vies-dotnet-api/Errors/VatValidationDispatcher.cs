@@ -59,9 +59,10 @@ internal static class VatValidationDispatcher
 
     public static VatValidationResult RegionUnsupported(string countryCode, string userMessage = null)
     {
-        throw new ViesUnsupportedRegionException(
+        return VatValidationResult.Failed(
+            countryCode: countryCode,
             errorCode: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Code,
-            message: $"{ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Message} (Country: {countryCode}).",
+            errorMessage: userMessage ?? $"{ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Message} (Country: {countryCode}).",
             param: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Param,
             userMessage: userMessage
         );

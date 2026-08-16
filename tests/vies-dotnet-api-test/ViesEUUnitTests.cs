@@ -43,9 +43,12 @@ public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
 
     [Theory]
     [InlineData("GB99999997")]
-    public void Should_Throw_ViesUnsupportedRegion_Exception(string vatNumber)
+    public void Should_Return_RegionUnsupported_For_Excluded_Country(string vatNumber)
     {
-        Assert.Throws<ViesUnsupportedRegionException>(() => ViesManager.IsValid(vatNumber));
+        VatValidationResult result = ViesManager.IsValid(vatNumber);
+
+        Assert.False(result.IsValid);
+        Assert.Equal(ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Code, result.ErrorCode);
     }
 
     [Theory]
