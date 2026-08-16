@@ -70,7 +70,7 @@ public sealed class ViesManager : IDisposable
 
     private static IVatValidator GetValidator(string countryCode)
     {
-        return VatValidators.TryGetValue(countryCode, out IVatValidator validator) ? validator : null;
+        return VatValidators.GetValueOrDefault(countryCode);
     }
 
     private static string NormalizeCountryCode(string countryCode)
