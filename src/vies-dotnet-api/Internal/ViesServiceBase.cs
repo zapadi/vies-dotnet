@@ -51,31 +51,16 @@ internal abstract class ViesServiceBase(HttpClient httpClient, IResponseParserAs
         }
         catch (HttpRequestException httpRequestException)
         {
-            throw new ViesServiceException(
-                errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
-                message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
-                userMessage: httpRequestException.GetBaseException().Message,
-                innerException: httpRequestException
-            );
+            throw ViesHttpErrorHandler.CreateServiceUnavailableException(httpRequestException);
         }
         catch (OperationCanceledException operationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             // HttpClient.Timeout surfaces as TaskCanceledException without the caller token being canceled.
-            throw new ViesServiceException(
-                errorCode: ViesErrorCodes.ServiceError.Timeout.Code,
-                message: ViesErrorCodes.ServiceError.Timeout.Message,
-                userMessage: ViesErrorCodes.ServiceError.Timeout.UserMessage,
-                innerException: operationCanceledException
-            );
+            throw ViesHttpErrorHandler.CreateTimeoutException(operationCanceledException);
         }
         catch (IOException ioException)
         {
-            throw new ViesServiceException(
-                errorCode: ViesErrorCodes.ServiceError.NetworkError.Code,
-                message: ViesErrorCodes.ServiceError.NetworkError.Message,
-                userMessage: ViesErrorCodes.ServiceError.NetworkError.UserMessage,
-                innerException: ioException
-            );
+            throw ViesHttpErrorHandler.CreateNetworkErrorException(ioException);
         }
     }
 

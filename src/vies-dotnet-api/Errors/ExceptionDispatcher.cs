@@ -11,12 +11,15 @@
    limitations under the License.
 */
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Padi.Vies.Errors;
 
 internal static class ExceptionDispatcher
 {
+    private const string ResponseCouldNotBeParsed = "The response could not be parsed.";
+
     [DoesNotReturn]
     public static void ThrowInvalidVatNumber(string param = null, string userMessage = null)
     {
@@ -25,6 +28,37 @@ internal static class ExceptionDispatcher
             message: ViesErrorCodes.ValidationError.InvalidVatFormat.Message,
             param: param,
             userMessage: userMessage ?? ViesErrorCodes.ValidationError.InvalidVatFormat.UserMessage
+        );
+    }
+
+    [DoesNotReturn]
+    public static void ThrowDeserialization(Exception innerException = null, string message = ResponseCouldNotBeParsed)
+    {
+        throw new ViesDeserializationException(message, innerException);
+    }
+
+    [DoesNotReturn]
+    public static T ThrowDeserialization<T>(Exception innerException = null, string message = ResponseCouldNotBeParsed)
+    {
+        throw new ViesDeserializationException(message, innerException);
+    }
+
+    [DoesNotReturn]
+    public static T ThrowInvalidCast<T>(string value)
+    {
+        // typeof(bool).Name is "Boolean"; emit the C# keyword so the message text stays byte-identical to the inlined sites.
+        var typeName = typeof(T) == typeof(bool) ? "bool" : typeof(T).Name;
+        throw new InvalidCastException(FormattableString.Invariant($"Unable to convert '{value}' to {typeName}"));
+    }
+
+    [DoesNotReturn]
+    public static void ThrowUnsupportedRegion(string countryCode, string userMessage)
+    {
+        throw new ViesUnsupportedRegionException(
+            errorCode: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Code,
+            message: $"{ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Message} (Country: {countryCode}).",
+            param: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Param,
+            userMessage: userMessage
         );
     }
 }

@@ -92,6 +92,36 @@ internal static class ViesHttpErrorHandler
         }
     }
 
+    public static ViesServiceException CreateServiceUnavailableException(HttpRequestException httpRequestException)
+    {
+        return new ViesServiceException(
+            errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
+            message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
+            userMessage: httpRequestException.GetBaseException().Message,
+            innerException: httpRequestException
+        );
+    }
+
+    public static ViesServiceException CreateTimeoutException(Exception innerException)
+    {
+        return new ViesServiceException(
+            errorCode: ViesErrorCodes.ServiceError.Timeout.Code,
+            message: ViesErrorCodes.ServiceError.Timeout.Message,
+            userMessage: ViesErrorCodes.ServiceError.Timeout.UserMessage,
+            innerException: innerException
+        );
+    }
+
+    public static ViesServiceException CreateNetworkErrorException(IOException ioException)
+    {
+        return new ViesServiceException(
+            errorCode: ViesErrorCodes.ServiceError.NetworkError.Code,
+            message: ViesErrorCodes.ServiceError.NetworkError.Message,
+            userMessage: ViesErrorCodes.ServiceError.NetworkError.UserMessage,
+            innerException: ioException
+        );
+    }
+
     private static (string Code, string Message, string UserMessage) MapServiceError(HttpStatusCode statusCode)
     {
         return (int)statusCode switch

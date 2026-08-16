@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Xml;
+using Padi.Vies.Errors;
 
 namespace Padi.Vies.Internal.Extensions;
 
@@ -26,7 +27,7 @@ internal static class XmlReaderExtensions
             return result;
         }
 
-        throw new InvalidCastException($"Unable to convert '{value}' to bool");
+        return ExceptionDispatcher.ThrowInvalidCast<bool>(value);
     }
 
     public static DateTimeOffset GetValueAsDateTimeOffset(this XmlReader xmlReader)
@@ -38,7 +39,7 @@ internal static class XmlReaderExtensions
             return result;
         }
 
-        throw new InvalidCastException($"Unable to convert '{value}' to DateTimeOffset");
+        return ExceptionDispatcher.ThrowInvalidCast<DateTimeOffset>(value);
     }
 
     public static bool? GetValueAsNullableBool(this XmlReader xmlReader)
@@ -63,7 +64,7 @@ internal static class XmlReaderExtensions
             return result;
         }
 
-        throw new InvalidCastException($"Unable to convert '{value}' to bool");
+        return ExceptionDispatcher.ThrowInvalidCast<bool>(value);
     }
 
     public static async Task<DateTimeOffset> GetValueAsDateTimeOffsetAsync(this XmlReader xmlReader)
@@ -75,7 +76,7 @@ internal static class XmlReaderExtensions
             return result;
         }
 
-        throw new InvalidCastException($"Unable to convert '{value}' to DateTimeOffset");
+        return ExceptionDispatcher.ThrowInvalidCast<DateTimeOffset>(value);
     }
 
     public static async Task<bool?> GetValueAsNullableBoolAsync(this XmlReader xmlReader)
@@ -102,6 +103,6 @@ internal static class XmlReaderExtensions
             return result;
         }
 
-        throw new InvalidCastException($"Unable to convert '{value.ToString()}' to bool");
+        return ExceptionDispatcher.ThrowInvalidCast<bool>(value.ToString());
     }
 }

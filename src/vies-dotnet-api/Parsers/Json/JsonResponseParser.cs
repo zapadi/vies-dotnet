@@ -32,7 +32,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException)
         {
-            throw new ViesDeserializationException("The response could not be parsed.", ex);
+            return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
         }
     }
 
@@ -47,7 +47,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException)
         {
-            throw new ViesDeserializationException("The response could not be parsed.", ex);
+            return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
         }
     }
 
@@ -55,7 +55,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
     {
         if (result == null)
         {
-            throw new ViesDeserializationException("The response could not be parsed.");
+            ExceptionDispatcher.ThrowDeserialization();
         }
 
         if (result.ErrorWrappers is { Length: > 0 } || result.ActionSucceed == false)
@@ -63,13 +63,9 @@ internal sealed class JsonResponseParser : IResponseParserAsync
             throw CreateErrorException(result);
         }
 
-        if (result.Valid == null
-            && result.ActionSucceed == null
-            && result.ErrorWrappers == null
-            && result.CountryCode == null
-            && result.VatNumber == null)
+        if (result.Valid == null && result.ActionSucceed == null && result.ErrorWrappers == null && result.CountryCode == null && result.VatNumber == null)
         {
-            throw new ViesDeserializationException("The response payload does not match the VIES REST contract.");
+            ExceptionDispatcher.ThrowDeserialization(message: "The response payload does not match the VIES REST contract.");
         }
 
         var response = new ViesCheckVatResponse
@@ -101,9 +97,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
 
         if (wrappers.Length == 0)
         {
-            return new ViesServiceException(
-                ViesErrorCodes.ServiceError.InvalidResponse.Code,
-                "VIES service reported failure without providing error details.");
+            return new ViesServiceException(ViesErrorCodes.ServiceError.InvalidResponse.Code, "VIES service reported failure without providing error details.");
         }
 
         var fault = wrappers[0].Error;
