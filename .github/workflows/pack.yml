@@ -2,8 +2,8 @@ name: publish-nuget
 
 on:
     workflow_run:
-        workflows: [ "Build" ]
-        types: [ requested ]
+        workflows: [ "Build & Test" ]
+        types: [ completed ]
         branches: [ master ]
 
     push:
@@ -22,7 +22,14 @@ env:
 jobs:
   pack:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+          lfs: true
+          fetch-depth: 0
+
     - name: Determine version
       run: |
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -42,12 +49,6 @@ jobs:
     - name: 'Print version'
       run: |
         echo "$VERSION"
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-          lfs: true
-          fetch-depth: 0
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -70,4 +71,4 @@ jobs:
         dotnet nuget push ./artifacts/**.nupkg \
         --source 'https://api.nuget.org/v3/index.json' \
         --api-key ${{secrets.NUGET_TOKEN}} \
-        --skip-duplicate \
+        --skip-duplicate
