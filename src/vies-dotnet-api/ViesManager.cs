@@ -28,7 +28,6 @@ namespace Padi.Vies;
 /// </summary>
 /// <remarks>
 /// https://en.wikipedia.org/wiki/VAT_identification_number#cite_note-10
-/// http://sima.cat/nif.php
 /// </remarks>
 public sealed class ViesManager : IDisposable
 {

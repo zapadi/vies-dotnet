@@ -47,7 +47,6 @@ internal static class ExceptionDispatcher
     [DoesNotReturn]
     public static T ThrowInvalidCast<T>(string value)
     {
-        // typeof(bool).Name is "Boolean"; emit the C# keyword so the message text stays byte-identical to the inlined sites.
         var typeName = typeof(T) == typeof(bool) ? "bool" : typeof(T).Name;
         throw new InvalidCastException(InvariantString.Format($"Unable to convert '{value}' to {typeName}"));
     }
