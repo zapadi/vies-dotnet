@@ -2,24 +2,17 @@
 const string TARGET = "Target";
 const string DEFAULT = "Default";
 
-const string NETSTANDARD20 = "netstandard2.0";
-
 const string CONFIGURATION = "Configuration";
 const string RELEASE = "Release";
 const string BUILD_NUMBER = "BuildNumber";
-const string FRAMEWORK = "Framework";
 const string PRE_RELEASE_SUFFIX = "PreReleaseSuffix";
 const string BETA = "beta";
-const string ALPHA = "alpha";
-const string RC="rc";
-
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument(TARGET, DEFAULT);
-var framework = Argument(FRAMEWORK, NETSTANDARD20);
 
 //////////////////////////////////////////////////////////////////////
 // PREPARATION
@@ -33,23 +26,19 @@ var configuration = HasArgument(CONFIGURATION)
             
 Console.WriteLine($"Configuration: {configuration}");            
 
-var buildNumber = HasArgument(BUILD_NUMBER) 
-        ? Argument<int>(BUILD_NUMBER) 
-        : AppVeyor.IsRunningOnAppVeyor 
-            ? AppVeyor.Environment.Build.Number 
-            : EnvironmentVariable(BUILD_NUMBER) != null 
-                ? int.Parse(EnvironmentVariable(BUILD_NUMBER)) 
-                : 0;
+var buildNumber = HasArgument(BUILD_NUMBER)
+        ? Argument<int>(BUILD_NUMBER)
+        : EnvironmentVariable(BUILD_NUMBER) != null
+            ? int.Parse(EnvironmentVariable(BUILD_NUMBER))
+            : 0;
 
-Console.WriteLine($"BuildNumber: {buildNumber}");  
+Console.WriteLine($"BuildNumber: {buildNumber}");
 
-var preReleaseSuffix = HasArgument(PRE_RELEASE_SUFFIX) 
-        ? Argument<string>(PRE_RELEASE_SUFFIX) 
-        : (AppVeyor.IsRunningOnAppVeyor && AppVeyor.Environment.Repository.Tag.IsTag) 
-            ? null 
-            : EnvironmentVariable(PRE_RELEASE_SUFFIX) != null 
-                ? EnvironmentVariable(PRE_RELEASE_SUFFIX) 
-                : BETA;
+var preReleaseSuffix = HasArgument(PRE_RELEASE_SUFFIX)
+        ? Argument<string>(PRE_RELEASE_SUFFIX)
+        : EnvironmentVariable(PRE_RELEASE_SUFFIX) != null
+            ? EnvironmentVariable(PRE_RELEASE_SUFFIX)
+            : BETA;
 
 Console.WriteLine($"PreReleaseSuffix: {preReleaseSuffix}");  
 

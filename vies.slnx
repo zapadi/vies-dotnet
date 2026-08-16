@@ -9,7 +9,6 @@
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/pack.yml" />
     <File Path=".gitignore" />
-    <File Path="appveyor.yml" />
     <File Path="build.cake" />
     <File Path="build.ps1" />
     <File Path="build.sh" />

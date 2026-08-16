@@ -89,5 +89,3 @@ The API is released under the Apache 2 open-source license. You can use it for b
 
 * [JetBrains](http://www.jetbrains.com/) for my Open Source [![Resharper](https://github.com/zapadi/vies-dotnet/blob/master/logo-resharper.gif)](http://www.jetbrains.com/resharper/) licence
 
-* AppVeyor for allowing free build CI services for Open Source projects
-
