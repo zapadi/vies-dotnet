@@ -65,24 +65,22 @@ internal sealed class ViesService(HttpClient httpClient) : ViesServiceBase(httpC
         var (buffer, length) = await ReadBoundedBodyAsync(response, cancellationToken).ConfigureAwait(false);
         var bufferedText = Encoding.UTF8.GetString(buffer, 0, length).Trim();
 
-        if (bufferedText.StartsWith("<", StringComparison.Ordinal))
+        if (!bufferedText.StartsWith('<'))
         {
-            try
-            {
-                using (var stream = new MemoryStream(buffer, 0, length, writable: false))
-                {
-                    // A soap:Fault surfaces as a ViesServiceException from the parser (propagates);
-                    // a parseable success response is returned as-is.
-                    return await ResponseParser.ParseAsync(stream, cancellationToken).ConfigureAwait(false);
-                }
-            }
-            catch (ViesDeserializationException)
-            {
-                throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
-            }
+            throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
         }
 
-        throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
+        try
+        {
+            using (var stream = new MemoryStream(buffer, 0, length, writable: false))
+            {
+                return await ResponseParser.ParseAsync(stream, cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (ViesDeserializationException)
+        {
+            throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
+        }
     }
 
     private static async Task<(byte[] Buffer, int Length)> ReadBoundedBodyAsync(HttpResponseMessage response, CancellationToken cancellationToken)
