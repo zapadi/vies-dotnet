@@ -22,7 +22,7 @@ internal sealed class ViesHttpClientHandler : HttpClientHandler
     {
         CheckCertificateRevocationList = true;
 #if NETSTANDARD2_0 || NETSTANDARD2_1
-        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.None;
+        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
         #else
         AutomaticDecompression = DecompressionMethods.All;
         #endif

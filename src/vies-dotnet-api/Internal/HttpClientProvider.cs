@@ -22,12 +22,13 @@ internal static class HttpClientProvider
     /// Retrieves an instance of HttpClient.
     /// </summary>
     /// <returns>An instance of HttpClient.</returns>
-    #pragma warning disable CA2000 // Dispose objects before losing scope
-    public static HttpClient GetHttpClient(HttpClient httpClient = null) =>  httpClient ?? new HttpClient(new ViesHttpClientHandler
+    public static HttpClient GetHttpClient()
     {
-        CheckCertificateRevocationList = true,
-    })
-    {
-        Timeout = TimeSpan.FromSeconds(30),
-    };
+        #pragma warning disable CA2000 // Dispose objects before losing scope
+        return new HttpClient(new ViesHttpClientHandler())
+        {
+            Timeout = TimeSpan.FromSeconds(30),
+        };
+        #pragma warning restore CA2000
+    }
 }
