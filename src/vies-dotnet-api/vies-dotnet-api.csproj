@@ -57,5 +57,6 @@
     <PackageReference Include="Meziantou.Analyzer"  PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="System.Memory" Condition="$(TargetFramework) == 'netstandard2.0'" />
     <PackageReference Include="Polyfill" PrivateAssets="all" />
+    <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net5.0'" />
   </ItemGroup>
 </Project>

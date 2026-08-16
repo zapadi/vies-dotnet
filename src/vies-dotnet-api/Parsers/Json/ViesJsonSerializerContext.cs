@@ -11,13 +11,10 @@
    limitations under the License.
 */
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
-namespace Padi.Vies.Parsers;
+namespace Padi.Vies.Parsers.Json;
 
-internal interface IResponseParserAsync: IResponseParser
-{
-    Task<ViesCheckVatResponse> ParseAsync(Stream response, CancellationToken cancellationToken);
-}
+[JsonSerializable(typeof(CheckVatRestRequest))]
+[JsonSerializable(typeof(CheckVatRestResult))]
+internal sealed partial class ViesJsonSerializerContext : JsonSerializerContext;

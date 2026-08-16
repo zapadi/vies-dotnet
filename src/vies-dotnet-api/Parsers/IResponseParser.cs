@@ -15,7 +15,7 @@ using System.IO;
 
 namespace Padi.Vies.Parsers;
 
-public interface IResponseParser
+internal interface IResponseParser
 {
     ViesCheckVatResponse Parse(Stream response);
 }

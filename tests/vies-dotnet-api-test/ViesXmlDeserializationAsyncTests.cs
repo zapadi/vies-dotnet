@@ -46,7 +46,7 @@ public sealed class ViesXmlDeserializationAsyncTests
 
         using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
         {
-            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream);
+            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken);
             Assert.True(response.IsValid);
             Assert.Equal("LU", response.CountryCode, ignoreCase: true);
             Assert.Equal("26375245", response.VatNumber, ignoreCase: true);
@@ -144,7 +144,7 @@ public sealed class ViesXmlDeserializationAsyncTests
     {
         using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
         {
-            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream);
+            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken);
             Assert.False(response.IsValid);
             Assert.True(string.IsNullOrWhiteSpace(response.Address));
             Assert.True(string.IsNullOrWhiteSpace(response.Name));
@@ -170,7 +170,43 @@ public sealed class ViesXmlDeserializationAsyncTests
     {
         using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
         {
-            await Assert.ThrowsAsync<ViesServiceException>(() => _parseResponseAsync.ParseAsync(stream));
+            await Assert.ThrowsAsync<ViesServiceException>(() => _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken));
+        }
+    }
+
+    [Fact]
+    public async Task Should_Throw_ViesDeserializationException_On_Garbage()
+    {
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes("this is not xml")))
+        {
+            await Assert.ThrowsAsync<ViesDeserializationException>(
+                () => _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken));
+        }
+    }
+
+    [Fact]
+    public async Task Should_Throw_ViesDeserializationException_On_Invalid_Bool()
+    {
+        const string input = """
+                             <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+                             <env:Header/>
+                             <env:Body>
+                                <ns2:checkVatResponse xmlns:ns2="urn:ec.europa.eu:taxud:vies:services:checkVat:types">
+                                    <ns2:countryCode>LU</ns2:countryCode>
+                                    <ns2:vatNumber>26375245</ns2:vatNumber>
+                                    <ns2:requestDate>2022-09-04+02:00</ns2:requestDate>
+                                    <ns2:valid>YES</ns2:valid>
+                                    <ns2:name>ACME</ns2:name>
+                                    <ns2:address>ADDR</ns2:address>
+                              </ns2:checkVatResponse>
+                             </env:Body>
+                             </env:Envelope>
+                             """;
+
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
+        {
+            await Assert.ThrowsAsync<ViesDeserializationException>(
+                () => _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken));
         }
     }
 }

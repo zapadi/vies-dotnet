@@ -11,17 +11,15 @@
    limitations under the License.
 */
 
-using System.Net.Http.Headers;
-
 namespace Padi.Vies;
 
-public static class ViesConstants
+internal static class ViesConstants
 {
-    public const string RESPONSE_DATE_FORMAT = "yyyy-MM-dd+hh:mm";
-
     internal const string MediaTypeTextXml = "text/xml";
+
+    internal const string MediaTypeApplicationJson = "application/json";
 
     internal const string ViesUri = "https://ec.europa.eu/taxation_customs/vies/services/checkVatService";
 
-    internal static readonly MediaTypeWithQualityHeaderValue MediaTypeHeaderTextXml = new(MediaTypeTextXml);
+    internal const string ViesRestUri = "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number";
 }
