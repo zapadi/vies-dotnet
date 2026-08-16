@@ -65,7 +65,7 @@ internal sealed class ViesService(HttpClient httpClient) : ViesServiceBase(httpC
         var (buffer, length) = await ReadBoundedBodyAsync(response, cancellationToken).ConfigureAwait(false);
         var bufferedText = Encoding.UTF8.GetString(buffer, 0, length).Trim();
 
-        if (!bufferedText.StartsWith('<'))
+        if (bufferedText.Length == 0 || bufferedText[0] != '<')
         {
             throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
         }
