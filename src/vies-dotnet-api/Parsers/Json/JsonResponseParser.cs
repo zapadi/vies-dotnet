@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Padi.Vies.Errors;
+using Padi.Vies.Internal;
 
 namespace Padi.Vies.Parsers.Json;
 
@@ -116,7 +117,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         }
 
         var joined = string.Join(", ", details);
-        return new ViesServiceException(code, FormattableString.Invariant($"VIES service returned error: {joined}"));
+        return new ViesServiceException(code, InvariantString.Format($"VIES service returned error: {joined}"));
     }
 
     private static RestErrorWrapper[] FilterWrappers(RestErrorWrapper[] wrappers)

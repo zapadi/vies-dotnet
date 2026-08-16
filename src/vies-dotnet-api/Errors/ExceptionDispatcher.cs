@@ -13,6 +13,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Padi.Vies.Internal;
 
 namespace Padi.Vies.Errors;
 
@@ -48,7 +49,7 @@ internal static class ExceptionDispatcher
     {
         // typeof(bool).Name is "Boolean"; emit the C# keyword so the message text stays byte-identical to the inlined sites.
         var typeName = typeof(T) == typeof(bool) ? "bool" : typeof(T).Name;
-        throw new InvalidCastException(FormattableString.Invariant($"Unable to convert '{value}' to {typeName}"));
+        throw new InvalidCastException(InvariantString.Format($"Unable to convert '{value}' to {typeName}"));
     }
 
     [DoesNotReturn]
