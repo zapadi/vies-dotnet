@@ -20,7 +20,7 @@ namespace Padi.Vies.Internal.Extensions;
 
 internal static class XmlReaderExtensions
 {
-    public static T GetValue<T>(this XmlReader xmlReader, IFormatProvider formatProvider = null)
+    public static T GetValue<T>(this XmlReader xmlReader, IFormatProvider? formatProvider = null)
     {
         var val = xmlReader.ReadElementContentAsString();
         return (T) Convert.ChangeType(val, typeof(T), provider: formatProvider);
@@ -62,7 +62,7 @@ internal static class XmlReaderExtensions
         return GetNullableBool(val.AsSpan());
     }
 
-    public static async Task<T> GetValueAsync<T>(this XmlReader xmlReader, IFormatProvider formatProvider = null)
+    public static async Task<T> GetValueAsync<T>(this XmlReader xmlReader, IFormatProvider? formatProvider = null)
     {
         var val = await xmlReader.ReadElementContentAsStringAsync().ConfigureAwait(false);
         return (T) Convert.ChangeType(val, typeof(T), provider: formatProvider);

@@ -53,7 +53,7 @@ public sealed class VatValidationResult
     /// <param name="errorCode">The error code</param>
     /// <param name="errorMessage">The error message</param>
     /// <returns>A validation result indicating failure</returns>
-    public static VatValidationResult Failed(string countryCode, string errorCode, string errorMessage, string param = null, string userMessage = null)
+    public static VatValidationResult Failed(string countryCode, string errorCode, string errorMessage, string? param = null, string? userMessage = null)
     {
         return new VatValidationResult
         {
@@ -73,25 +73,25 @@ public sealed class VatValidationResult
     /// <summary>
     /// Gets the error message if the validation failed
     /// </summary>
-    public string Error { get; private set; }
+    public string? Error { get; private set; }
 
     /// <summary>
     /// Gets the error code if the validation failed
     /// </summary>
-    public string ErrorCode { get; private set; }
+    public string? ErrorCode { get; private set; }
 
     /// <summary>
     /// Gets the country code for which the validation was performed
     /// </summary>
-    public string CountryCode { get; private set; }
+    public string? CountryCode { get; private set; }
 
     /// <summary>
     /// Indicates the specific field causing the error
     /// </summary>
-    public string Param { get; private set; }
+    public string? Param { get; private set; }
 
     /// <summary>
     ///
     /// </summary>
-    public string UserMessage { get; private set; }
+    public string? UserMessage { get; private set; }
 }

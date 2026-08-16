@@ -20,7 +20,7 @@ namespace Padi.Vies.Errors;
 internal static class ExceptionDispatcher
 {
     [DoesNotReturn]
-    public static void ThrowInvalidVatNumber(string param = null, string userMessage = null)
+    public static void ThrowInvalidVatNumber(string? param = null, string? userMessage = null)
     {
         throw new ViesValidationException(
             errorCode: ViesErrorCodes.ValidationError.InvalidVatFormat.Code,
@@ -31,16 +31,21 @@ internal static class ExceptionDispatcher
     }
 
     [DoesNotReturn]
-    public static void ThrowDeserialization(Exception innerException = null, string message = null)
+    public static void ThrowDeserialization(Exception? innerException = null, string? message = null)
     {
-        throw new ViesDeserializationException(message, innerException);
+        throw Create(innerException, message);
     }
 
     [DoesNotReturn]
-    public static T ThrowDeserialization<T>(Exception innerException = null, string message = null)
+    public static T ThrowDeserialization<T>(Exception? innerException = null, string? message = null)
     {
-        throw new ViesDeserializationException(message, innerException);
+        throw Create(innerException, message);
     }
+
+    private static ViesDeserializationException Create(Exception? innerException, string? message) =>
+        innerException is null
+            ? new ViesDeserializationException(message)
+            : new ViesDeserializationException(message, innerException);
 
     [DoesNotReturn]
     public static T ThrowInvalidCast<T>(string value)

@@ -68,7 +68,7 @@ public sealed class ViesManager : IDisposable
         {"GB", new ExcludedCountryInfo("GB", "Great Britain", "Brexit", "2021-01-01")},
     };
 
-    private static IVatValidator GetValidator(string countryCode)
+    private static IVatValidator? GetValidator(string countryCode)
     {
         return VatValidators.GetValueOrDefault(countryCode);
     }
@@ -150,7 +150,7 @@ public sealed class ViesManager : IDisposable
             return VatValidationDispatcher.RegionUnsupported(countryCode, excludedCountryInfo.ToString());
         }
 
-        IVatValidator validator = GetValidator(countryCode);
+        IVatValidator? validator = GetValidator(countryCode);
         return validator == null
             ? VatValidationDispatcher.InvalidCountryCode(countryCode, "Not a valid ISO_3166-1 European member state.")
             : validator.Validate(vatNumber);

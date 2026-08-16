@@ -16,24 +16,24 @@ using System;
 namespace Padi.Vies;
 
 public record struct ViesCheckVatResponse(
-    string CountryCode,
-    string VatNumber,
+    string? CountryCode,
+    string? VatNumber,
     DateTimeOffset RequestDate,
-    string Name = null,
-    string Address = null,
+    string? Name = null,
+    string? Address = null,
     bool IsValid = false)
 {
-    public string CountryCode { get; internal set; } = CountryCode;
-    public string VatNumber { get; internal set; } = VatNumber;
+    public string? CountryCode { get; internal set; } = CountryCode;
+    public string? VatNumber { get; internal set; } = VatNumber;
     public DateTimeOffset RequestDate { get; internal set;} = RequestDate;
-    public string Name { get; internal set;} = Name;
-    public string Address { get; internal set;} = Address;
+    public string? Name { get; internal set;} = Name;
+    public string? Address { get; internal set;} = Address;
     public bool IsValid { get; internal set;} = IsValid;
 
-    public string RequestIdentifier { get; internal set; }
-    public string TraderName { get; internal set; }
-    public string TraderStreet { get; internal set; }
-    public string TraderPostalCode { get; internal set; }
-    public string TraderCity { get; internal set; }
-    public string TraderCompanyType { get; internal set; }
+    public string? RequestIdentifier { get; internal set; }
+    public string? TraderName { get; internal set; }
+    public string? TraderStreet { get; internal set; }
+    public string? TraderPostalCode { get; internal set; }
+    public string? TraderCity { get; internal set; }
+    public string? TraderCompanyType { get; internal set; }
 }

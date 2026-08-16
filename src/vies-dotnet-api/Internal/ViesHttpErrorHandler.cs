@@ -36,7 +36,7 @@ internal static class ViesHttpErrorHandler
         return CreateException(response.StatusCode, response.ReasonPhrase, errorBody);
     }
 
-    public static ViesServiceException CreateException(HttpStatusCode statusCode, string reasonPhrase, string errorBody)
+    public static ViesServiceException CreateException(HttpStatusCode statusCode, string? reasonPhrase, string? errorBody)
     {
         var (errorCode, message, userMessage) = MapServiceError(statusCode);
 
@@ -50,7 +50,7 @@ internal static class ViesHttpErrorHandler
             );
         }
 
-        var body = errorBody.Length > MaxErrorBodyLength ? errorBody.Substring(0, MaxErrorBodyLength) : errorBody;
+        var body = errorBody!.Length > MaxErrorBodyLength ? errorBody.Substring(0, MaxErrorBodyLength) : errorBody;
         detail = InvariantString.Format($"{detail}: {body}");
 
         return new ViesServiceException(

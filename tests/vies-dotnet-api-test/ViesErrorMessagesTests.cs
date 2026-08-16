@@ -26,7 +26,7 @@ public sealed class ViesErrorMessagesTests
         return typeof(ViesErrorCode)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(static field => field.IsLiteral && field.FieldType == typeof(string))
-            .Select(static field => (string)field.GetRawConstantValue());
+            .Select(static field => (string)field.GetRawConstantValue()!);
     }
 
     public static TheoryData<string> ErrorCodes()
@@ -62,7 +62,7 @@ public sealed class ViesErrorMessagesTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("no-such-error-code")]
-    public void Should_Return_Null_For_Unknown_Code(string errorCode)
+    public void Should_Return_Null_For_Unknown_Code(string? errorCode)
     {
         Assert.Null(ViesErrorMessages.GetDefaultMessage(errorCode));
         Assert.Null(ViesErrorMessages.GetDefaultUserMessage(errorCode));

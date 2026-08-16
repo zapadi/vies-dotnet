@@ -37,7 +37,7 @@ internal static class InvariantString
 
         public void AppendLiteral(string value) => _inner.AppendLiteral(value);
 
-        public void AppendFormatted(string value) => _inner.AppendFormatted(value);
+        public void AppendFormatted(string? value) => _inner.AppendFormatted(value);
 
         public void AppendFormatted(ReadOnlySpan<char> value) => _inner.AppendFormatted(value);
 

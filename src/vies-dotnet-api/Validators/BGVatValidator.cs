@@ -78,7 +78,7 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
         return ValidateChecksumDigit(vat, vatSpan[8].ToInt(), checkDigit, VatValidationErrorMessageHelper.GetInvalidChecksumMessage(), CountryCode);
     }
 
-    private static VatValidationResult ValidatePhysicalPerson(ReadOnlySpan<char> vatSpan)
+    private static VatValidationResult? ValidatePhysicalPerson(ReadOnlySpan<char> vatSpan)
     {
         // Check date format (YYMMDD)
         vatSpan.Slice(2, 2).TryConvertToInt(out var month);
@@ -102,7 +102,7 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
             : null;
     }
 
-    private static VatValidationResult ValidateForeignPerson(ReadOnlySpan<char> vatSpan)
+    private static VatValidationResult? ValidateForeignPerson(ReadOnlySpan<char> vatSpan)
     {
         var sum = vatSpan.Sum(MultipliersForeignPhysicalPerson);
 
@@ -112,7 +112,7 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
             : null;
     }
 
-    private static VatValidationResult ValidateMiscellaneous(ReadOnlySpan<char> vatSpan)
+    private static VatValidationResult? ValidateMiscellaneous(ReadOnlySpan<char> vatSpan)
     {
         var sum = vatSpan.Sum(MultipliersMiscellaneous);
 

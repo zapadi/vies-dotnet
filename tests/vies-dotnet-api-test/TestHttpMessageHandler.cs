@@ -22,7 +22,7 @@ namespace Padi.Vies.Test;
 internal sealed class TestHttpMessageHandler(
     HttpStatusCode statusCode,
     string content,
-    Action<HttpRequestMessage, string> capture = null) : HttpMessageHandler
+    Action<HttpRequestMessage, string?>? capture = null) : HttpMessageHandler
 {
     public int RequestCount { get; private set; }
 

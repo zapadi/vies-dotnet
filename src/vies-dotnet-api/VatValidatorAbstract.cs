@@ -35,7 +35,7 @@ public abstract class VatValidatorAbstract(string countryCode) : IVatValidator
 
     protected abstract VatValidationResult OnValidate(string vat);
 
-    protected VatValidationResult ValidateChecksumDigit(string vat, int digit, int checkDigit, string message = null, string countryCode = null)
+    protected VatValidationResult ValidateChecksumDigit(string vat, int digit, int checkDigit, string? message = null, string? countryCode = null)
     {
         var isValid = checkDigit == digit;
         return !isValid
@@ -43,7 +43,7 @@ public abstract class VatValidatorAbstract(string countryCode) : IVatValidator
             : VatValidationResult.Success();
     }
 
-    protected VatValidationResult ValidateChecksumDigit(string vat, bool isValid, string message = null, string countryCode = null)
+    protected VatValidationResult ValidateChecksumDigit(string vat, bool isValid, string? message = null, string? countryCode = null)
     {
         return !isValid
             ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())

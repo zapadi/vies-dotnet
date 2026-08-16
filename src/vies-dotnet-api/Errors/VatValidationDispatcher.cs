@@ -14,7 +14,7 @@ namespace Padi.Vies.Errors;
 
 internal static class VatValidationDispatcher
 {
-    public static VatValidationResult InvalidVatFormat(string countryCode, string vatNumber, string userMessage = null)
+    public static VatValidationResult InvalidVatFormat(string countryCode, string vatNumber, string? userMessage = null)
     {
         return VatValidationResult.Failed(
             countryCode: countryCode,
@@ -25,7 +25,7 @@ internal static class VatValidationDispatcher
         );
     }
 
-    public static VatValidationResult InvalidVatChecksumDigit(string countryCode, string vatNumber, string userMessage = null)
+    public static VatValidationResult InvalidVatChecksumDigit(string countryCode, string vatNumber, string? userMessage = null)
     {
         return VatValidationResult.Failed(
             countryCode: countryCode,
@@ -35,7 +35,7 @@ internal static class VatValidationDispatcher
         );
     }
 
-    public static VatValidationResult InvalidCountryCode(string countryCode, string userMessage = null)
+    public static VatValidationResult InvalidCountryCode(string countryCode, string? userMessage = null)
     {
         return VatValidationResult.Failed(
             countryCode: countryCode,
@@ -57,7 +57,7 @@ internal static class VatValidationDispatcher
         );
     }
 
-    public static VatValidationResult RegionUnsupported(string countryCode, string userMessage = null)
+    public static VatValidationResult RegionUnsupported(string countryCode, string? userMessage = null)
     {
         return VatValidationResult.Failed(
             countryCode: countryCode,

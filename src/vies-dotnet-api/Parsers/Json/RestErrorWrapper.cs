@@ -17,6 +17,6 @@ namespace Padi.Vies.Parsers.Json;
 
 internal sealed class RestErrorWrapper
 {
-    [JsonPropertyName("error")] public string Error { get; set; }
-    [JsonPropertyName("message")] public string Message { get; set; }
+    [JsonPropertyName("error")] public string? Error { get; set; }
+    [JsonPropertyName("message")] public string? Message { get; set; }
 }

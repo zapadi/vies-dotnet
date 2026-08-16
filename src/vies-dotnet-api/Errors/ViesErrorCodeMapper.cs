@@ -45,7 +45,7 @@ internal static class ViesErrorCodeMapper
     /// Any unrecognized fault maps to the "service-unavailable" error code;
     /// the raw fault text is preserved as the user message.
     /// </summary>
-    public static (string Code, string Message, string UserMessage) Map(string viesFault)
+    public static (string Code, string Message, string UserMessage) Map(string? viesFault)
     {
         if (string.IsNullOrWhiteSpace(viesFault))
         {
@@ -55,7 +55,7 @@ internal static class ViesErrorCodeMapper
                 ViesErrorCodes.ServiceError.ServiceUnavailable.UserMessage);
         }
 
-        return viesFault.ToUpperInvariant() switch
+        return viesFault!.ToUpperInvariant() switch
         {
             ViesFault.InvalidInput or ViesFault.InvalidRequesterInfo => (
                 ViesErrorCodes.InputError.InvalidInput.Code,
