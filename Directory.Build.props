@@ -2,6 +2,7 @@
     <PropertyGroup Label="Build">
         <LangVersion>14</LangVersion>
         <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <Features>strict</Features>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <Deterministic>True</Deterministic>
