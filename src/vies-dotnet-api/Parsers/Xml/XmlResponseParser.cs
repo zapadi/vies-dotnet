@@ -112,8 +112,8 @@ internal sealed class XmlResponseParser : IResponseParserAsync
 
     private static ViesServiceException CreateFaultException(string faultCode, string faultMessage)
     {
-        var (code, _, _) = ViesErrorCodeMapper.Map(faultMessage);
-        return new ViesServiceException(code, InvariantString.Format($"VIES service returned fault {faultCode}: {faultMessage}"));
+        var (code, message, userMessage) = ViesErrorCodeMapper.Map(faultMessage);
+        return new ViesServiceException(code, InvariantString.Format($"{message} (VIES fault {faultCode}: {faultMessage})."), userMessage: userMessage);
     }
 
     private static ViesCheckVatResponse ReadResponse(XmlReader xmlReader)

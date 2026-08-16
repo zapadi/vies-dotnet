@@ -98,7 +98,9 @@ internal sealed class JsonResponseParser : IResponseParserAsync
 
         if (wrappers.Length == 0)
         {
-            return new ViesServiceException(ViesErrorCodes.ServiceError.InvalidResponse.Code, "VIES service reported failure without providing error details.");
+            return new ViesServiceException(
+                ViesErrorCodes.ServiceError.InvalidResponse.Code,
+                InvariantString.Format($"{ViesErrorCodes.ServiceError.InvalidResponse.Message} (VIES reported failure without error details)."));
         }
 
         var fault = wrappers[0].Error;
@@ -107,7 +109,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
             fault = wrappers[0].Message;
         }
 
-        var (code, _, _) = ViesErrorCodeMapper.Map(fault);
+        var (code, message, userMessage) = ViesErrorCodeMapper.Map(fault);
 
         var details = new string[wrappers.Length];
         for (var i = 0; i < wrappers.Length; i++)
@@ -117,7 +119,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         }
 
         var joined = string.Join(", ", details);
-        return new ViesServiceException(code, InvariantString.Format($"VIES service returned error: {joined}"));
+        return new ViesServiceException(code, InvariantString.Format($"{message} (VIES error: {joined})."), userMessage: userMessage);
     }
 
     private static RestErrorWrapper[] FilterWrappers(RestErrorWrapper[] wrappers)
