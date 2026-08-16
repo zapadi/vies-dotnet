@@ -34,7 +34,8 @@ public sealed class ViesRestServiceTests
     [Fact]
     public async Task Should_Return_Mapped_Response_On_Ok()
     {
-        using var httpClient = new HttpClient(new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson));
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson);
+        using var httpClient = new HttpClient(handler);
         ViesRestService service = CreateService(httpClient);
 
         ViesCheckVatResponse response = await service.SendRequestAsync("RO", "123456789", TestContext.Current.CancellationToken)
@@ -47,7 +48,8 @@ public sealed class ViesRestServiceTests
     [Fact]
     public async Task Should_Throw_ViesServiceException_On_ErrorWrappers()
     {
-        using var httpClient = new HttpClient(new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ErrorJson));
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ErrorJson);
+        using var httpClient = new HttpClient(handler);
         ViesRestService service = CreateService(httpClient);
 
         ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
@@ -59,7 +61,8 @@ public sealed class ViesRestServiceTests
     [Fact]
     public async Task Should_Map_ServerError_To_ServiceUnavailable()
     {
-        using var httpClient = new HttpClient(new TestHttpMessageHandler(HttpStatusCode.InternalServerError, "upstream exploded"));
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.InternalServerError, "upstream exploded");
+        using var httpClient = new HttpClient(handler);
         ViesRestService service = CreateService(httpClient);
 
         ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
@@ -77,7 +80,7 @@ public sealed class ViesRestServiceTests
         string accept = null;
         string body = null;
 
-        var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (request, requestBody) =>
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (request, requestBody) =>
         {
             method = request.Method;
             requestUri = request.RequestUri;

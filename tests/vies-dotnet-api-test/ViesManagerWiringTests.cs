@@ -31,7 +31,7 @@ public sealed class ViesManagerWiringTests
         Uri requestUri = null;
         string contentType = null;
 
-        var handler = new TestHttpMessageHandler(HttpStatusCode.OK, SoapSuccess, (request, _) =>
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, SoapSuccess, (request, _) =>
         {
             method = request.Method;
             requestUri = request.RequestUri;
@@ -53,7 +53,7 @@ public sealed class ViesManagerWiringTests
         Uri requestUri = null;
         string contentType = null;
 
-        var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (request, _) =>
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (request, _) =>
         {
             requestUri = request.RequestUri;
             contentType = request.Content?.Headers.ContentType?.ToString();
@@ -72,7 +72,7 @@ public sealed class ViesManagerWiringTests
     {
         string body = null;
 
-        var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (_, requestBody) =>
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (_, requestBody) =>
         {
             body = requestBody;
         });
@@ -87,7 +87,7 @@ public sealed class ViesManagerWiringTests
     [Fact]
     public async Task Should_Throw_ViesUnsupportedRegionException_For_Excluded_Country()
     {
-        var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson);
+        using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson);
         using var httpClient = new HttpClient(handler);
         using var manager = new ViesManager(httpClient, disposeClient: false, ViesApiEndpoint.Rest);
 
