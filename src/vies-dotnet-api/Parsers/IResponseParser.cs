@@ -11,11 +11,11 @@
    limitations under the License.
 */
 
-using System.IO;
+using System;
 
 namespace Padi.Vies.Parsers;
 
 internal interface IResponseParser
 {
-    ViesCheckVatResponse Parse(Stream response);
+    ViesCheckVatResponse Parse(ReadOnlyMemory<byte> response);
 }

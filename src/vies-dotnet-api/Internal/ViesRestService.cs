@@ -12,6 +12,7 @@
 */
 
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -37,11 +38,18 @@ internal sealed class ViesRestService(HttpClient httpClient) : ViesServiceBase(h
 
     private static ByteArrayContent CreateContent(string countryCode, string vatNumber)
     {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(
-            new CheckVatRestRequest { CountryCode = countryCode, VatNumber = vatNumber },
-            ViesJsonSerializerContext.Default.CheckVatRestRequest);
+        var request = new CheckVatRestRequest { CountryCode = countryCode, VatNumber = vatNumber };
 
-        return new ByteArrayContent(bytes)
+        using var buffer = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(buffer))
+        {
+            writer.WriteStartObject();
+            writer.WriteString(ViesJsonKeys.CountryCode, request.CountryCode);
+            writer.WriteString(ViesJsonKeys.VatNumber, request.VatNumber);
+            writer.WriteEndObject();
+        }
+
+        return new ByteArrayContent(buffer.ToArray())
         {
             Headers = { ContentType = new MediaTypeHeaderValue(ViesConstants.MediaTypeApplicationJson) },
         };

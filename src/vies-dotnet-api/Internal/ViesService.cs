@@ -61,7 +61,6 @@ internal sealed class ViesService(HttpClient httpClient) : ViesServiceBase(httpC
 
     protected override async Task<ViesCheckVatResponse> HandleNonSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
-        // VIES SOAP faults can arrive with HTTP 500 per SOAP 1.1, so buffer a bounded slice of the body and try to parse it.
         var (buffer, length) = await ReadBoundedBodyAsync(response, cancellationToken).ConfigureAwait(false);
         var bufferedText = Encoding.UTF8.GetString(buffer, 0, length).Trim();
 
@@ -72,10 +71,7 @@ internal sealed class ViesService(HttpClient httpClient) : ViesServiceBase(httpC
 
         try
         {
-            using (var stream = new MemoryStream(buffer, 0, length, writable: false))
-            {
-                return await ResponseParser.ParseAsync(stream, cancellationToken).ConfigureAwait(false);
-            }
+            return ResponseParser.Parse(new ReadOnlyMemory<byte>(buffer, 0, length));
         }
         catch (ViesDeserializationException)
         {

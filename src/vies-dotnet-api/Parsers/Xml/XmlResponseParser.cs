@@ -13,8 +13,7 @@
 
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Xml;
 using Padi.Vies.Errors;
 using Padi.Vies.Internal;
@@ -22,7 +21,7 @@ using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Parsers;
 
-internal sealed class XmlResponseParser : IResponseParserAsync
+internal sealed class XmlResponseParser : IResponseParser
 {
     private static readonly XmlReaderSettings XmlReaderSettings = new()
     {
@@ -32,12 +31,12 @@ internal sealed class XmlResponseParser : IResponseParserAsync
         IgnoreProcessingInstructions = true,
         IgnoreWhitespace = true,
         CloseInput = true,
-        Async = true,
     };
 
-    public ViesCheckVatResponse Parse(Stream response)
+    public ViesCheckVatResponse Parse(ReadOnlyMemory<byte> response)
     {
-        using (var xmlReader = XmlReader.Create(response, XmlReaderSettings))
+        using (Stream stream = CreateStream(response))
+        using (var xmlReader = XmlReader.Create(stream, XmlReaderSettings))
         {
             try
             {
@@ -72,42 +71,14 @@ internal sealed class XmlResponseParser : IResponseParserAsync
         return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>();
     }
 
-    public async Task<ViesCheckVatResponse> ParseAsync(Stream response, CancellationToken cancellationToken)
+    private static MemoryStream CreateStream(ReadOnlyMemory<byte> response)
     {
-        using (var xmlReader = XmlReader.Create(response, XmlReaderSettings))
+        if (MemoryMarshal.TryGetArray(response, out ArraySegment<byte> segment) && segment.Array is not null)
         {
-            try
-            {
-                while (await xmlReader.ReadAsync().ConfigureAwait(false))
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    if (xmlReader.NodeType != XmlNodeType.Element)
-                    {
-                        continue;
-                    }
-
-                    if (ViesKeys.Fault.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        var (faultCode, faultMessage) = await ReadErrorAsync(xmlReader).ConfigureAwait(false);
-                        throw CreateFaultException(faultCode, faultMessage);
-                    }
-
-                    if (!ViesKeys.CheckVatResponse.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    return await ReadResponseAsync(xmlReader).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex) when (ex is XmlException or InvalidCastException or FormatException or OverflowException)
-            {
-                return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
-            }
+            return new MemoryStream(segment.Array, segment.Offset, segment.Count, writable: false);
         }
 
-        return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>();
+        return new MemoryStream(response.ToArray(), writable: false);
     }
 
     private static ViesServiceException CreateFaultException(string? faultCode, string? faultMessage)
@@ -156,46 +127,6 @@ internal sealed class XmlResponseParser : IResponseParserAsync
         return viesCheckVatResponse;
     }
 
-    private static async Task<ViesCheckVatResponse> ReadResponseAsync(XmlReader xmlReader)
-    {
-        var viesCheckVatResponse = new ViesCheckVatResponse();
-
-        while (xmlReader.NodeType == XmlNodeType.Element)
-        {
-            ReadOnlySpan<char> localName = xmlReader.LocalName.AsSpan();
-            if (localName.Equals(ViesKeys.CountryCode.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                viesCheckVatResponse.CountryCode = await xmlReader.GetValueAsStringAsync().ConfigureAwait(false);
-            }
-            else if (localName.Equals(ViesKeys.VatNumber.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                viesCheckVatResponse.VatNumber = await xmlReader.GetValueAsStringAsync().ConfigureAwait(false);
-            }
-            else if (localName.Equals(ViesKeys.RequestDate.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                viesCheckVatResponse.RequestDate = await xmlReader.GetValueAsDateTimeOffsetAsync().ConfigureAwait(false);
-            }
-            else if (localName.Equals(ViesKeys.Valid.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                viesCheckVatResponse.IsValid = await xmlReader.GetValueAsBoolAsync().ConfigureAwait(false);
-            }
-            else if (localName.Equals(ViesKeys.Name.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                viesCheckVatResponse.Name = await xmlReader.GetValueAsStringAsync().ConfigureAwait(false);
-            }
-            else if (localName.Equals(ViesKeys.Address.AsSpan(), StringComparison.OrdinalIgnoreCase))
-            {
-                viesCheckVatResponse.Address = await xmlReader.GetValueAsStringAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                await xmlReader.ReadAsync().ConfigureAwait(false);
-            }
-        }
-
-        return viesCheckVatResponse;
-    }
-
     private static (string? code, string? error) ReadError(XmlReader xmlReader)
     {
         string? faultCode = null, faultMessage = null;
@@ -217,35 +148,6 @@ internal sealed class XmlResponseParser : IResponseParserAsync
                 else
                 {
                     xmlReader.Read();
-                }
-            }
-        }
-
-        return (faultCode, faultMessage);
-    }
-
-    private static async Task<(string? code, string? error)> ReadErrorAsync(XmlReader xmlReader)
-    {
-        string? faultCode = null;
-        string? faultMessage = null;
-
-        while (xmlReader.NodeType == XmlNodeType.Element)
-        {
-            ReadOnlySpan<char> localName = xmlReader.LocalName.AsSpan();
-
-            if (ViesKeys.FaultCode.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
-            {
-                faultCode = await xmlReader.GetValueAsStringAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                if (ViesKeys.FaultString.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
-                {
-                    faultMessage = await xmlReader.GetValueAsStringAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    await xmlReader.ReadAsync().ConfigureAwait(false);
                 }
             }
         }

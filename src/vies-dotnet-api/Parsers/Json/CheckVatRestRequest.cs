@@ -11,12 +11,10 @@
    limitations under the License.
 */
 
-using System.Text.Json.Serialization;
-
 namespace Padi.Vies.Parsers.Json;
 
 internal sealed class CheckVatRestRequest
 {
-    [JsonPropertyName("countryCode")] public string? CountryCode { get; set; }
-    [JsonPropertyName("vatNumber")] public string? VatNumber { get; set; }
+    public string? CountryCode { get; set; }
+    public string? VatNumber { get; set; }
 }

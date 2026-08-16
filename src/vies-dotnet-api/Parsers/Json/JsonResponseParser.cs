@@ -12,44 +12,193 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Internal;
 
 namespace Padi.Vies.Parsers.Json;
 
-internal sealed class JsonResponseParser : IResponseParserAsync
+internal sealed class JsonResponseParser : IResponseParser
 {
-    public ViesCheckVatResponse Parse(Stream response)
+    public ViesCheckVatResponse Parse(ReadOnlyMemory<byte> response)
     {
+        CheckVatRestResult result;
         try
         {
-            CheckVatRestResult? result = JsonSerializer.Deserialize(response, ViesJsonSerializerContext.Default.CheckVatRestResult);
-            return MapResponse(result);
+            var reader = new Utf8JsonReader(TrimBom(response.Span));
+            result = ReadResult(ref reader);
         }
-        catch (Exception ex) when (ex is JsonException or NotSupportedException)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or FormatException)
         {
             return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
         }
+
+        return MapResponse(result);
     }
 
-    public async Task<ViesCheckVatResponse> ParseAsync(Stream response, CancellationToken cancellationToken)
+    private static CheckVatRestResult ReadResult(ref Utf8JsonReader reader)
     {
-        try
+        if (!reader.Read() || reader.TokenType != JsonTokenType.StartObject)
         {
-            CheckVatRestResult? result = await JsonSerializer
-                .DeserializeAsync(response, ViesJsonSerializerContext.Default.CheckVatRestResult, cancellationToken)
-                .ConfigureAwait(false);
-            return MapResponse(result);
+            ExceptionDispatcher.ThrowDeserialization(message: "The VIES REST response is not a JSON object.");
         }
-        catch (Exception ex) when (ex is JsonException or NotSupportedException)
+
+        var result = new CheckVatRestResult();
+
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
         {
-            return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                continue;
+            }
+
+            if (reader.ValueTextEquals(ViesJsonKeys.CountryCode))
+            {
+                result.CountryCode = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.VatNumber))
+            {
+                result.VatNumber = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.RequestDate))
+            {
+                result.RequestDate = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.Valid))
+            {
+                result.Valid = ReadNullableBool(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.RequestIdentifier))
+            {
+                result.RequestIdentifier = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.Name))
+            {
+                result.Name = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.Address))
+            {
+                result.Address = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.TraderName))
+            {
+                result.TraderName = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.TraderStreet))
+            {
+                result.TraderStreet = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.TraderPostalCode))
+            {
+                result.TraderPostalCode = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.TraderCity))
+            {
+                result.TraderCity = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.TraderCompanyType))
+            {
+                result.TraderCompanyType = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.ActionSucceed))
+            {
+                result.ActionSucceed = ReadNullableBool(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.ErrorWrappers))
+            {
+                result.ErrorWrappers = ReadErrorWrappers(ref reader);
+            }
+            else
+            {
+                reader.Skip();
+            }
         }
+
+        return result;
+    }
+
+    private static RestErrorWrapper?[]? ReadErrorWrappers(ref Utf8JsonReader reader)
+    {
+        reader.Read();
+
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return null;
+        }
+
+        if (reader.TokenType != JsonTokenType.StartArray)
+        {
+            reader.Skip();
+            return null;
+        }
+
+        List<RestErrorWrapper?> wrappers = [];
+
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+        {
+            switch (reader.TokenType)
+            {
+                case JsonTokenType.Null:
+                    wrappers.Add(null);
+                    break;
+                case JsonTokenType.StartObject:
+                    wrappers.Add(ReadErrorWrapper(ref reader));
+                    break;
+                default:
+                    reader.Skip();
+                    break;
+            }
+        }
+
+        return wrappers.ToArray();
+    }
+
+    private static RestErrorWrapper ReadErrorWrapper(ref Utf8JsonReader reader)
+    {
+        var wrapper = new RestErrorWrapper();
+
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                continue;
+            }
+
+            if (reader.ValueTextEquals(ViesJsonKeys.Error))
+            {
+                wrapper.Error = ReadString(ref reader);
+            }
+            else if (reader.ValueTextEquals(ViesJsonKeys.Message))
+            {
+                wrapper.Message = ReadString(ref reader);
+            }
+            else
+            {
+                reader.Skip();
+            }
+        }
+
+        return wrapper;
+    }
+
+    private static string? ReadString(ref Utf8JsonReader reader)
+    {
+        reader.Read();
+        return reader.GetString();
+    }
+
+    private static bool? ReadNullableBool(ref Utf8JsonReader reader)
+    {
+        reader.Read();
+        return reader.TokenType switch
+        {
+            JsonTokenType.True => true,
+            JsonTokenType.False => false,
+            JsonTokenType.Null => null,
+            _ => reader.GetBoolean(),
+        };
     }
 
     private static ViesCheckVatResponse MapResponse(CheckVatRestResult? result)
@@ -122,7 +271,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         return new ViesServiceException(code, InvariantString.Format($"{message} (VIES error: {joined})."), userMessage: userMessage);
     }
 
-    private static RestErrorWrapper[] FilterWrappers(RestErrorWrapper[]? wrappers)
+    private static RestErrorWrapper[] FilterWrappers(RestErrorWrapper?[]? wrappers)
     {
         if (wrappers == null || wrappers.Length == 0)
         {
@@ -138,9 +287,9 @@ internal sealed class JsonResponseParser : IResponseParserAsync
             }
         }
 
-        if (count == wrappers.Length)
+        if (count == 0)
         {
-            return wrappers;
+            return [];
         }
 
         var filtered = new RestErrorWrapper[count];
@@ -154,5 +303,15 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         }
 
         return filtered;
+    }
+
+    private static ReadOnlySpan<byte> TrimBom(ReadOnlySpan<byte> data)
+    {
+        if (data.Length >= 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+        {
+            return data[3..];
+        }
+
+        return data;
     }
 }

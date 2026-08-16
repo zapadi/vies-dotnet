@@ -118,7 +118,7 @@ public sealed class ViesManager : IDisposable
         _disposeClient = disposeClient;
         _viesService = apiEndpoint == ViesApiEndpoint.Soap
             ? new ViesService(httpClient)
-            : (IViesService)new ViesRestService(httpClient);
+            : new ViesRestService(httpClient);
     }
 
     /// <summary>
