@@ -30,9 +30,8 @@
 
   <PropertyGroup Label="Package Validation">
     <EnablePackageValidation>true</EnablePackageValidation>
-    <GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile>
-    <CompatibilitySuppressionFilePath>ApiCompatSuppressions.xml</CompatibilitySuppressionFilePath>
-    <PackageValidationBaselineVersion>2.3.2</PackageValidationBaselineVersion>
+    <GenerateCompatibilitySuppressionFile>false</GenerateCompatibilitySuppressionFile>
+    <PackageValidationBaselineVersion>3.1.0</PackageValidationBaselineVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
