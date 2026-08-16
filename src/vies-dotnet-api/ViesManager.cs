@@ -175,12 +175,7 @@ public sealed class ViesManager : IDisposable
 
         if (ExcludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
         {
-            throw new ViesUnsupportedRegionException(
-                errorCode: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Code,
-                message: $"{ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Message} (Country: {countryCode}).",
-                param: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Param,
-                userMessage: excludedCountryInfo.ToString()
-            );
+            ExceptionDispatcher.ThrowUnsupportedRegion(countryCode, excludedCountryInfo.ToString());
         }
 
         return await _viesService.SendRequestAsync(countryCode, vatNumber, cancellationToken).ConfigureAwait(false);

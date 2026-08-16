@@ -64,11 +64,11 @@ internal sealed class XmlResponseParser : IResponseParserAsync
             }
             catch (Exception ex) when (ex is XmlException or InvalidCastException or FormatException or OverflowException)
             {
-                throw new ViesDeserializationException("The response could not be parsed.", ex);
+                return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
             }
         }
 
-        throw new ViesDeserializationException(message: "The response could not be parsed.");
+        return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>();
     }
 
     public async Task<ViesCheckVatResponse> ParseAsync(Stream response, CancellationToken cancellationToken)
@@ -102,11 +102,11 @@ internal sealed class XmlResponseParser : IResponseParserAsync
             }
             catch (Exception ex) when (ex is XmlException or InvalidCastException or FormatException or OverflowException)
             {
-                throw new ViesDeserializationException("The response could not be parsed.", ex);
+                return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>(ex);
             }
         }
 
-        throw new ViesDeserializationException(message: "The response could not be parsed.");
+        return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>();
     }
 
     private static ViesServiceException CreateFaultException(string faultCode, string faultMessage)
