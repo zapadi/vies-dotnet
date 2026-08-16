@@ -5,6 +5,8 @@
         <TargetFrameworks>net10.0;net9.0;net8.0;net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <NoWarn>MA0051;MA0110;IDE0063;</NoWarn>
+        <!-- net5.0-net7.0 are kept for consumers on EOL runtimes; current packages serve them netstandard2.0 assets and warn they are untested there -->
+        <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
 
   <PropertyGroup Label="Package">

@@ -11,24 +11,12 @@
    limitations under the License.
 */
 
-using System;
-using System.Net.Http;
+using System.Text.Json.Serialization;
 
-namespace Padi.Vies.Internal;
+namespace Padi.Vies.Parsers.Json;
 
-internal static class HttpClientProvider
+internal sealed class CheckVatRestRequest
 {
-    /// <summary>
-    /// Retrieves an instance of HttpClient.
-    /// </summary>
-    /// <returns>An instance of HttpClient.</returns>
-    public static HttpClient GetHttpClient()
-    {
-        #pragma warning disable CA2000 // Dispose objects before losing scope
-        return new HttpClient(new ViesHttpClientHandler { CheckCertificateRevocationList = true })
-        {
-            Timeout = TimeSpan.FromSeconds(30),
-        };
-        #pragma warning restore CA2000
-    }
+    [JsonPropertyName("countryCode")] public string CountryCode { get; set; }
+    [JsonPropertyName("vatNumber")] public string VatNumber { get; set; }
 }

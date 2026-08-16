@@ -15,12 +15,6 @@ using System.Text.Json.Serialization;
 
 namespace Padi.Vies.Parsers.Json;
 
-internal sealed class CheckVatRestRequest
-{
-    [JsonPropertyName("countryCode")] public string CountryCode { get; set; }
-    [JsonPropertyName("vatNumber")] public string VatNumber { get; set; }
-}
-
 internal sealed class CheckVatRestResult
 {
     [JsonPropertyName("countryCode")] public string CountryCode { get; set; }
@@ -37,10 +31,4 @@ internal sealed class CheckVatRestResult
     [JsonPropertyName("traderCompanyType")] public string TraderCompanyType { get; set; }
     [JsonPropertyName("actionSucceed")] public bool? ActionSucceed { get; set; }
     [JsonPropertyName("errorWrappers")] public RestErrorWrapper[] ErrorWrappers { get; set; }
-}
-
-internal sealed class RestErrorWrapper
-{
-    [JsonPropertyName("error")] public string Error { get; set; }
-    [JsonPropertyName("message")] public string Message { get; set; }
 }
