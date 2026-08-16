@@ -49,6 +49,6 @@ internal sealed class MtVatValidator(string countryCode) : VatValidatorAbstract(
             return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
-        return ValidateChecksumDigit(last2Digits, checkDigits);
+        return ValidateChecksumDigit(vat, last2Digits, checkDigits);
     }
 }

@@ -97,6 +97,6 @@ internal sealed class GbVatValidator(string countryCode) : VatValidatorAbstract(
         // New method check
         cd = cd >= 55 ? cd - 55 : cd + 42;
 
-        return ValidateChecksumDigit(cd == checkDigits && first7digits > 1000000);
+        return ValidateChecksumDigit(vat, cd == checkDigits && first7digits > 1000000);
     }
 }

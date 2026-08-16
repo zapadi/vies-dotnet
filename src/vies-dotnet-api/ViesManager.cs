@@ -33,7 +33,37 @@ namespace Padi.Vies;
 /// </remarks>
 public sealed class ViesManager : IDisposable
 {
-    private static readonly Dictionary<string, IVatValidator> VatValidators = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, IVatValidator> VatValidators = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["AT"] = new AtVatValidator("AT"),
+        ["BE"] = new BeVatValidator("BE"),
+        ["BG"] = new BgVatValidator("BG"),
+        ["CY"] = new CyVatValidator("CY"),
+        ["CZ"] = new CzVatValidator("CZ"),
+        ["DE"] = new DeVatValidator("DE"),
+        ["DK"] = new DkVatValidator("DK"),
+        ["EE"] = new EeVatValidator("EE"),
+        ["EL"] = new ElVatValidator("EL"),
+        ["ES"] = new EsVatValidator("ES"),
+        ["FI"] = new FiVatValidator("FI"),
+        ["FR"] = new FrVatValidator("FR"),
+        ["HR"] = new HrVatValidator("HR"),
+        ["HU"] = new HuVatValidator("HU"),
+        ["IE"] = new IeVatValidator("IE"),
+        ["IT"] = new ItVatValidator("IT"),
+        ["LT"] = new LtVatValidator("LT"),
+        ["LU"] = new LuVatValidator("LU"),
+        ["LV"] = new LvVatValidator("LV"),
+        ["MT"] = new MtVatValidator("MT"),
+        ["NL"] = new NlVatValidator("NL"),
+        ["PL"] = new PlVatValidator("PL"),
+        ["PT"] = new PtVatValidator("PT"),
+        ["RO"] = new RoVatValidator("RO"),
+        ["SE"] = new SeVatValidator("SE"),
+        ["SI"] = new SiVatValidator("SI"),
+        ["SK"] = new SkVatValidator("SK"),
+        ["XI"] = new XiVatValidator("XI"),
+    };
 
     private static readonly Dictionary<string, ExcludedCountryInfo> ExcludedCountries = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -42,52 +72,7 @@ public sealed class ViesManager : IDisposable
 
     private static IVatValidator GetValidator(string countryCode)
     {
-        if (VatValidators.TryGetValue(countryCode, out IVatValidator validator))
-        {
-            return validator;
-        }
-
-        validator = countryCode.AsSpan() switch
-        {
-            "AT" => new AtVatValidator(countryCode),
-            "BE" => new BeVatValidator(countryCode),
-            "BG" => new BgVatValidator(countryCode),
-            "CY" => new CyVatValidator(countryCode),
-            "CZ" => new CzVatValidator(countryCode),
-            "DE" => new DeVatValidator(countryCode),
-            "DK" => new DkVatValidator(countryCode),
-            "EE" => new EeVatValidator(countryCode),
-            "EL" => new ElVatValidator(countryCode),
-            "ES" => new EsVatValidator(countryCode),
-            "FI" => new FiVatValidator(countryCode),
-            "FR" => new FrVatValidator(countryCode),
-            "HR" => new HrVatValidator(countryCode),
-            "HU" => new HuVatValidator(countryCode),
-            "IE" => new IeVatValidator(countryCode),
-            "IT" => new ItVatValidator(countryCode),
-            "LT" => new LtVatValidator(countryCode),
-            "LU" => new LuVatValidator(countryCode),
-            "LV" => new LvVatValidator(countryCode),
-            "MT" => new MtVatValidator(countryCode),
-            "NL" => new NlVatValidator(countryCode),
-            "PL" => new PlVatValidator(countryCode),
-            "PT" => new PtVatValidator(countryCode),
-            "RO" => new RoVatValidator(countryCode),
-            "SE" => new SeVatValidator(countryCode),
-            "SI" => new SiVatValidator(countryCode),
-            "SK" => new SkVatValidator(countryCode),
-            "XI" => new XiVatValidator(countryCode),
-            _ => null,
-        };
-
-        if (validator == null)
-        {
-            return null;
-        }
-
-        VatValidators.Add(countryCode, validator);
-
-        return validator;
+        return VatValidators.TryGetValue(countryCode, out IVatValidator validator) ? validator : null;
     }
 
     private readonly bool _disposeClient;

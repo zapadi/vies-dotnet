@@ -52,6 +52,6 @@ internal sealed class FrVatValidator(string countryCode) : VatValidatorAbstract(
 
         var checkDigit = (12 + 3 * (numericValue % 97)) % 97;
 
-        return ValidateChecksumDigit(keyValue, checkDigit);
+        return ValidateChecksumDigit(vat, keyValue, checkDigit);
     }
 }

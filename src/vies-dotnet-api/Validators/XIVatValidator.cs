@@ -87,6 +87,6 @@ internal sealed class XiVatValidator(string countryCode) : VatValidatorAbstract(
         var result1 = total % 97;
         var result2 = (result1 + 55) % 97;
 
-        return ValidateChecksumDigit(result1 == 0 || result2 == 0);
+        return ValidateChecksumDigit(vat, result1 == 0 || result2 == 0);
     }
 }

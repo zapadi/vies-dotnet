@@ -57,8 +57,8 @@ internal sealed class DkVatValidator(string countryCode) : VatValidatorAbstract(
             return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat,"Must contain exactly 8 digits (excluding whitespace)");
         }
 
-        var sum = cleanVat.Sum(Multipliers);
+        var sum = ((ReadOnlySpan<char>)cleanVat).Sum(Multipliers);
 
-        return ValidateChecksumDigit(sum % 11, 0);
+        return ValidateChecksumDigit(vat, sum % 11, 0);
     }
 }

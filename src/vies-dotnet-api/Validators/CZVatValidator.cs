@@ -58,6 +58,6 @@ internal sealed class CzVatValidator(string countryCode) : VatValidatorAbstract(
             checkDigit = 1;
         }
 
-        return ValidateChecksumDigit(vatSpan[7].ToInt(), checkDigit);
+        return ValidateChecksumDigit(vat, vatSpan[7].ToInt(), checkDigit);
     }
 }

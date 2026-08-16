@@ -46,7 +46,7 @@ internal sealed class ElVatValidator(string countryCode) : VatValidatorAbstract(
             paddedVat[0] = '0';
             vatSpan.CopyTo(paddedVat[1..]);
             controlValue = paddedVat[8].ToInt();
-            sum = paddedVat.Sum(Multipliers);
+            sum = ((ReadOnlySpan<char>)paddedVat).Sum(Multipliers);
         }
         else
         {
@@ -61,6 +61,6 @@ internal sealed class ElVatValidator(string countryCode) : VatValidatorAbstract(
             checkDigit = 0;
         }
 
-        return ValidateChecksumDigit(controlValue, checkDigit);
+        return ValidateChecksumDigit(vat, controlValue, checkDigit);
     }
 }

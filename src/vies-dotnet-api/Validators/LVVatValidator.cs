@@ -70,6 +70,6 @@ internal sealed class LvVatValidator(string countryCode) : VatValidatorAbstract(
             _ => 3 - checkDigit,
         };
 
-        return ValidateChecksumDigit(vatSpan[10].ToInt(), checkDigit);
+        return ValidateChecksumDigit(vat, vatSpan[10].ToInt(), checkDigit);
     }
 }

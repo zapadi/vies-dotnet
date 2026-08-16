@@ -54,7 +54,7 @@ internal sealed class RoVatValidator(string countryCode) : VatValidatorAbstract(
             numberSpan.CopyTo(paddedSpan);
         }
 
-        var sum = paddedSpan.Sum(Multipliers);
+        var sum = ((ReadOnlySpan<char>)paddedSpan).Sum(Multipliers);
 
         var checkDigit = sum * 10 % 11;
 
@@ -63,6 +63,6 @@ internal sealed class RoVatValidator(string countryCode) : VatValidatorAbstract(
             checkDigit = 0;
         }
 
-        return ValidateChecksumDigit(controlDigit, checkDigit);
+        return ValidateChecksumDigit(vat, controlDigit, checkDigit);
     }
 }

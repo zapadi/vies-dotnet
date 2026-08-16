@@ -42,7 +42,7 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
 
         if (vatSpan.Length == 9)
         {
-            return Validate9DigitVat(vatSpan);
+            return Validate9DigitVat(vat, vatSpan);
         }
 
         return ValidatePhysicalPerson(vatSpan) ??
@@ -51,7 +51,7 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
                VatValidationDispatcher.InvalidVatFormat(CountryCode, vat);
     }
 
-    private VatValidationResult Validate9DigitVat(ReadOnlySpan<char> vatSpan)
+    private VatValidationResult Validate9DigitVat(string vat, ReadOnlySpan<char> vatSpan)
     {
         var sum = 0;
 
@@ -75,7 +75,7 @@ internal sealed class BgVatValidator(string countryCode) : VatValidatorAbstract(
             }
         }
 
-        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit, VatValidationErrorMessageHelper.GetInvalidChecksumMessage(), CountryCode);
+        return ValidateChecksumDigit(vat, vatSpan[8].ToInt(), checkDigit, VatValidationErrorMessageHelper.GetInvalidChecksumMessage(), CountryCode);
     }
 
     private static VatValidationResult ValidatePhysicalPerson(ReadOnlySpan<char> vatSpan)

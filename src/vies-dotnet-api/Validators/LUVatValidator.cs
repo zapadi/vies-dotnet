@@ -46,6 +46,6 @@ internal sealed class LuVatValidator(string countryCode) : VatValidatorAbstract(
             return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
-        return ValidateChecksumDigit(baseNumber % 89 , checkDigits);
+        return ValidateChecksumDigit(vat, baseNumber % 89 , checkDigits);
     }
 }

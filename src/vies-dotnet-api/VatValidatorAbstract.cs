@@ -18,16 +18,9 @@ namespace Padi.Vies;
 /// <summary>
 ///
 /// </summary>
-public abstract class VatValidatorAbstract : IVatValidator
+public abstract class VatValidatorAbstract(string countryCode) : IVatValidator
 {
-    protected VatValidatorAbstract(string countryCode)
-    {
-        CountryCode = countryCode;
-    }
-
-    protected string CountryCode { get; }
-
-    private string _vat;
+    protected string CountryCode { get; } = countryCode;
 
     /// <summary>
     ///
@@ -37,23 +30,23 @@ public abstract class VatValidatorAbstract : IVatValidator
     /// <exception cref="ViesValidationException"></exception>
     public VatValidationResult Validate(string vat)
     {
-        _vat = vat;
         return OnValidate(vat);
     }
+
     protected abstract VatValidationResult OnValidate(string vat);
 
-    protected VatValidationResult ValidateChecksumDigit(int digit, int checkDigit, string message = null, string countryCode = null)
+    protected VatValidationResult ValidateChecksumDigit(string vat, int digit, int checkDigit, string message = null, string countryCode = null)
     {
         var isValid = checkDigit == digit;
         return !isValid
-            ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, _vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
+            ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
             : VatValidationResult.Success();
     }
 
-    protected VatValidationResult ValidateChecksumDigit(bool isValid, string message = null, string countryCode = null)
+    protected VatValidationResult ValidateChecksumDigit(string vat, bool isValid, string message = null, string countryCode = null)
     {
         return !isValid
-            ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, _vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
+            ? VatValidationDispatcher.InvalidVatChecksumDigit(countryCode ?? CountryCode, vat, message ?? VatValidationErrorMessageHelper.GetInvalidChecksumMessage())
             : VatValidationResult.Success();
     }
 }

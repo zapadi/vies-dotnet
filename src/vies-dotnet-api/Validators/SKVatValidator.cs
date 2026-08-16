@@ -47,6 +47,6 @@ internal sealed class SkVatValidator(string countryCode) : VatValidatorAbstract(
             return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
-        return ValidateChecksumDigit(nr % 11, 0);
+        return ValidateChecksumDigit(vat, nr % 11, 0);
     }
 }

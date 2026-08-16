@@ -52,6 +52,6 @@ internal sealed class SiVatValidator(string countryCode) : VatValidatorAbstract(
             checkDigit = 0;
         }
 
-        return ValidateChecksumDigit(vat[7].ToInt(), checkDigit);
+        return ValidateChecksumDigit(vat, vat[7].ToInt(), checkDigit);
     }
 }
