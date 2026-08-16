@@ -18,6 +18,7 @@ using Xunit;
 namespace Padi.Vies.Test;
 
 [Collection("ViesCollection")]
+[Trait("Category", "Integration")]
 public sealed class ViesIntegrationTests(ViesManagerFixture fixture)
 {
     [Theory]
