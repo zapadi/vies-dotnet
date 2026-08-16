@@ -56,6 +56,6 @@ internal sealed class DeVatValidator(string countryCode) : VatValidatorAbstract(
         var val = 11 - product;
         var checkDigit = val == 10 ? 0 : val;
 
-        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
+        return ValidateChecksumDigit(vat, vatSpan[8].ToInt(), checkDigit);
     }
 }

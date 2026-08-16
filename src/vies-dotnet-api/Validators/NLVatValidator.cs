@@ -75,11 +75,11 @@ internal sealed class NlVatValidator(string countryCode) : VatValidatorAbstract(
         bValueMap.CopyTo(mod97Input[13..]);
         vatSpan[10..].CopyTo(mod97Input[15..]);
 
-        if (!mod97Input.TryConvertToLong(out var nr))
+        if (!((ReadOnlySpan<char>)mod97Input).TryConvertToLong(out var nr))
         {
             return VatValidationDispatcher.InvalidVatFormat(CountryCode, vat, VatValidationErrorMessageHelper.GetInvalidFormatMessage());
         }
 
-        return ValidateChecksumDigit((long)nr % 97 == 1);
+        return ValidateChecksumDigit(vat, (long)nr % 97 == 1);
     }
 }

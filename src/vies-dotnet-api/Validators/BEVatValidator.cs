@@ -60,6 +60,6 @@ internal sealed class BeVatValidator(string countryCode) : VatValidatorAbstract(
         // Modulus 97 check on last nine digits
         var modulus = 97 - firstPart % 97;
 
-        return ValidateChecksumDigit(checkPart, modulus);
+        return ValidateChecksumDigit(vat, checkPart, modulus);
     }
 }

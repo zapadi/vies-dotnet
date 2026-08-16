@@ -41,11 +41,11 @@ internal sealed class LtVatValidator(string countryCode) : VatValidatorAbstract(
         }
 
         return vatSpan.Length == 9
-            ? ValidateNineDigitVat(CountryCode,vatSpan)
-            : ValidateTemporaryVat(CountryCode,vatSpan);
+            ? ValidateNineDigitVat(vat, vatSpan)
+            : ValidateTemporaryVat(vat, vatSpan);
     }
 
-    private VatValidationResult ValidateNineDigitVat(string countryCode, ReadOnlySpan<char> vatSpan)
+    private VatValidationResult ValidateNineDigitVat(string vat, ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[7] != '1')
         {
@@ -71,10 +71,10 @@ internal sealed class LtVatValidator(string countryCode) : VatValidatorAbstract(
             checkDigit = 0;
         }
 
-        return ValidateChecksumDigit(vatSpan[8].ToInt(), checkDigit);
+        return ValidateChecksumDigit(vat, vatSpan[8].ToInt(), checkDigit);
     }
 
-    private VatValidationResult ValidateTemporaryVat(string countryCode, ReadOnlySpan<char> vatSpan)
+    private VatValidationResult ValidateTemporaryVat(string vat, ReadOnlySpan<char> vatSpan)
     {
         if (vatSpan[10] != '1')
         {
@@ -94,6 +94,6 @@ internal sealed class LtVatValidator(string countryCode) : VatValidatorAbstract(
             total = 0;
         }
 
-        return ValidateChecksumDigit(vatSpan[11].ToInt(), total);
+        return ValidateChecksumDigit(vat, vatSpan[11].ToInt(), total);
     }
 }

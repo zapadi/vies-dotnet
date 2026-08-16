@@ -49,6 +49,6 @@ internal sealed class HrVatValidator(string countryCode) : VatValidatorAbstract(
 
         var checkDigit = (product + vatSpan[10].ToInt()) % 10;
 
-        return ValidateChecksumDigit(1, checkDigit);
+        return ValidateChecksumDigit(vat, 1, checkDigit);
     }
 }

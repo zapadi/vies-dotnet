@@ -82,7 +82,7 @@ internal sealed class IeVatValidator(string countryCode) : VatValidatorAbstract(
         var checkDigit = sum % 23;
         var expectedCheck = checkDigit == 0 ? 'W' : (char)(64 + checkDigit);
 
-        return ValidateChecksumDigit(normalizedVat[7], expectedCheck);
+        return ValidateChecksumDigit(vat, normalizedVat[7], expectedCheck);
     }
 
     /// <summary>

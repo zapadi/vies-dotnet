@@ -68,6 +68,6 @@ internal sealed class CyVatValidator(string countryCode) : VatValidatorAbstract(
 
         var checkDigit = result % 26 + 65;
 
-        return ValidateChecksumDigit(vatSpan[8], checkDigit);
+        return ValidateChecksumDigit(vat, vatSpan[8], checkDigit);
     }
 }
