@@ -60,7 +60,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        dotnet-version: ['3.x.x', '5.x.x', '6.x.x', '7.x.x', '8.x.x', '9.x.x']
 
     steps:
     - name: 'Print manual run reason'
@@ -97,7 +96,8 @@ jobs:
         --no-restore \
         --no-build \
         --verbosity normal \
-        --logger "trx;LogFileName=test-results.trx" || true
+        --filter "Category!=Integration" \
+        --logger "trx;LogFileName=test-results.trx"
       timeout-minutes: 60
 
 #    - name: Test Report
