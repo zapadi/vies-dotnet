@@ -79,6 +79,22 @@ public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
     }
 
     [Theory]
+    [InlineData("094259216")]
+    [InlineData("12345678")]
+    public void Should_Treat_GR_As_Alias_For_EL(string vatNumber)
+    {
+        VatValidationResult expected = ViesManager.IsValid("EL", vatNumber);
+
+        VatValidationResult upper = ViesManager.IsValid("GR", vatNumber);
+        VatValidationResult lower = ViesManager.IsValid("gr", vatNumber);
+
+        Assert.Equal(expected.IsValid, upper.IsValid);
+        Assert.Equal(expected.IsValid, lower.IsValid);
+        Assert.Equal(expected.CountryCode, upper.CountryCode);
+        Assert.Equal(expected.CountryCode, lower.CountryCode);
+    }
+
+    [Theory]
     [MemberData(nameof(VatCodeData))]
     public void ErrorMessage_Should_Contain_CountryCode(string vatCode, string countryCode)
     {

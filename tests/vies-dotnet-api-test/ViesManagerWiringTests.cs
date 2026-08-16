@@ -68,6 +68,23 @@ public sealed class ViesManagerWiringTests
     }
 
     [Fact]
+    public async Task Should_Send_EL_CountryCode_When_GR_Alias_Used()
+    {
+        string body = null;
+
+        var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (_, requestBody) =>
+        {
+            body = requestBody;
+        });
+        using var httpClient = new HttpClient(handler);
+        using var manager = new ViesManager(httpClient, disposeClient: false, ViesApiEndpoint.Rest);
+
+        await manager.IsActiveAsync("GR", "123456789", TestContext.Current.CancellationToken).ConfigureAwait(true);
+
+        Assert.Contains("\"countryCode\":\"EL\"", body, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Should_Throw_ViesUnsupportedRegionException_For_Excluded_Country()
     {
         var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson);
