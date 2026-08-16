@@ -20,10 +20,7 @@ using System.Runtime.CompilerServices;
 namespace Padi.Vies.Internal;
 
 /// <summary>
-/// Culture-invariant string interpolation. On net6.0+ the interpolated string is lowered
-/// into a handler backed by DefaultInterpolatedStringHandler with the invariant culture,
-/// avoiding the FormattableString and object[] allocations; older targets fall back to
-/// FormattableString.Invariant.
+/// Culture-invariant string interpolation.
 /// </summary>
 internal static class InvariantString
 {
@@ -34,14 +31,9 @@ internal static class InvariantString
     }
 
     [InterpolatedStringHandler]
-    internal ref struct InvariantStringHandler
+    internal ref struct InvariantStringHandler(int literalLength, int formattedCount)
     {
-        private DefaultInterpolatedStringHandler _inner;
-
-        public InvariantStringHandler(int literalLength, int formattedCount)
-        {
-            _inner = new DefaultInterpolatedStringHandler(literalLength, formattedCount, CultureInfo.InvariantCulture);
-        }
+        private DefaultInterpolatedStringHandler _inner = new(literalLength, formattedCount, CultureInfo.InvariantCulture);
 
         public void AppendLiteral(string value) => _inner.AppendLiteral(value);
 
