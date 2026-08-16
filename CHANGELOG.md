@@ -5,6 +5,7 @@
 
 * Support for the EC VIES REST (JSON) API, now the default endpoint. `ViesApiEndpoint` selects between REST and SOAP.
 * `ViesCheckVatResponse` gains `RequestIdentifier` and `Trader*` properties (populated on the REST endpoint only).
+* Country-code overloads accept GR as an alias for EL, consistent with sanitized input.
 
 ## Breaking 💥
 

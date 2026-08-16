@@ -74,6 +74,11 @@ public sealed class ViesManager : IDisposable
         return VatValidators.TryGetValue(countryCode, out IVatValidator validator) ? validator : null;
     }
 
+    private static string NormalizeCountryCode(string countryCode)
+    {
+        return string.Equals(countryCode, "GR", StringComparison.OrdinalIgnoreCase) ? "EL" : countryCode;
+    }
+
     private readonly bool _disposeClient;
     private readonly HttpClient _httpClient;
     private readonly IViesService _viesService;
@@ -139,6 +144,8 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public static VatValidationResult IsValid(string countryCode, string vatNumber)
     {
+        countryCode = NormalizeCountryCode(countryCode);
+
         if (ExcludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
         {
             return VatValidationDispatcher.RegionUnsupported(countryCode, excludedCountryInfo.ToString());
@@ -164,6 +171,8 @@ public sealed class ViesManager : IDisposable
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public async Task<ViesCheckVatResponse> IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken = default)
     {
+        countryCode = NormalizeCountryCode(countryCode);
+
         if (ExcludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
         {
             throw new ViesUnsupportedRegionException(
