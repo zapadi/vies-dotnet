@@ -30,24 +30,25 @@ internal static class SpanExtensions
 
         return true;
     }
+
     public static bool TryConvertToInt(this ReadOnlySpan<char> input, out int no)
     {
         return int.TryParse(
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
-        input
-#else
+#if NETSTANDARD2_0
         input.ToString()
+#else
+        input
 #endif
         , NumberStyles.Number, CultureInfo.InvariantCulture, out no);
     }
 
-    public static bool TryConvertToLong(this Span<char> input, out long no)
+    public static bool TryConvertToLong(this ReadOnlySpan<char> input, out long no)
     {
         return long.TryParse(
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
-        input
-#else
+#if NETSTANDARD2_0
         input.ToString()
+#else
+        input
 #endif
         , NumberStyles.Number, CultureInfo.InvariantCulture, out no);
     }
@@ -55,10 +56,10 @@ internal static class SpanExtensions
     public static bool TryConvertToDateTimeOffset(this ReadOnlySpan<char> input, out DateTimeOffset dateTimeOffset)
     {
         return DateTimeOffset.TryParse(
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
-        input
-#else
+#if NETSTANDARD2_0
         input.ToString()
+#else
+        input
 #endif
         , CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTimeOffset);
     }
@@ -66,10 +67,10 @@ internal static class SpanExtensions
     public static bool TryConvertToBool(this ReadOnlySpan<char> input, out bool value)
     {
         return bool.TryParse(
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
-        input
-#else
+#if NETSTANDARD2_0
         input.ToString()
+#else
+        input
 #endif
         , out value);
     }
@@ -87,31 +88,9 @@ internal static class SpanExtensions
         }
 
         var sum = 0;
+        var count = Math.Min(input.Length, multipliers.Length);
 
-        for (var index = start; index < multipliers.Length; index++)
-        {
-            var digit = multipliers[index];
-            sum += input[index].ToInt() * digit;
-        }
-
-        return sum;
-    }
-
-    public static int Sum(this Span<char> input, ReadOnlySpan<int> multipliers, int start = 0)
-    {
-        if (input.IsEmpty)
-        {
-            return 0;
-        }
-
-        if (multipliers.IsEmpty)
-        {
-            return 0;
-        }
-
-        var sum = 0;
-
-        for (var index = start; index < multipliers.Length; index++)
+        for (var index = start; index < count; index++)
         {
             var digit = multipliers[index];
             sum += input[index].ToInt() * digit;

@@ -33,6 +33,17 @@ public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
         Assert.Equal(expectedVatNumber, inputVatNumber.Sanitize());
     }
 
+    [Fact]
+    public void Should_Sanitize_Large_Input_Without_Crash()
+    {
+        var input = "AT" + new string('1', 9998);
+        var expected = "AT" + new string('1', 9998);
+
+        var actual = input.Sanitize();
+
+        Assert.Equal(expected, actual);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
