@@ -53,12 +53,25 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
 
+    - name: Extract release notes from CHANGELOG.md
+      run: |
+        awk -v ver="$VERSION" '
+          $0 ~ "^###? \\[" ver "\\]" { found = 1; next }
+          found && /^###? \[/ { exit }
+          found { print }
+        ' CHANGELOG.md | sed -e '/./,$!d' > release-notes.md
+        if [[ ! -s release-notes.md ]]; then
+          echo "No CHANGELOG.md section found for $VERSION; falling back to the changelog link."
+          rm release-notes.md
+        fi
+
     - name: Pack
       run: |
         dotnet pack \
         --output ./artifacts \
         --configuration $BUILD_CONFIG \
-        /p:PackageVersion=${{ env.VERSION }}
+        /p:PackageVersion=${{ env.VERSION }} \
+        /p:ReleaseNotesFile=$PWD/release-notes.md
 
 #    - name: Install dotnet-validate
 #      run: dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
