@@ -47,9 +47,9 @@ public sealed class ViesEUUnitTests(ViesManagerFixture fixture)
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public async Task Should_Throw_ViesValidationException(string vat)
+    public async Task Should_Throw_ViesValidationException(string? vat)
     {
-        await Assert.ThrowsAsync<ViesValidationException>(() => fixture.ViesManager.IsActiveAsync(vat, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ViesValidationException>(() => fixture.ViesManager.IsActiveAsync(vat!, TestContext.Current.CancellationToken));
     }
 
     [Theory]

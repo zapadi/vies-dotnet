@@ -46,7 +46,7 @@ internal static class ViesExtensions
         }
 
 #if NETSTANDARD2_0
-        char[] rented = count <= 128 ? null : new char[count];
+        char[]? rented = count <= 128 ? null : new char[count];
         Span<char> buffer = rented ?? stackalloc char[count];
         WriteSanitized(buffer, vatNumberSpan);
         return buffer.ToString();

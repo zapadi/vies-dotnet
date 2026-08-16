@@ -23,7 +23,7 @@ public static class ViesErrorMessages
     /// </summary>
     /// <param name="errorCode">One of the <see cref="ViesErrorCode"/> constants.</param>
     /// <returns>The default message or null when the error code is unknown.</returns>
-    public static string GetDefaultMessage(string errorCode)
+    public static string? GetDefaultMessage(string? errorCode)
     {
         return errorCode switch
         {
@@ -51,7 +51,7 @@ public static class ViesErrorMessages
     /// </summary>
     /// <param name="errorCode">One of the <see cref="ViesErrorCode"/> constants.</param>
     /// <returns>The default user message or null when the error code is unknown.</returns>
-    public static string GetDefaultUserMessage(string errorCode)
+    public static string? GetDefaultUserMessage(string? errorCode)
     {
         return errorCode switch
         {

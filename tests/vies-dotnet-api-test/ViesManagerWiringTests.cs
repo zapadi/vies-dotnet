@@ -27,9 +27,9 @@ public sealed class ViesManagerWiringTests
     [Fact]
     public async Task Should_Post_Xml_To_Soap_Endpoint()
     {
-        HttpMethod method = null;
-        Uri requestUri = null;
-        string contentType = null;
+        HttpMethod? method = null;
+        Uri? requestUri = null;
+        string? contentType = null;
 
         using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, SoapSuccess, (request, _) =>
         {
@@ -50,8 +50,8 @@ public sealed class ViesManagerWiringTests
     [Fact]
     public async Task Should_Post_Json_To_Rest_Endpoint()
     {
-        Uri requestUri = null;
-        string contentType = null;
+        Uri? requestUri = null;
+        string? contentType = null;
 
         using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (request, _) =>
         {
@@ -70,7 +70,7 @@ public sealed class ViesManagerWiringTests
     [Fact]
     public async Task Should_Send_EL_CountryCode_When_GR_Alias_Used()
     {
-        string body = null;
+        string? body = null;
 
         using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (_, requestBody) =>
         {

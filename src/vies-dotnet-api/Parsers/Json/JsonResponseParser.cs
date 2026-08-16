@@ -28,7 +28,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
     {
         try
         {
-            CheckVatRestResult result = JsonSerializer.Deserialize(response, ViesJsonSerializerContext.Default.CheckVatRestResult);
+            CheckVatRestResult? result = JsonSerializer.Deserialize(response, ViesJsonSerializerContext.Default.CheckVatRestResult);
             return MapResponse(result);
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException)
@@ -41,7 +41,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
     {
         try
         {
-            CheckVatRestResult result = await JsonSerializer
+            CheckVatRestResult? result = await JsonSerializer
                 .DeserializeAsync(response, ViesJsonSerializerContext.Default.CheckVatRestResult, cancellationToken)
                 .ConfigureAwait(false);
             return MapResponse(result);
@@ -52,7 +52,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         }
     }
 
-    private static ViesCheckVatResponse MapResponse(CheckVatRestResult result)
+    private static ViesCheckVatResponse MapResponse(CheckVatRestResult? result)
     {
         if (result == null)
         {
@@ -111,7 +111,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
 
         var (code, message, userMessage) = ViesErrorCodeMapper.Map(fault);
 
-        var details = new string[wrappers.Length];
+        var details = new string?[wrappers.Length];
         for (var i = 0; i < wrappers.Length; i++)
         {
             var wrapper = wrappers[i];
@@ -122,7 +122,7 @@ internal sealed class JsonResponseParser : IResponseParserAsync
         return new ViesServiceException(code, InvariantString.Format($"{message} (VIES error: {joined})."), userMessage: userMessage);
     }
 
-    private static RestErrorWrapper[] FilterWrappers(RestErrorWrapper[] wrappers)
+    private static RestErrorWrapper[] FilterWrappers(RestErrorWrapper[]? wrappers)
     {
         if (wrappers == null || wrappers.Length == 0)
         {

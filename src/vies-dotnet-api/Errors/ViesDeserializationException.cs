@@ -23,13 +23,13 @@ public sealed class ViesDeserializationException : ViesException
 #pragma warning restore CA1032
 {
     /// <inheritdoc />
-    public ViesDeserializationException( string message, string param = null, string userMessage = null)
+    public ViesDeserializationException( string? message, string? param = null, string? userMessage = null)
         : base(ViesErrorCodes.DeserializationError.Failed.Code, ViesErrorCodes.DeserializationError.Type, message ?? ViesErrorCodes.DeserializationError.Failed.Message, param, userMessage ?? ViesErrorCodes.DeserializationError.Failed.UserMessage)
     {
     }
 
     /// <inheritdoc />
-    public ViesDeserializationException( string message, Exception innerException, string param = null, string userMessage = null)
+    public ViesDeserializationException( string? message, Exception innerException, string? param = null, string? userMessage = null)
         : base(ViesErrorCodes.DeserializationError.Failed.Code, ViesErrorCodes.DeserializationError.Type, message ?? ViesErrorCodes.DeserializationError.Failed.Message, innerException, param, userMessage ?? ViesErrorCodes.DeserializationError.Failed.UserMessage)
     {
     }

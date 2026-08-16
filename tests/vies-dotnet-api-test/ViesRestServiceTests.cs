@@ -74,11 +74,11 @@ public sealed class ViesRestServiceTests
     [Fact]
     public async Task Should_Send_Post_Json_To_Rest_Endpoint()
     {
-        HttpMethod method = null;
-        Uri requestUri = null;
-        string contentType = null;
-        string accept = null;
-        string body = null;
+        HttpMethod? method = null;
+        Uri? requestUri = null;
+        string? contentType = null;
+        string? accept = null;
+        string? body = null;
 
         using var handler = new TestHttpMessageHandler(HttpStatusCode.OK, TestPayloads.ValidJson, (request, requestBody) =>
         {

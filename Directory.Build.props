@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup Label="Build">
         <LangVersion>14</LangVersion>
+        <Nullable>enable</Nullable>
         <Features>strict</Features>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <Deterministic>True</Deterministic>

@@ -17,6 +17,6 @@ namespace Padi.Vies.Parsers.Json;
 
 internal sealed class CheckVatRestRequest
 {
-    [JsonPropertyName("countryCode")] public string CountryCode { get; set; }
-    [JsonPropertyName("vatNumber")] public string VatNumber { get; set; }
+    [JsonPropertyName("countryCode")] public string? CountryCode { get; set; }
+    [JsonPropertyName("vatNumber")] public string? VatNumber { get; set; }
 }

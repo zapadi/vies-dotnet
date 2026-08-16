@@ -110,7 +110,7 @@ internal sealed class XmlResponseParser : IResponseParserAsync
         return ExceptionDispatcher.ThrowDeserialization<ViesCheckVatResponse>();
     }
 
-    private static ViesServiceException CreateFaultException(string faultCode, string faultMessage)
+    private static ViesServiceException CreateFaultException(string? faultCode, string? faultMessage)
     {
         var (code, message, userMessage) = ViesErrorCodeMapper.Map(faultMessage);
         return new ViesServiceException(code, InvariantString.Format($"{message} (VIES fault {faultCode}: {faultMessage})."), userMessage: userMessage);
@@ -196,9 +196,9 @@ internal sealed class XmlResponseParser : IResponseParserAsync
         return viesCheckVatResponse;
     }
 
-    private static (string code, string error) ReadError(XmlReader xmlReader)
+    private static (string? code, string? error) ReadError(XmlReader xmlReader)
     {
-        string faultCode = null, faultMessage = null;
+        string? faultCode = null, faultMessage = null;
 
         while (xmlReader.NodeType == XmlNodeType.Element)
         {
@@ -224,10 +224,10 @@ internal sealed class XmlResponseParser : IResponseParserAsync
         return (faultCode, faultMessage);
     }
 
-    private static async Task<(string code, string error)> ReadErrorAsync(XmlReader xmlReader)
+    private static async Task<(string? code, string? error)> ReadErrorAsync(XmlReader xmlReader)
     {
-        string faultCode = null;
-        string faultMessage = null;
+        string? faultCode = null;
+        string? faultMessage = null;
 
         while (xmlReader.NodeType == XmlNodeType.Element)
         {

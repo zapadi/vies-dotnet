@@ -17,18 +17,18 @@ namespace Padi.Vies.Parsers.Json;
 
 internal sealed class CheckVatRestResult
 {
-    [JsonPropertyName("countryCode")] public string CountryCode { get; set; }
-    [JsonPropertyName("vatNumber")] public string VatNumber { get; set; }
-    [JsonPropertyName("requestDate")] public string RequestDate { get; set; }
+    [JsonPropertyName("countryCode")] public string? CountryCode { get; set; }
+    [JsonPropertyName("vatNumber")] public string? VatNumber { get; set; }
+    [JsonPropertyName("requestDate")] public string? RequestDate { get; set; }
     [JsonPropertyName("valid")] public bool? Valid { get; set; }
-    [JsonPropertyName("requestIdentifier")] public string RequestIdentifier { get; set; }
-    [JsonPropertyName("name")] public string Name { get; set; }
-    [JsonPropertyName("address")] public string Address { get; set; }
-    [JsonPropertyName("traderName")] public string TraderName { get; set; }
-    [JsonPropertyName("traderStreet")] public string TraderStreet { get; set; }
-    [JsonPropertyName("traderPostalCode")] public string TraderPostalCode { get; set; }
-    [JsonPropertyName("traderCity")] public string TraderCity { get; set; }
-    [JsonPropertyName("traderCompanyType")] public string TraderCompanyType { get; set; }
+    [JsonPropertyName("requestIdentifier")] public string? RequestIdentifier { get; set; }
+    [JsonPropertyName("name")] public string? Name { get; set; }
+    [JsonPropertyName("address")] public string? Address { get; set; }
+    [JsonPropertyName("traderName")] public string? TraderName { get; set; }
+    [JsonPropertyName("traderStreet")] public string? TraderStreet { get; set; }
+    [JsonPropertyName("traderPostalCode")] public string? TraderPostalCode { get; set; }
+    [JsonPropertyName("traderCity")] public string? TraderCity { get; set; }
+    [JsonPropertyName("traderCompanyType")] public string? TraderCompanyType { get; set; }
     [JsonPropertyName("actionSucceed")] public bool? ActionSucceed { get; set; }
-    [JsonPropertyName("errorWrappers")] public RestErrorWrapper[] ErrorWrappers { get; set; }
+    [JsonPropertyName("errorWrappers")] public RestErrorWrapper[]? ErrorWrappers { get; set; }
 }

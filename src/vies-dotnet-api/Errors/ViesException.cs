@@ -35,12 +35,12 @@ public class ViesException : Exception
     /// <summary>
     ///
     /// </summary>
-    public string Param { get; }
+    public string? Param { get; }
 
     /// <summary>
     ///
     /// </summary>
-    public string UserMessage { get; }
+    public string? UserMessage { get; }
 
     /// <summary>
     ///
@@ -50,7 +50,7 @@ public class ViesException : Exception
     /// <param name="message"></param>
     /// <param name="param"></param>
     /// <param name="userMessage"></param>
-    public ViesException(string errorCode, string errorType, string message, string param = null, string userMessage = null)
+    public ViesException(string errorCode, string errorType, string message, string? param = null, string? userMessage = null)
         : base(message)
     {
         ErrorCode = errorCode;
@@ -68,7 +68,7 @@ public class ViesException : Exception
     /// <param name="innerException"></param>
     /// <param name="param"></param>
     /// <param name="userMessage"></param>
-    public ViesException(string errorCode, string errorType, string message, Exception innerException, string param = null, string userMessage = null)
+    public ViesException(string errorCode, string errorType, string message, Exception innerException, string? param = null, string? userMessage = null)
         : base(message, innerException)
     {
         ErrorCode = errorCode;

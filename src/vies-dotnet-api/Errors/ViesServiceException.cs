@@ -23,10 +23,10 @@ public class ViesServiceException : ViesException
 #pragma warning restore CA1032
 {
     /// <inheritdoc />
-    public ViesServiceException(string errorCode, string message, string param = null, string userMessage = null)
+    public ViesServiceException(string errorCode, string message, string? param = null, string? userMessage = null)
         : base(errorCode, ViesErrorCodes.ServiceError.Type, message, param, userMessage) { }
 
     /// <inheritdoc />
-    public ViesServiceException(string errorCode, string message, Exception innerException, string param = null, string userMessage = null)
+    public ViesServiceException(string errorCode, string message, Exception innerException, string? param = null, string? userMessage = null)
         : base(errorCode, ViesErrorCodes.ServiceError.Type, message, innerException, param, userMessage) { }
 }
