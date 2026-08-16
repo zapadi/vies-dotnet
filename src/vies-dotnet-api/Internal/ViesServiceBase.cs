@@ -55,7 +55,6 @@ internal abstract class ViesServiceBase(HttpClient httpClient, IResponseParserAs
         }
         catch (OperationCanceledException operationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            // HttpClient.Timeout surfaces as TaskCanceledException without the caller token being canceled.
             throw ViesHttpErrorHandler.CreateTimeoutException(operationCanceledException);
         }
         catch (IOException ioException)
