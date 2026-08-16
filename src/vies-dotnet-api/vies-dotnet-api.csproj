@@ -14,20 +14,17 @@
     <Description>European VIES VAT validation for dotnet.</Description>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Owners>Adrian Popescu</Owners>
     <PackageId>vies-dotnet-api</PackageId>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/zapadi/vies-dotnet</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>https://github.com/zapadi/vies-dotnet/blob/master/CHANGELOG.md</PackageReleaseNotes>
     <PackageTags>VIES NET dotNet API EU VAT eu vat-validation vat-identification vat-number vat-information-exchange-system</PackageTags>
     <Product>VIES .NET API</Product>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <ReleaseNotes></ReleaseNotes>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/zapadi/vies-dotnet</RepositoryUrl>
-    <RequireLicenseAcceptance>false</RequireLicenseAcceptance>
-    <Summary>The VIES (VAT Information Exchange System) .NET API enables users to verify the validity of EU VAT identification numbers.</Summary>
     <Title>VIES NET API</Title>
   </PropertyGroup>
 
@@ -41,6 +38,13 @@
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <!-- CI extracts the current CHANGELOG.md section to a file and passes /p:ReleaseNotesFile=<path> -->
+  <Target Name="PopulatePackageReleaseNotes" BeforeTargets="GenerateNuspec" Condition="'$(ReleaseNotesFile)' != '' And Exists('$(ReleaseNotesFile)')">
+    <PropertyGroup>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(ReleaseNotesFile)'))</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
