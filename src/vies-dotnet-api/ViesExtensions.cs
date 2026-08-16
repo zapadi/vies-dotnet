@@ -17,7 +17,7 @@ using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies;
 
-public static class ViesExtensions
+internal static class ViesExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt(this char c) => (int)(uint)(c - '0');
@@ -39,31 +39,70 @@ public static class ViesExtensions
             return vatNumber;
         }
 
-        Span<char> result = stackalloc char[vatNumberSpan.Length];
-        var startPos = 0;
-        if ((vatNumberSpan[0] & ~0x20) == 'G' && (vatNumberSpan[1] & ~0x20)== 'R')
+        var count = ComputeSanitizedLength(vatNumberSpan);
+        if (count == 0)
         {
-            result[0] = 'E';
-            result[1] = 'L';
+            return string.Empty;
+        }
+
+#if NETSTANDARD2_0
+        char[] rented = count <= 128 ? null : new char[count];
+        Span<char> buffer = rented ?? stackalloc char[count];
+        WriteSanitized(buffer, vatNumberSpan);
+        return buffer.ToString();
+#else
+        return string.Create(count, vatNumber, static (span, source) => WriteSanitized(span, source.AsSpan()));
+#endif
+    }
+
+    private static int ComputeSanitizedLength(ReadOnlySpan<char> source)
+    {
+        var count = 0;
+        var startPos = 0;
+
+        if ((source[0] & ~0x20) == 'G' && (source[1] & ~0x20) == 'R')
+        {
+            count = 2;
             startPos = 2;
         }
 
-        for (var index = startPos; index < vatNumberSpan.Length; index++)
+        for (var index = startPos; index < source.Length; index++)
         {
-            if (char.IsLetter(vatNumberSpan[index]))
+            var ch = source[index];
+            if (char.IsLetter(ch) || char.IsDigit(ch))
             {
-                result[startPos++] = (char)(vatNumberSpan[index] & ~0x20);
-            }
-            else
-            {
-                if (char.IsDigit(vatNumberSpan[index]))
-                {
-                    result[startPos++] = vatNumberSpan[index];
-                }
+                count++;
             }
         }
 
-        return result[..startPos].ToString();
+        return count;
+    }
+
+    private static void WriteSanitized(Span<char> destination, ReadOnlySpan<char> source)
+    {
+        var pos = 0;
+        var startPos = 0;
+
+        if ((source[0] & ~0x20) == 'G' && (source[1] & ~0x20) == 'R')
+        {
+            destination[0] = 'E';
+            destination[1] = 'L';
+            pos = 2;
+            startPos = 2;
+        }
+
+        for (var index = startPos; index < source.Length; index++)
+        {
+            var ch = source[index];
+            if (char.IsLetter(ch))
+            {
+                destination[pos++] = (char)(ch & ~0x20);
+            }
+            else if (char.IsDigit(ch))
+            {
+                destination[pos++] = ch;
+            }
+        }
     }
 
     public static string Slice(this string input, int startIndex)
@@ -91,21 +130,6 @@ public static class ViesExtensions
         return input.AsSpan().Slice(startIndex, length).ToString();
         #else
         return input.Substring(startIndex, length);
-        #endif
-    }
-
-    [Obsolete("This method is obsolete and will be removed in a future version.")]
-    public static string ReplaceString(this string input, string oldValue, string newValue)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return input;
-        }
-
-        #if (NET5_0_OR_GREATER || NETSTANDARD2_1)
-        return input.Replace(oldValue, newValue, StringComparison.OrdinalIgnoreCase);
-        #else
-        return input.ToUpperInvariant().Replace(oldValue, newValue);
         #endif
     }
 
