@@ -27,7 +27,8 @@ public sealed class ViesServiceErrorHandlingTests
 {
     private static async Task<ViesCheckVatResponse> SendAsync(HttpStatusCode statusCode, string content)
     {
-        using var httpClient = new HttpClient(new TestHttpMessageHandler(statusCode, content));
+        using var handler = new TestHttpMessageHandler(statusCode, content);
+        using var httpClient = new HttpClient(handler);
         var service = new ViesService(httpClient);
         return await service.SendRequestAsync("RO", "123456789", TestContext.Current.CancellationToken).ConfigureAwait(true);
     }

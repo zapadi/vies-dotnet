@@ -44,7 +44,7 @@ public sealed class ViesTransportTests
     [Fact]
     public async Task Should_Map_TaskCanceled_Without_Token_To_Timeout()
     {
-        var handler = new ThrowingHttpMessageHandler(new TaskCanceledException("timeout"));
+        using var handler = new ThrowingHttpMessageHandler(new TaskCanceledException("timeout"));
 
         ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
             () => SendAsync(handler, TestContext.Current.CancellationToken)).ConfigureAwait(true);
@@ -55,7 +55,7 @@ public sealed class ViesTransportTests
     [Fact]
     public async Task Should_Map_IOException_To_NetworkError()
     {
-        var handler = new ThrowingHttpMessageHandler(new IOException("socket reset"));
+        using var handler = new ThrowingHttpMessageHandler(new IOException("socket reset"));
 
         ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
             () => SendAsync(handler, TestContext.Current.CancellationToken)).ConfigureAwait(true);
@@ -69,7 +69,7 @@ public sealed class ViesTransportTests
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync().ConfigureAwait(true);
 
-        var handler = new ThrowingHttpMessageHandler(new TaskCanceledException("canceled"));
+        using var handler = new ThrowingHttpMessageHandler(new TaskCanceledException("canceled"));
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => SendAsync(handler, cts.Token)).ConfigureAwait(true);
@@ -79,7 +79,7 @@ public sealed class ViesTransportTests
     public async Task Should_Map_HttpRequestException_To_ServiceUnavailable_Preserving_Inner()
     {
         var inner = new HttpRequestException("connection refused");
-        var handler = new ThrowingHttpMessageHandler(inner);
+        using var handler = new ThrowingHttpMessageHandler(inner);
 
         ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
             () => SendAsync(handler, TestContext.Current.CancellationToken)).ConfigureAwait(true);

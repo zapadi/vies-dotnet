@@ -34,7 +34,7 @@ internal sealed class TestHttpMessageHandler(
         {
             var body = request.Content == null
                 ? null
-                : await request.Content.ReadAsStringAsync().ConfigureAwait(false);
+                : await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             capture(request, body);
         }
 
