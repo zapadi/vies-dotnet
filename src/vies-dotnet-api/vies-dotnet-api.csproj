@@ -39,7 +39,6 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
-  <!-- CI extracts the current CHANGELOG.md section to a file and passes /p:ReleaseNotesFile=<path> -->
   <Target Name="PopulatePackageReleaseNotes" BeforeTargets="GenerateNuspec" Condition="'$(ReleaseNotesFile)' != '' And Exists('$(ReleaseNotesFile)')">
     <PropertyGroup>
       <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(ReleaseNotesFile)'))</PackageReleaseNotes>
@@ -59,10 +58,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="Meziantou.Analyzer"  PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
-    <!-- Span/Memory are not inbox below netstandard2.1 -->
     <PackageReference Include="System.Memory" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.1'))" />
     <PackageReference Include="Polyfill" PrivateAssets="all" />
-    <!-- ship a current System.Text.Json to targets older than net6.0 (netstandard2.0/2.1, net5.0) -->
     <PackageReference Include="System.Text.Json" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))" />
   </ItemGroup>
 </Project>

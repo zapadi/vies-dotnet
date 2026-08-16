@@ -22,9 +22,9 @@ using Padi.Vies.Parsers;
 
 namespace Padi.Vies.Internal;
 
-internal abstract class ViesServiceBase(HttpClient httpClient, IResponseParserAsync responseParser) : IViesService
+internal abstract class ViesServiceBase(HttpClient httpClient, IResponseParser responseParser) : IViesService
 {
-    protected IResponseParserAsync ResponseParser { get; } = responseParser;
+    protected IResponseParser ResponseParser { get; } = responseParser;
 
     public async Task<ViesCheckVatResponse> SendRequestAsync(string countryCode, string vatNumber, CancellationToken cancellationToken)
     {
@@ -38,15 +38,13 @@ internal abstract class ViesServiceBase(HttpClient httpClient, IResponseParserAs
                     return await HandleNonSuccessAsync(httpResponseMessage, cancellationToken).ConfigureAwait(false);
                 }
 
-                using (Stream stream =
+                byte[] payload =
 #if (NETSTANDARD2_0 || NETSTANDARD2_1)
-                    await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                    await httpResponseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 #else
-                    await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+                    await httpResponseMessage.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 #endif
-                {
-                    return await ResponseParser.ParseAsync(stream, cancellationToken).ConfigureAwait(false);
-                }
+                return ResponseParser.Parse(payload);
             }
         }
         catch (HttpRequestException httpRequestException)

@@ -13,6 +13,9 @@
 
 using System;
 using System.Globalization;
+#if DEBUG
+using System.Text;
+#endif
 
 namespace Padi.Vies.Internal.Extensions;
 
@@ -113,4 +116,14 @@ internal static class SpanExtensions
 
         return true;
     }
+
+    #if DEBUG
+    public static string AsText(this ReadOnlySpan<byte> bytes) => Encoding.UTF8.GetString(bytes.ToArray());
+
+    public static string AsText(this ReadOnlyMemory<byte> bytes) => Encoding.UTF8.GetString(bytes.ToArray());
+
+    public static string AsText(this byte[] bytes) => Encoding.UTF8.GetString(bytes);
+
+    public static string AsHex(this ReadOnlySpan<byte> bytes) => BitConverter.ToString(bytes.ToArray());
+    #endif
 }

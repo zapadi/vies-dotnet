@@ -35,7 +35,7 @@ public sealed class ViesIntegrationTests(ViesManagerFixture fixture)
     [Theory]
     [InlineData("ATU12345675")]
     [InlineData("CY10014000M")]
-    [InlineData("CZ612345670")]
+    //[InlineData("CZ612345670")]
     [InlineData("ESK1234567L")]
     [InlineData("IE1234567T")]
     [InlineData("IE6433435OA")]

@@ -11,12 +11,10 @@
    limitations under the License.
 */
 
-using System.Text.Json.Serialization;
-
 namespace Padi.Vies.Parsers.Json;
 
 internal sealed class RestErrorWrapper
 {
-    [JsonPropertyName("error")] public string? Error { get; set; }
-    [JsonPropertyName("message")] public string? Message { get; set; }
+    public string? Error { get; set; }
+    public string? Message { get; set; }
 }

@@ -12,21 +12,21 @@
 */
 
 using System;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Parsers;
 using Xunit;
 
 namespace Padi.Vies.Test;
 
-public sealed class ViesXmlDeserializationAsyncTests
+public sealed class ViesXmlDeserializationTests
 {
-    private readonly IResponseParserAsync _parseResponseAsync = new XmlResponseParser();
+    private readonly IResponseParser _parser = new XmlResponseParser();
+
+    private ViesCheckVatResponse Parse(string input, Encoding encoding) => _parser.Parse(encoding.GetBytes(input));
 
     [Fact]
-    public async Task Should_Deserialize_Active()
+    public void Should_Deserialize_Active()
     {
         const string input = """
                              <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
@@ -44,16 +44,13 @@ public sealed class ViesXmlDeserializationAsyncTests
                              </env:Envelope>
                              """;
 
-        using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
-        {
-            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken);
-            Assert.True(response.IsValid);
-            Assert.Equal("LU", response.CountryCode, ignoreCase: true);
-            Assert.Equal("26375245", response.VatNumber, ignoreCase: true);
-            Assert.Equal(response.RequestDate, new DateTimeOffset(2022, 9, 4, 0, 0, 0, new TimeSpan(2, 0, 0)));
-            Assert.False(string.IsNullOrWhiteSpace(response.Address));
-            Assert.False(string.IsNullOrWhiteSpace(response.Name));
-        }
+        ViesCheckVatResponse response = Parse(input, Encoding.UTF32);
+        Assert.True(response.IsValid);
+        Assert.Equal("LU", response.CountryCode, ignoreCase: true);
+        Assert.Equal("26375245", response.VatNumber, ignoreCase: true);
+        Assert.Equal(response.RequestDate, new DateTimeOffset(2022, 9, 4, 0, 0, 0, new TimeSpan(2, 0, 0)));
+        Assert.False(string.IsNullOrWhiteSpace(response.Address));
+        Assert.False(string.IsNullOrWhiteSpace(response.Name));
     }
 
     [Theory]
@@ -140,17 +137,14 @@ public sealed class ViesXmlDeserializationAsyncTests
         </env:Envelope>
         """,
         "IE")]
-    public async Task Should_Deserialize_Inactive(string input, string countryCode)
+    public void Should_Deserialize_Inactive(string input, string countryCode)
     {
-        using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
-        {
-            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken);
-            Assert.False(response.IsValid);
-            Assert.True(string.IsNullOrWhiteSpace(response.Address));
-            Assert.True(string.IsNullOrWhiteSpace(response.Name));
-            Assert.Equal(response.RequestDate, new DateTimeOffset(2022, 9, 9, 0, 0, 0, new TimeSpan(2, 0, 0)));
-            Assert.Equal(countryCode, response.CountryCode, ignoreCase: true);
-        }
+        ViesCheckVatResponse response = Parse(input, Encoding.UTF32);
+        Assert.False(response.IsValid);
+        Assert.True(string.IsNullOrWhiteSpace(response.Address));
+        Assert.True(string.IsNullOrWhiteSpace(response.Name));
+        Assert.Equal(response.RequestDate, new DateTimeOffset(2022, 9, 9, 0, 0, 0, new TimeSpan(2, 0, 0)));
+        Assert.Equal(countryCode, response.CountryCode, ignoreCase: true);
     }
 
     [Theory]
@@ -166,26 +160,19 @@ public sealed class ViesXmlDeserializationAsyncTests
         </env:Body>
         </env:Envelope>
         """)]
-    public async Task Should_Throw_ViesServiceException(string input)
+    public void Should_Throw_ViesServiceException(string input)
     {
-        using (var stream = new MemoryStream(Encoding.UTF32.GetBytes(input)))
-        {
-            await Assert.ThrowsAsync<ViesServiceException>(() => _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken));
-        }
+        Assert.Throws<ViesServiceException>(() => Parse(input, Encoding.UTF32));
     }
 
     [Fact]
-    public async Task Should_Throw_ViesDeserializationException_On_Garbage()
+    public void Should_Throw_ViesDeserializationException_On_Garbage()
     {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes("this is not xml")))
-        {
-            await Assert.ThrowsAsync<ViesDeserializationException>(
-                () => _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken));
-        }
+        Assert.Throws<ViesDeserializationException>(() => Parse("this is not xml", Encoding.UTF8));
     }
 
     [Fact]
-    public async Task Should_Throw_ViesDeserializationException_On_Invalid_Bool()
+    public void Should_Throw_ViesDeserializationException_On_Invalid_Bool()
     {
         const string input = """
                              <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
@@ -203,10 +190,6 @@ public sealed class ViesXmlDeserializationAsyncTests
                              </env:Envelope>
                              """;
 
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
-        {
-            await Assert.ThrowsAsync<ViesDeserializationException>(
-                () => _parseResponseAsync.ParseAsync(stream, TestContext.Current.CancellationToken));
-        }
+        Assert.Throws<ViesDeserializationException>(() => Parse(input, Encoding.UTF8));
     }
 }

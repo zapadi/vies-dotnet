@@ -11,10 +11,8 @@
    limitations under the License.
 */
 
-using System.IO;
+using System;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Parsers;
 using Padi.Vies.Parsers.Json;
@@ -24,9 +22,7 @@ namespace Padi.Vies.Test;
 
 public sealed class ViesJsonDeserializationTests
 {
-    private readonly IResponseParserAsync _parseResponseAsync = new JsonResponseParser();
-
-    private static CancellationToken Token => TestContext.Current.CancellationToken;
+    private readonly IResponseParser _parser = new JsonResponseParser();
 
     private const string ValidJson = TestPayloads.ValidJson;
 
@@ -42,130 +38,106 @@ public sealed class ViesJsonDeserializationTests
 
     private const string ErrorJson = TestPayloads.ErrorJson;
 
-    [Fact]
-    public async Task Should_Deserialize_Valid_Async()
-    {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(ValidJson)))
-        {
-            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream, Token);
+    private ViesCheckVatResponse Parse(string json) => _parser.Parse(Encoding.UTF8.GetBytes(json));
 
-            Assert.Equal("RO", response.CountryCode);
-            Assert.Equal("123456789", response.VatNumber);
-            Assert.True(response.IsValid);
-            Assert.Equal("ACME SRL", response.Name);
-            Assert.Equal("STR. EXAMPLE 1", response.Address);
-            Assert.Equal("WAPIAAAAY123", response.RequestIdentifier);
-            Assert.Equal("ACME SRL", response.TraderName);
-            Assert.Equal("BUCURESTI", response.TraderCity);
-            Assert.Equal(2026, response.RequestDate.Year);
-        }
+    [Fact]
+    public void Should_Deserialize_Valid()
+    {
+        ViesCheckVatResponse response = Parse(ValidJson);
+
+        Assert.Equal("RO", response.CountryCode);
+        Assert.Equal("123456789", response.VatNumber);
+        Assert.True(response.IsValid);
+        Assert.Equal("ACME SRL", response.Name);
+        Assert.Equal("STR. EXAMPLE 1", response.Address);
+        Assert.Equal("WAPIAAAAY123", response.RequestIdentifier);
+        Assert.Equal("ACME SRL", response.TraderName);
+        Assert.Equal("BUCURESTI", response.TraderCity);
+        Assert.Equal(2026, response.RequestDate.Year);
     }
 
     [Fact]
-    public void Should_Deserialize_Valid_Sync()
+    public void Should_Deserialize_Valid_With_Utf8_Bom()
     {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(ValidJson)))
-        {
-            ViesCheckVatResponse response = _parseResponseAsync.Parse(stream);
+        // Utf8JsonReader (unlike JsonSerializer/JsonDocument) does not skip a leading UTF-8 BOM,
+        // so the parser strips it itself; this pins that behaviour.
+        byte[] preamble = Encoding.UTF8.GetPreamble();
+        byte[] body = Encoding.UTF8.GetBytes(ValidJson);
+        var withBom = new byte[preamble.Length + body.Length];
+        preamble.CopyTo(withBom, 0);
+        body.CopyTo(withBom, preamble.Length);
 
-            Assert.Equal("RO", response.CountryCode);
-            Assert.True(response.IsValid);
-            Assert.Equal("WAPIAAAAY123", response.RequestIdentifier);
-            Assert.Equal("BUCURESTI", response.TraderCity);
-            Assert.Equal(2026, response.RequestDate.Year);
-        }
+        ViesCheckVatResponse response = _parser.Parse(withBom);
+
+        Assert.True(response.IsValid);
+        Assert.Equal("RO", response.CountryCode);
     }
 
     [Fact]
-    public async Task Should_Deserialize_Invalid_Vat_Async()
+    public void Should_Deserialize_Invalid_Vat()
     {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(InvalidVatJson)))
-        {
-            ViesCheckVatResponse response = await _parseResponseAsync.ParseAsync(stream, Token);
+        ViesCheckVatResponse response = Parse(InvalidVatJson);
 
-            Assert.False(response.IsValid);
-        }
+        Assert.False(response.IsValid);
     }
 
     [Fact]
-    public async Task Should_Throw_ViesServiceException_On_ErrorWrappers()
+    public void Should_Throw_ViesServiceException_On_ErrorWrappers()
     {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(ErrorJson)))
-        {
-            ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
-                () => _parseResponseAsync.ParseAsync(stream, Token));
+        ViesServiceException exception = Assert.Throws<ViesServiceException>(() => Parse(ErrorJson));
 
-            Assert.Equal(ViesErrorCodes.InputError.InvalidInput.Code, exception.ErrorCode);
-        }
+        Assert.Equal(ViesErrorCodes.InputError.InvalidInput.Code, exception.ErrorCode);
     }
 
     [Fact]
-    public async Task Should_Throw_ViesDeserializationException_On_Garbage()
+    public void Should_Throw_ViesDeserializationException_On_Garbage()
     {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes("this is not json")))
-        {
-            await Assert.ThrowsAsync<ViesDeserializationException>(() => _parseResponseAsync.ParseAsync(stream, Token));
-        }
+        Assert.Throws<ViesDeserializationException>(() => Parse("this is not json"));
     }
 
     [Fact]
-    public async Task Should_Throw_ViesDeserializationException_On_Empty_Object()
+    public void Should_Throw_ViesDeserializationException_On_Empty_Object()
     {
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes("{}")))
-        {
-            await Assert.ThrowsAsync<ViesDeserializationException>(() => _parseResponseAsync.ParseAsync(stream, Token));
-        }
+        Assert.Throws<ViesDeserializationException>(() => Parse("{}"));
     }
 
     [Fact]
-    public async Task Should_Not_Throw_Nre_On_Null_ErrorWrapper_Element()
+    public void Should_Not_Throw_Nre_On_Null_ErrorWrapper_Element()
     {
         const string json = """{"actionSucceed":false,"errorWrappers":[null]}""";
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-        {
-            ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
-                () => _parseResponseAsync.ParseAsync(stream, Token));
 
-            Assert.Equal(ViesErrorCodes.ServiceError.InvalidResponse.Code, exception.ErrorCode);
-        }
+        ViesServiceException exception = Assert.Throws<ViesServiceException>(() => Parse(json));
+
+        Assert.Equal(ViesErrorCodes.ServiceError.InvalidResponse.Code, exception.ErrorCode);
     }
 
     [Fact]
-    public async Task Should_Use_Message_When_Error_Is_Null()
+    public void Should_Use_Message_When_Error_Is_Null()
     {
         const string json = """{"actionSucceed":false,"errorWrappers":[{"message":"Blocked"}]}""";
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-        {
-            ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
-                () => _parseResponseAsync.ParseAsync(stream, Token));
 
-            Assert.Contains("Blocked", exception.Message, System.StringComparison.Ordinal);
-        }
+        ViesServiceException exception = Assert.Throws<ViesServiceException>(() => Parse(json));
+
+        Assert.Contains("Blocked", exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
-    public async Task Should_Map_ActionSucceed_False_With_Empty_Wrappers_To_InvalidResponse()
+    public void Should_Map_ActionSucceed_False_With_Empty_Wrappers_To_InvalidResponse()
     {
         const string json = """{"actionSucceed":false,"errorWrappers":[]}""";
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-        {
-            ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
-                () => _parseResponseAsync.ParseAsync(stream, Token));
 
-            Assert.Equal(ViesErrorCodes.ServiceError.InvalidResponse.Code, exception.ErrorCode);
-        }
+        ViesServiceException exception = Assert.Throws<ViesServiceException>(() => Parse(json));
+
+        Assert.Equal(ViesErrorCodes.ServiceError.InvalidResponse.Code, exception.ErrorCode);
     }
 
     [Fact]
-    public async Task Should_Map_RateLimit_Wrapper()
+    public void Should_Map_RateLimit_Wrapper()
     {
         const string json = """{"actionSucceed":false,"errorWrappers":[{"error":"MS_MAX_CONCURRENT_REQ"}]}""";
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
-        {
-            ViesServiceException exception = await Assert.ThrowsAsync<ViesServiceException>(
-                () => _parseResponseAsync.ParseAsync(stream, Token));
 
-            Assert.Equal(ViesErrorCodes.ServiceError.RateLimitExceeded.Code, exception.ErrorCode);
-        }
+        ViesServiceException exception = Assert.Throws<ViesServiceException>(() => Parse(json));
+
+        Assert.Equal(ViesErrorCodes.ServiceError.RateLimitExceeded.Code, exception.ErrorCode);
     }
 }

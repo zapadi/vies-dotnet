@@ -11,24 +11,22 @@
    limitations under the License.
 */
 
-using System.Text.Json.Serialization;
-
 namespace Padi.Vies.Parsers.Json;
 
 internal sealed class CheckVatRestResult
 {
-    [JsonPropertyName("countryCode")] public string? CountryCode { get; set; }
-    [JsonPropertyName("vatNumber")] public string? VatNumber { get; set; }
-    [JsonPropertyName("requestDate")] public string? RequestDate { get; set; }
-    [JsonPropertyName("valid")] public bool? Valid { get; set; }
-    [JsonPropertyName("requestIdentifier")] public string? RequestIdentifier { get; set; }
-    [JsonPropertyName("name")] public string? Name { get; set; }
-    [JsonPropertyName("address")] public string? Address { get; set; }
-    [JsonPropertyName("traderName")] public string? TraderName { get; set; }
-    [JsonPropertyName("traderStreet")] public string? TraderStreet { get; set; }
-    [JsonPropertyName("traderPostalCode")] public string? TraderPostalCode { get; set; }
-    [JsonPropertyName("traderCity")] public string? TraderCity { get; set; }
-    [JsonPropertyName("traderCompanyType")] public string? TraderCompanyType { get; set; }
-    [JsonPropertyName("actionSucceed")] public bool? ActionSucceed { get; set; }
-    [JsonPropertyName("errorWrappers")] public RestErrorWrapper[]? ErrorWrappers { get; set; }
+    public string? CountryCode { get; set; }
+    public string? VatNumber { get; set; }
+    public string? RequestDate { get; set; }
+    public bool? Valid { get; set; }
+    public string? RequestIdentifier { get; set; }
+    public string? Name { get; set; }
+    public string? Address { get; set; }
+    public string? TraderName { get; set; }
+    public string? TraderStreet { get; set; }
+    public string? TraderPostalCode { get; set; }
+    public string? TraderCity { get; set; }
+    public string? TraderCompanyType { get; set; }
+    public bool? ActionSucceed { get; set; }
+    public RestErrorWrapper?[]? ErrorWrappers { get; set; }
 }
