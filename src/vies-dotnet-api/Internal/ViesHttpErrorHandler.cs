@@ -40,22 +40,22 @@ internal static class ViesHttpErrorHandler
     {
         var (errorCode, message, userMessage) = MapServiceError(statusCode);
 
-        var detail = FormattableString.Invariant($"HTTP {(int)statusCode} {reasonPhrase}");
+        var detail = InvariantString.Format($"HTTP {(int)statusCode} {reasonPhrase}");
         if (string.IsNullOrWhiteSpace(errorBody))
         {
             return new ViesServiceException(
                 errorCode: errorCode,
-                message: FormattableString.Invariant($"{message} ({detail})."),
+                message: InvariantString.Format($"{message} ({detail})."),
                 userMessage: userMessage
             );
         }
 
         var body = errorBody.Length > MaxErrorBodyLength ? errorBody.Substring(0, MaxErrorBodyLength) : errorBody;
-        detail = FormattableString.Invariant($"{detail}: {body}");
+        detail = InvariantString.Format($"{detail}: {body}");
 
         return new ViesServiceException(
             errorCode: errorCode,
-            message: FormattableString.Invariant($"{message} ({detail})."),
+            message: InvariantString.Format($"{message} ({detail})."),
             userMessage: userMessage
         );
     }

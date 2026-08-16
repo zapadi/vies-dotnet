@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Padi.Vies.Errors;
+using Padi.Vies.Internal;
 using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Parsers;
@@ -112,7 +113,7 @@ internal sealed class XmlResponseParser : IResponseParserAsync
     private static ViesServiceException CreateFaultException(string faultCode, string faultMessage)
     {
         var (code, _, _) = ViesErrorCodeMapper.Map(faultMessage);
-        return new ViesServiceException(code, FormattableString.Invariant($"VIES service returned fault {faultCode}: {faultMessage}"));
+        return new ViesServiceException(code, InvariantString.Format($"VIES service returned fault {faultCode}: {faultMessage}"));
     }
 
     private static ViesCheckVatResponse ReadResponse(XmlReader xmlReader)
