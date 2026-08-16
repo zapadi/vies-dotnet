@@ -11,12 +11,23 @@
    limitations under the License.
 */
 
-using System;
-
 namespace Padi.Vies.Errors;
 
 internal static class ViesErrorCodeMapper
 {
+    private static class ViesFault
+    {
+        public const string InvalidInput = "INVALID_INPUT";
+        public const string InvalidRequesterInfo = "INVALID_REQUESTER_INFO";
+        public const string ServiceUnavailable = "SERVICE_UNAVAILABLE";
+        public const string MsUnavailable = "MS_UNAVAILABLE";
+        public const string Timeout = "TIMEOUT";
+        public const string GlobalMaxConcurrentReq = "GLOBAL_MAX_CONCURRENT_REQ";
+        public const string GlobalMaxConcurrentReqTime = "GLOBAL_MAX_CONCURRENT_REQ_TIME";
+        public const string MsMaxConcurrentReq = "MS_MAX_CONCURRENT_REQ";
+        public const string MsMaxConcurrentReqTime = "MS_MAX_CONCURRENT_REQ_TIME";
+    }
+
     /// <summary>
     /// Translates the official VIES fault strings into stable library error codes.
     /// 200 = Valid request with an Invalid VAT Number
@@ -31,7 +42,8 @@ internal static class ViesErrorCodeMapper
     /// 501 = Error : GLOBAL_MAX_CONCURRENT_REQ_TIME
     /// 600 = Error : MS_MAX_CONCURRENT_REQ
     /// 601 = Error : MS_MAX_CONCURRENT_REQ_TIME
-    /// For all the other cases, the web service will respond with a "SERVICE_UNAVAILABLE" error.
+    /// Any unrecognized fault maps to the "service-unavailable" error code;
+    /// the raw fault text is preserved as the user message.
     /// </summary>
     public static (string Code, string Message, string UserMessage) Map(string viesFault)
     {
@@ -43,44 +55,31 @@ internal static class ViesErrorCodeMapper
                 ViesErrorCodes.ServiceError.ServiceUnavailable.UserMessage);
         }
 
-        if (Equals(viesFault, "INVALID_INPUT") || Equals(viesFault, "INVALID_REQUESTER_INFO"))
+        return viesFault.ToUpperInvariant() switch
         {
-            return (
+            ViesFault.InvalidInput or ViesFault.InvalidRequesterInfo => (
                 ViesErrorCodes.InputError.InvalidInput.Code,
                 ViesErrorCodes.InputError.InvalidInput.Message,
-                viesFault);
-        }
-
-        if (Equals(viesFault, "SERVICE_UNAVAILABLE") || Equals(viesFault, "MS_UNAVAILABLE"))
-        {
-            return (
+                viesFault),
+            ViesFault.ServiceUnavailable or ViesFault.MsUnavailable => (
                 ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
                 ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
-                viesFault);
-        }
-
-        if (Equals(viesFault, "TIMEOUT"))
-        {
-            return (
+                viesFault),
+            ViesFault.Timeout => (
                 ViesErrorCodes.ServiceError.Timeout.Code,
                 ViesErrorCodes.ServiceError.Timeout.Message,
-                viesFault);
-        }
-
-        if (Equals(viesFault, "GLOBAL_MAX_CONCURRENT_REQ")
-            || Equals(viesFault, "GLOBAL_MAX_CONCURRENT_REQ_TIME")
-            || Equals(viesFault, "MS_MAX_CONCURRENT_REQ")
-            || Equals(viesFault, "MS_MAX_CONCURRENT_REQ_TIME"))
-        {
-            return (
+                viesFault),
+            ViesFault.GlobalMaxConcurrentReq
+                or ViesFault.GlobalMaxConcurrentReqTime
+                or ViesFault.MsMaxConcurrentReq
+                or ViesFault.MsMaxConcurrentReqTime => (
                 ViesErrorCodes.ServiceError.RateLimitExceeded.Code,
                 ViesErrorCodes.ServiceError.RateLimitExceeded.Message,
-                viesFault);
-        }
-
-        return (viesFault, ViesErrorCodes.ServiceError.ServiceUnavailable.Message, viesFault);
+                viesFault),
+            _ => (
+                ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
+                ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
+                viesFault),
+        };
     }
-
-    private static bool Equals(string value, string other) =>
-        string.Equals(value, other, StringComparison.OrdinalIgnoreCase);
 }
