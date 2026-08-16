@@ -13,6 +13,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Padi.Vies.Errors;
@@ -20,7 +21,7 @@ using Padi.Vies.Internal.Extensions;
 
 namespace Padi.Vies.Parsers;
 
-public sealed class XmlResponseParser : IResponseParserAsync
+internal sealed class XmlResponseParser : IResponseParserAsync
 {
     private static readonly XmlReaderSettings XmlReaderSettings = new()
     {
@@ -37,59 +38,81 @@ public sealed class XmlResponseParser : IResponseParserAsync
     {
         using (var xmlReader = XmlReader.Create(response, XmlReaderSettings))
         {
-            while (xmlReader.Read())
+            try
             {
-                if (xmlReader.NodeType != XmlNodeType.Element)
+                while (xmlReader.Read())
                 {
-                    continue;
-                }
+                    if (xmlReader.NodeType != XmlNodeType.Element)
+                    {
+                        continue;
+                    }
 
-                ReadOnlySpan<char> localName = xmlReader.LocalName.AsSpan();
-                if (ViesKeys.Fault.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
-                {
-                    var (errorCode, errorMessage) = ReadError(xmlReader);
-                    throw new ViesServiceException(errorCode, errorMessage);
-                }
+                    ReadOnlySpan<char> localName = xmlReader.LocalName.AsSpan();
+                    if (ViesKeys.Fault.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var (faultCode, faultMessage) = ReadError(xmlReader);
+                        throw CreateFaultException(faultCode, faultMessage);
+                    }
 
-                if (!ViesKeys.CheckVatResponse.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                    if (!ViesKeys.CheckVatResponse.AsSpan().Equals(localName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
 
-                return ReadResponse(xmlReader);
+                    return ReadResponse(xmlReader);
+                }
+            }
+            catch (Exception ex) when (ex is XmlException or InvalidCastException or FormatException or OverflowException)
+            {
+                throw new ViesDeserializationException("The response could not be parsed.", ex);
             }
         }
 
         throw new ViesDeserializationException(message: "The response could not be parsed.");
     }
 
-    public async Task<ViesCheckVatResponse> ParseAsync(Stream response)
+    public async Task<ViesCheckVatResponse> ParseAsync(Stream response, CancellationToken cancellationToken)
     {
         using (var xmlReader = XmlReader.Create(response, XmlReaderSettings))
         {
-            while (await xmlReader.ReadAsync().ConfigureAwait(false))
+            try
             {
-                if (xmlReader.NodeType != XmlNodeType.Element)
+                while (await xmlReader.ReadAsync().ConfigureAwait(false))
                 {
-                    continue;
-                }
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                if (ViesKeys.Fault.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
-                {
-                    var (errorCode, errorMessage) = await ReadErrorAsync(xmlReader).ConfigureAwait(false);
-                    throw new ViesServiceException(errorCode, errorMessage);
-                }
+                    if (xmlReader.NodeType != XmlNodeType.Element)
+                    {
+                        continue;
+                    }
 
-                if (!ViesKeys.CheckVatResponse.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                    if (ViesKeys.Fault.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var (faultCode, faultMessage) = await ReadErrorAsync(xmlReader).ConfigureAwait(false);
+                        throw CreateFaultException(faultCode, faultMessage);
+                    }
 
-                return await ReadResponseAsync(xmlReader).ConfigureAwait(false);
+                    if (!ViesKeys.CheckVatResponse.Equals(xmlReader.LocalName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    return await ReadResponseAsync(xmlReader).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex) when (ex is XmlException or InvalidCastException or FormatException or OverflowException)
+            {
+                throw new ViesDeserializationException("The response could not be parsed.", ex);
             }
         }
 
-        throw new ViesDeserializationException(message: $"Could not deserialize response: {response}");
+        throw new ViesDeserializationException(message: "The response could not be parsed.");
+    }
+
+    private static ViesServiceException CreateFaultException(string faultCode, string faultMessage)
+    {
+        var (code, _, _) = ViesErrorCodeMapper.Map(faultMessage);
+        return new ViesServiceException(code, FormattableString.Invariant($"VIES service returned fault {faultCode}: {faultMessage}"));
     }
 
     private static ViesCheckVatResponse ReadResponse(XmlReader xmlReader)

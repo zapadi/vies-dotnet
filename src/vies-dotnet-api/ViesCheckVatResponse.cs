@@ -29,4 +29,11 @@ public record struct ViesCheckVatResponse(
     public string Name { get; internal set;} = Name;
     public string Address { get; internal set;} = Address;
     public bool IsValid { get; internal set;} = IsValid;
+
+    public string RequestIdentifier { get; internal set; }
+    public string TraderName { get; internal set; }
+    public string TraderStreet { get; internal set; }
+    public string TraderPostalCode { get; internal set; }
+    public string TraderCity { get; internal set; }
+    public string TraderCompanyType { get; internal set; }
 }

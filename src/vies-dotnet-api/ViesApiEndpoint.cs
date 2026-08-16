@@ -11,13 +11,16 @@
    limitations under the License.
 */
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+namespace Padi.Vies;
 
-namespace Padi.Vies.Parsers;
-
-internal interface IResponseParserAsync: IResponseParser
+/// <summary>
+/// Selects which EC VIES endpoint ViesManager calls.
+/// </summary>
+public enum ViesApiEndpoint
 {
-    Task<ViesCheckVatResponse> ParseAsync(Stream response, CancellationToken cancellationToken);
+    /// <summary>The JSON REST endpoint (default).</summary>
+    Rest = 0,
+
+    /// <summary>The legacy SOAP/XML endpoint.</summary>
+    Soap = 1,
 }

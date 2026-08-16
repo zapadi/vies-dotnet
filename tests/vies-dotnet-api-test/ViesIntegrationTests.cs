@@ -52,11 +52,17 @@ public sealed class ViesIntegrationTests(ViesManagerFixture fixture)
     [Theory]
     [InlineData("123")]
     [InlineData("CHE-123.456.788 ")]
-    [InlineData("GB434031494")]
     [InlineData("K99999999L")] //Albania
     public async Task Should_Throw_ViesServiceException(string vat)
     {
         await Assert.ThrowsAsync<ViesServiceException>(() => CheckIfActiveAsync(vat));
+    }
+
+    [Theory]
+    [InlineData("GB434031494")]
+    public async Task Should_Throw_ViesUnsupportedRegionException(string vat)
+    {
+        await Assert.ThrowsAsync<ViesUnsupportedRegionException>(() => CheckIfActiveAsync(vat));
     }
 
     private async Task<ViesCheckVatResponse> CheckIfActiveAsync(string vat, bool mockValue = false){

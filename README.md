@@ -53,6 +53,16 @@ or
 var result = await viesManager.IsActiveAsync("RO","123456789");
 ```
 
+### Selecting the VIES endpoint
+
+Starting with v4, `ViesManager` calls the VIES REST (JSON) API by default. The legacy SOAP endpoint remains available by passing `ViesApiEndpoint.Soap`:
+
+```
+var viesManager = new ViesManager(ViesApiEndpoint.Soap);
+```
+
+The existing examples above work unchanged and use the REST endpoint by default.
+
 ### Clarification
 
 __Since January 1, 2021 the UK is no longer a member of the European Union and as a result, the VIES service provided by the European Commission no longer validates VAT ID's for the UK.__

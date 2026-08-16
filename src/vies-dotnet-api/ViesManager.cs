@@ -19,7 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Padi.Vies.Errors;
 using Padi.Vies.Internal;
-using Padi.Vies.Parsers;
 using Padi.Vies.Validators;
 
 namespace Padi.Vies;
@@ -77,27 +76,45 @@ public sealed class ViesManager : IDisposable
 
     private readonly bool _disposeClient;
     private readonly HttpClient _httpClient;
-    private readonly ViesService _viesService;
+    private readonly IViesService _viesService;
 
     /// <summary>
-    ///
+    /// Initializes a new instance that calls the VIES REST (JSON) endpoint.
     /// </summary>
-    public ViesManager() : this(HttpClientProvider.GetHttpClient(), disposeClient: true)
+    public ViesManager() : this(ViesApiEndpoint.Rest)
     {
-        _httpClient.DefaultRequestHeaders.Accept.Add(ViesConstants.MediaTypeHeaderTextXml);
     }
 
     /// <summary>
-    ///
+    /// Initializes a new instance that calls the specified VIES endpoint.
+    /// </summary>
+    /// <param name="apiEndpoint">The VIES endpoint to call.</param>
+    public ViesManager(ViesApiEndpoint apiEndpoint) : this(HttpClientProvider.GetHttpClient(), disposeClient: true, apiEndpoint)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance using the supplied <see cref="HttpClient"/> and the default REST endpoint.
     /// </summary>
     /// <param name="httpClient"></param>
     /// <param name="disposeClient"></param>
-    #pragma warning disable
-    public ViesManager(HttpClient httpClient, bool disposeClient = false)
+    public ViesManager(HttpClient httpClient, bool disposeClient = false) : this(httpClient, disposeClient, ViesApiEndpoint.Rest)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance using the supplied <see cref="HttpClient"/> and the specified VIES endpoint.
+    /// </summary>
+    /// <param name="httpClient"></param>
+    /// <param name="disposeClient"></param>
+    /// <param name="apiEndpoint">The VIES endpoint to call.</param>
+    public ViesManager(HttpClient httpClient, bool disposeClient, ViesApiEndpoint apiEndpoint)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _disposeClient = disposeClient;
-        _viesService = new ViesService(httpClient, new XmlResponseParser());
+        _viesService = apiEndpoint == ViesApiEndpoint.Soap
+            ? new ViesService(httpClient)
+            : (IViesService)new ViesRestService(httpClient);
     }
 
     /// <summary>
@@ -142,9 +159,21 @@ public sealed class ViesManager : IDisposable
     /// <returns>ViesCheckVatResponse</returns>
     /// <exception cref="ViesValidationException"></exception>
     /// <exception cref="ViesServiceException"></exception>
+    /// <exception cref="ViesUnsupportedRegionException">Thrown when the country is no longer covered by VIES (for example GB after Brexit).</exception>
+    [SuppressMessage("Design", "CA1062:Validate arguments of public methods")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public async Task<ViesCheckVatResponse> IsActiveAsync(string countryCode, string vatNumber, CancellationToken cancellationToken = default)
     {
+        if (ExcludedCountries.TryGetValue(countryCode, out ExcludedCountryInfo excludedCountryInfo))
+        {
+            throw new ViesUnsupportedRegionException(
+                errorCode: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Code,
+                message: $"{ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Message} (Country: {countryCode}).",
+                param: ViesErrorCodes.UnsupportedRegionError.RegionUnsupported.Param,
+                userMessage: excludedCountryInfo.ToString()
+            );
+        }
+
         return await _viesService.SendRequestAsync(countryCode, vatNumber, cancellationToken).ConfigureAwait(false);
     }
 
@@ -173,7 +202,6 @@ public sealed class ViesManager : IDisposable
             ExceptionDispatcher.ThrowInvalidVatNumber(nameof(vat),"VAT number cannot be null or empty.");
         }
 
-        // ReSharper disable once PossibleNullReferenceException
         if (vat.Length < 3)
         {
             ExceptionDispatcher.ThrowInvalidVatNumber(nameof(vat), $"VAT number '{vat}' is too short.");

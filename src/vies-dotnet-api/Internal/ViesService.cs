@@ -14,8 +14,8 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ using Padi.Vies.Parsers;
 
 namespace Padi.Vies.Internal;
 
-internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync parseResponse) : IViesService
+internal sealed class ViesService(HttpClient httpClient) : ViesServiceBase(httpClient, new XmlResponseParser())
 {
     private const string SOAP_VALIDATE_VAT_MESSAGE_FORMAT =
         """
@@ -42,60 +42,79 @@ internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync pa
     private static readonly CompositeFormat validateVatMessageCompositeFormat = CompositeFormat.Parse(SOAP_VALIDATE_VAT_MESSAGE_FORMAT);
     #endif
 
+    private const int MaxFaultBodyReadBytes = 16 * 1024;
+
     private static readonly Uri viesUri = new(ViesConstants.ViesUri);
 
-    public async Task<ViesCheckVatResponse> SendRequestAsync(string countryCode, string vatNumber, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using (HttpRequestMessage requestMessage = CreateHttpRequestMessage(viesUri, countryCode, vatNumber))
-            {
-                using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-                                                           .ConfigureAwait(false))
-                {
-                    if (httpResponseMessage.StatusCode != HttpStatusCode.OK)
-                    {
-                        await HandleExceptionAsync(httpResponseMessage).ConfigureAwait(false);
-                    }
-
-                    return await GetViesCheckVatResponseAsync(httpResponseMessage, cancellationToken).ConfigureAwait(false);
-                }
-            }
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            throw new ViesServiceException(
-                errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
-                message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
-                userMessage: httpRequestException.GetBaseException().Message,
-                innerException: httpRequestException
-            );
-        }
-    }
-
-    private async Task<ViesCheckVatResponse> GetViesCheckVatResponseAsync(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
-    {
-        using(Stream stream =
-#if (NETSTANDARD2_0 || NETSTANDARD2_1)
-         await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
-#else
-        await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
-#endif
-        {
-            return await parseResponse.ParseAsync(stream).ConfigureAwait(false);
-        }
-    }
-
-    private static HttpRequestMessage CreateHttpRequestMessage(Uri uri, string countryCode, string vatNumber)
+    protected override HttpRequestMessage CreateHttpRequestMessage(string countryCode, string vatNumber)
     {
         var requestMessage = new HttpRequestMessage()
         {
             Method = HttpMethod.Post,
-            RequestUri = uri,
+            RequestUri = viesUri,
             Headers = {{"SOAPAction", string.Empty}},
             Content = CreateContent(countryCode, vatNumber),
         };
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(ViesConstants.MediaTypeTextXml));
         return requestMessage;
+    }
+
+    protected override async Task<ViesCheckVatResponse> HandleNonSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        // VIES SOAP faults can arrive with HTTP 500 per SOAP 1.1, so buffer a bounded slice of the body and try to parse it.
+        var (buffer, length) = await ReadBoundedBodyAsync(response, cancellationToken).ConfigureAwait(false);
+        var bufferedText = Encoding.UTF8.GetString(buffer, 0, length).Trim();
+
+        if (bufferedText.StartsWith("<", StringComparison.Ordinal))
+        {
+            try
+            {
+                using (var stream = new MemoryStream(buffer, 0, length, writable: false))
+                {
+                    // A soap:Fault surfaces as a ViesServiceException from the parser (propagates);
+                    // a parseable success response is returned as-is.
+                    return await ResponseParser.ParseAsync(stream, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (ViesDeserializationException)
+            {
+                throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
+            }
+        }
+
+        throw ViesHttpErrorHandler.CreateException(response.StatusCode, response.ReasonPhrase, bufferedText);
+    }
+
+    private static async Task<(byte[] Buffer, int Length)> ReadBoundedBodyAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        using (Stream stream =
+#if (NETSTANDARD2_0 || NETSTANDARD2_1)
+            await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+#else
+            await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+#endif
+        {
+            var buffer = new byte[MaxFaultBodyReadBytes];
+            var total = 0;
+
+            while (total < MaxFaultBodyReadBytes)
+            {
+                var read = await stream.ReadAsync(
+#if NETSTANDARD2_0
+                    buffer, total, MaxFaultBodyReadBytes - total, cancellationToken).ConfigureAwait(false);
+#else
+                    buffer.AsMemory(total, MaxFaultBodyReadBytes - total), cancellationToken).ConfigureAwait(false);
+#endif
+                if (read == 0)
+                {
+                    break;
+                }
+
+                total += read;
+            }
+
+            return (buffer, total);
+        }
     }
 
     private static StringContent CreateContent(string countryCode, string vatNumber)
@@ -107,36 +126,6 @@ internal sealed class ViesService(HttpClient httpClient, IResponseParserAsync pa
         string.Format(CultureInfo.InvariantCulture, SOAP_VALIDATE_VAT_MESSAGE_FORMAT, countryCode, vatNumber);
         #endif
 
-        return new StringContent(content, Encoding.UTF8, ViesConstants.MediaTypeTextXml)
-        {
-            Headers = { ContentType = ViesConstants.MediaTypeHeaderTextXml },
-        };
-    }
-
-    /// <summary>
-    /// 200 = Valid request with an Invalid VAT Number
-    /// 201 = Error : INVALID_INPUT
-    /// 202 = Error : INVALID_REQUESTER_INFO
-    /// 300 = Error : SERVICE_UNAVAILABLE
-    /// 301 = Error : MS_UNAVAILABLE
-    /// 302 = Error : TIMEOUT
-    /// 400 = Error : VAT_BLOCKED
-    /// 401 = Error : IP_BLOCKED
-    /// 500 = Error : GLOBAL_MAX_CONCURRENT_REQ
-    /// 501 = Error : GLOBAL_MAX_CONCURRENT_REQ_TIME
-    /// 600 = Error : MS_MAX_CONCURRENT_REQ
-    /// 601 = Error : MS_MAX_CONCURRENT_REQ_TIME
-    /// For all the other cases, The web service will respond with a "SERVICE_UNAVAILABLE" error.
-    /// </summary>
-    private static async Task HandleExceptionAsync(HttpResponseMessage response)
-    {
-        var errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-        throw new ViesServiceException(
-            errorCode: ViesErrorCodes.ServiceError.ServiceUnavailable.Code,
-            message: ViesErrorCodes.ServiceError.ServiceUnavailable.Message,
-            userMessage: ViesErrorCodes.ServiceError.ServiceUnavailable.UserMessage
-        );
-       // throw new ViesServiceException($"VIES service error: {response.StatusCode:D} - {response.ReasonPhrase}{(!string.IsNullOrWhiteSpace(errorBody) ? $": {errorBody}" : string.Empty)}");
+        return new StringContent(content, Encoding.UTF8, ViesConstants.MediaTypeTextXml);
     }
 }
