@@ -19,6 +19,7 @@
     <File Path="LICENSE" />
     <File Path="NuGet.Config" />
     <File Path="README.md" />
+    <File Path="xunit.runner.json" />
   </Folder>
   <Project Path="src/vies-dotnet-api/vies-dotnet-api.csproj" />
   <Project Path="tests/vies-dotnet-api-test/vies-dotnet-api-test.csproj" />
