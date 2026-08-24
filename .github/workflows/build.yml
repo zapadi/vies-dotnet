@@ -67,13 +67,15 @@ jobs:
       run: |
         echo 'Reason: ${{ github.event.inputs.reason }}'
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7.0.1
       with:
         lfs: true
         fetch-depth: 0
 
     - name: Setup .NET (global.json)
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
+      with:
+        global-json-file: './global.json'
 
     - uses: actions/cache@v4
       with:
@@ -91,13 +93,14 @@ jobs:
 
     - name: Test
       run: |
-        dotnet test \
+        dotnet test vies.slnx \
         --configuration $BUILD_CONFIG \
         --no-restore \
         --no-build \
         --verbosity normal \
-        --filter "Category!=Integration" \
-        --logger "trx;LogFileName=test-results.trx"
+        --filter-not-trait "Category!=Integration" \
+        --report-trx \
+        --results-directory ./testreport
       timeout-minutes: 60
 
 #    - name: Test Report
